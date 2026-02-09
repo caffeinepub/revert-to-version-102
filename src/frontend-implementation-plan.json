@@ -1,0 +1,27 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Update LoginPage hero description copy with preserved paragraph breaks",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Replace the LoginPage hero description paragraph text with the provided 3-paragraph copy and ensure line breaks render correctly.",
+      "acceptanceCriteria": [
+        "In the LoginPage hero section, the third paragraph (currently bound to t.homepage.description) displays exactly the provided text.",
+        "The displayed content preserves the intended paragraph breaks (three paragraphs) rather than collapsing into a single block of text."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/lib/translations.ts",
+          "operation": "modify",
+          "description": "Update the translation value used by t.homepage.description to exactly match the provided copy, including the two blank lines between paragraphs (use explicit \\n\\n in the string). Apply this change only to the homepage.description translation key(s) used by LoginPage."
+        },
+        {
+          "path": "frontend/src/pages/LoginPage.tsx",
+          "operation": "modify",
+          "description": "Adjust only the hero description paragraph element (the <p> that renders {t.homepage.description}, matching the provided XPath) so newline characters are rendered as paragraph breaks (e.g., using a Tailwind whitespace-preserving class such as whitespace-pre-line on that same <p>). Do not modify other copy or any files in frontend/src/components/ui."
+        }
+      ]
+    }
+  ]
+}

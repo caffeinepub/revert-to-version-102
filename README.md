@@ -1,2 +1,3 @@
-# revert-to-version-102
-Exported from Caffeine project: Phil3
+## 
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`
