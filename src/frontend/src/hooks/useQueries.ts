@@ -596,49 +596,19 @@ export function useGetCouncilDashboard() {
       try {
         return await actor.getCouncilDashboard();
       } catch (error) {
-        console.error('Error fetching council dashboard:', error);
-        throw error;
+        return null;
       }
     },
     enabled: !!actor && !isFetching,
-    retry: false,
   });
 }
 
-// Council Multi-Sig Actions
+// Council Multi-Signature Queries
 export function useGetPendingCouncilActions() {
   const { actor, isFetching } = useActor();
 
   return useQuery<CouncilMultiSigAction[]>({
     queryKey: ['pendingCouncilActions'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      const allActions = await actor.getPendingCouncilActions();
-      return allActions.filter(action => !action.isExecuted);
-    },
-    enabled: !!actor && !isFetching,
-  });
-}
-
-export function useGetApprovedCouncilActions() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<CouncilMultiSigAction[]>({
-    queryKey: ['approvedCouncilActions'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      const allActions = await actor.getPendingCouncilActions();
-      return allActions.filter(action => action.isExecuted);
-    },
-    enabled: !!actor && !isFetching,
-  });
-}
-
-export function useGetAllCouncilActions() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<CouncilMultiSigAction[]>({
-    queryKey: ['allCouncilActions'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
       return actor.getPendingCouncilActions();
@@ -651,14 +621,13 @@ export function useProposeCouncilAction() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (params: { actionId: string; details: string }) => {
+  return useMutation<void, Error, { actionId: string; details: string }>({
+    mutationFn: async ({ actionId, details }) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.proposeCouncilAction(params.actionId, params.details);
+      await actor.proposeCouncilAction(actionId, details);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pendingCouncilActions'] });
-      queryClient.invalidateQueries({ queryKey: ['allCouncilActions'] });
     },
   });
 }
@@ -667,53 +636,18 @@ export function useApproveCouncilAction() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, Error, string>({
     mutationFn: async (actionId: string) => {
       if (!actor) throw new Error('Actor not available');
       await actor.approveCouncilAction(actionId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pendingCouncilActions'] });
-      queryClient.invalidateQueries({ queryKey: ['approvedCouncilActions'] });
-      queryClient.invalidateQueries({ queryKey: ['allCouncilActions'] });
     },
   });
 }
 
-// Approval Queries (legacy - kept for backward compatibility)
-export function useIsCallerApproved() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<boolean>({
-    queryKey: ['isApproved'],
-    queryFn: async () => {
-      if (!actor) return false;
-      try {
-        return await actor.isCallerApproved();
-      } catch (error) {
-        return false;
-      }
-    },
-    enabled: !!actor && !isFetching,
-  });
-}
-
-export function useRequestApproval() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.requestApproval();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['isApproved'] });
-    },
-  });
-}
-
-// Token Queries
+// Token Balance Query
 export function useGetTokenBalance() {
   const { actor, isFetching } = useActor();
   const { identity } = useInternetIdentity();
@@ -729,462 +663,7 @@ export function useGetTokenBalance() {
   });
 }
 
-// Admin Queries
-export function useIsCallerAdmin() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<boolean>({
-    queryKey: ['isAdmin'],
-    queryFn: async () => {
-      if (!actor) return false;
-      try {
-        return await actor.isCallerAdmin();
-      } catch (error) {
-        return false;
-      }
-    },
-    enabled: !!actor && !isFetching,
-  });
-}
-
-export function usePromoteToAdmin() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (user: Principal) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.promoteToAdmin(user);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allMembers'] });
-    },
-  });
-}
-
-export function useDeleteUser() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (user: Principal) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.deleteUser(user);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allMembers'] });
-      queryClient.invalidateQueries({ queryKey: ['pendingJoinRequests'] });
-      queryClient.invalidateQueries({ queryKey: ['allJoinRequests'] });
-    },
-  });
-}
-
-// Stub queries for features not yet implemented
-export function useGetAllElections() {
-  return useQuery<Election[]>({
-    queryKey: ['allElections'],
-    queryFn: async () => [],
-    enabled: false,
-  });
-}
-
-export function useGetElection(electionId: string) {
-  return useQuery<Election | null>({
-    queryKey: ['election', electionId],
-    queryFn: async () => null,
-    enabled: false,
-  });
-}
-
-export function useCreateElection() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (electionId: string) => {
-      throw new Error('Elections not yet implemented');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allElections'] });
-    },
-  });
-}
-
-export function useRegisterCandidate() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (params: { electionId: string; name: string }) => {
-      throw new Error('Elections not yet implemented');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allElections'] });
-    },
-  });
-}
-
-// Consensus Meeting Queries
-export function useGetAllConsensusMeetings() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<ConsensusMeetingView[]>({
-    queryKey: ['allConsensusMeetings'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getAllConsensusMeetings();
-    },
-    enabled: !!actor && !isFetching,
-  });
-}
-
-export function useGetConsensusMeeting(meetingId: string) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<ConsensusMeetingView | null>({
-    queryKey: ['consensusMeeting', meetingId],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getConsensusMeeting(meetingId);
-    },
-    enabled: !!actor && !isFetching && !!meetingId,
-  });
-}
-
-export function useCreateConsensusMeeting() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (meetingId: string) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.createConsensusMeeting(meetingId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allConsensusMeetings'] });
-    },
-  });
-}
-
-export function useJoinConsensusMeeting() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (meetingId: string) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.signUpForConsensusMeeting(meetingId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allConsensusMeetings'] });
-      queryClient.invalidateQueries({ queryKey: ['consensusMeeting'] });
-      queryClient.invalidateQueries({ queryKey: ['callerCategory'] });
-    },
-  });
-}
-
-export function useAdvancePhase() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (meetingId: string) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.advanceConsensusMeetingPhase(meetingId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allConsensusMeetings'] });
-      queryClient.invalidateQueries({ queryKey: ['consensusMeeting'] });
-    },
-  });
-}
-
-export function useForceAdvancePhase() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (meetingId: string) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.forceAdvanceConsensusMeetingPhase(meetingId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allConsensusMeetings'] });
-      queryClient.invalidateQueries({ queryKey: ['consensusMeeting'] });
-    },
-  });
-}
-
-export function useSubmitContribution() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (params: { meetingId: string; text: string; files: ExternalBlob[] }) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.submitContribution(params.meetingId, params.text, params.files);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allConsensusMeetings'] });
-      queryClient.invalidateQueries({ queryKey: ['consensusMeeting'] });
-      queryClient.invalidateQueries({ queryKey: ['callerCategory'] });
-    },
-  });
-}
-
-export function useSubmitRanking() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (params: { meetingId: string; rankings: Ranking[] }) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.submitRanking(params.meetingId, params.rankings);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allConsensusMeetings'] });
-      queryClient.invalidateQueries({ queryKey: ['consensusMeeting'] });
-      queryClient.invalidateQueries({ queryKey: ['tokenBalance'] });
-      queryClient.invalidateQueries({ queryKey: ['callerCategory'] });
-      queryClient.invalidateQueries({ queryKey: ['weeklyREPLog'] });
-      queryClient.invalidateQueries({ queryKey: ['12WeekREPHistory'] });
-    },
-  });
-}
-
-// Announcements Queries
-export function useGetAllAnnouncements() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<Announcement[]>({
-    queryKey: ['allAnnouncements'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getAllAnnouncements();
-    },
-    enabled: !!actor && !isFetching,
-  });
-}
-
-export function useGetAnnouncement(id: string) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<Announcement | null>({
-    queryKey: ['announcement', id],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getAnnouncement(id);
-    },
-    enabled: !!actor && !isFetching && !!id,
-  });
-}
-
-export function useCreateAnnouncement() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation<string, Error, { title: string; content: string }>({
-    mutationFn: async ({ title, content }) => {
-      if (!actor) throw new Error('Actor not available');
-      return await actor.createAnnouncement(title, content);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allAnnouncements'] });
-      queryClient.invalidateQueries({ queryKey: ['unreadNotifications'] });
-      queryClient.invalidateQueries({ queryKey: ['allNotifications'] });
-    },
-  });
-}
-
-export function useEditAnnouncement() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation<void, Error, { id: string; newTitle: string; newContent: string }>({
-    mutationFn: async ({ id, newTitle, newContent }) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.editAnnouncement(id, newTitle, newContent);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allAnnouncements'] });
-      queryClient.invalidateQueries({ queryKey: ['announcement'] });
-    },
-  });
-}
-
-// Blog Queries
-export function useGetAllBlogPosts() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<BlogPost[]>({
-    queryKey: ['allBlogPosts'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getAllBlogPosts();
-    },
-    enabled: !!actor && !isFetching,
-  });
-}
-
-export function useGetBlogPost(id: string) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<BlogPost | null>({
-    queryKey: ['blogPost', id],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getBlogPost(id);
-    },
-    enabled: !!actor && !isFetching && !!id,
-  });
-}
-
-export function useCreateBlogPost() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation<string, Error, { title: string; content: string }>({
-    mutationFn: async ({ title, content }) => {
-      if (!actor) throw new Error('Actor not available');
-      return await actor.createBlogPost(title, content);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allBlogPosts'] });
-      queryClient.invalidateQueries({ queryKey: ['unreadNotifications'] });
-      queryClient.invalidateQueries({ queryKey: ['allNotifications'] });
-    },
-  });
-}
-
-export function useEditBlogPost() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation<void, Error, { id: string; newTitle: string; newContent: string }>({
-    mutationFn: async ({ id, newTitle, newContent }) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.editBlogPost(id, newTitle, newContent);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allBlogPosts'] });
-      queryClient.invalidateQueries({ queryKey: ['blogPost'] });
-    },
-  });
-}
-
-export function useDeleteBlogPost() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation<void, Error, string>({
-    mutationFn: async (id: string) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.deleteBlogPost(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allBlogPosts'] });
-    },
-  });
-}
-
-export function useGetCommentsForPost(postId: string) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<Comment[]>({
-    queryKey: ['blogComments', postId],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getBlogCommentsByPost(postId);
-    },
-    enabled: !!actor && !isFetching && !!postId,
-  });
-}
-
-export function useAddBlogComment() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation<string, Error, { postId: string; content: string }>({
-    mutationFn: async ({ postId, content }) => {
-      if (!actor) throw new Error('Actor not available');
-      return await actor.createBlogComment(postId, content);
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['blogComments', variables.postId] });
-    },
-  });
-}
-
-export function useGetBlogReactionCount(postId: string) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<bigint>({
-    queryKey: ['blogReactionCount', postId],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getBlogReactionCount(postId);
-    },
-    enabled: !!actor && !isFetching && !!postId,
-  });
-}
-
-export function useHasUserReactedToPost(postId: string) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<boolean>({
-    queryKey: ['hasUserReacted', postId],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.hasUserReactedToBlogPost(postId);
-    },
-    enabled: !!actor && !isFetching && !!postId,
-  });
-}
-
-export function useToggleBlogReaction() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation<void, Error, string>({
-    mutationFn: async (postId: string) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.addBlogReaction(postId);
-    },
-    onSuccess: (_, postId) => {
-      queryClient.invalidateQueries({ queryKey: ['blogReactionCount', postId] });
-      queryClient.invalidateQueries({ queryKey: ['hasUserReacted', postId] });
-    },
-  });
-}
-
-export function useGetTotalTipsForPost(postId: string) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<bigint>({
-    queryKey: ['totalTips', postId],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getTotalBlogTipsForPost(postId);
-    },
-    enabled: !!actor && !isFetching && !!postId,
-  });
-}
-
-export function useTipBlogPostAuthor() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation<string, Error, { postId: string; amount: bigint }>({
-    mutationFn: async ({ postId, amount }) => {
-      if (!actor) throw new Error('Actor not available');
-      return await actor.tipBlogPost(postId, amount);
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['totalTips', variables.postId] });
-      queryClient.invalidateQueries({ queryKey: ['tokenBalance'] });
-    },
-  });
-}
-
-// PHIL Donation
+// PHIL Donation Mutation
 export function useDonatePHIL() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
@@ -1201,7 +680,7 @@ export function useDonatePHIL() {
   });
 }
 
-// Notifications Queries
+// Notification Queries
 export function useGetUnreadNotifications() {
   const { actor, isFetching } = useActor();
 
@@ -1212,7 +691,7 @@ export function useGetUnreadNotifications() {
       return actor.getUnreadNotifications();
     },
     enabled: !!actor && !isFetching,
-    refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
+    refetchInterval: 30000, // Refetch every 30 seconds
   });
 }
 
@@ -1245,7 +724,7 @@ export function useMarkNotificationAsRead() {
   });
 }
 
-// Proposal System Queries
+// Proposal Queries
 export function useGetAllProposals() {
   const { actor, isFetching } = useActor();
 
@@ -1283,8 +762,6 @@ export function useCreateProposal() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allProposals'] });
-      queryClient.invalidateQueries({ queryKey: ['unreadNotifications'] });
-      queryClient.invalidateQueries({ queryKey: ['allNotifications'] });
     },
   });
 }
@@ -1300,9 +777,6 @@ export function useApproveProposal() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allProposals'] });
-      queryClient.invalidateQueries({ queryKey: ['proposal'] });
-      queryClient.invalidateQueries({ queryKey: ['unreadNotifications'] });
-      queryClient.invalidateQueries({ queryKey: ['allNotifications'] });
     },
   });
 }
@@ -1318,9 +792,419 @@ export function useRejectProposal() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allProposals'] });
-      queryClient.invalidateQueries({ queryKey: ['proposal'] });
-      queryClient.invalidateQueries({ queryKey: ['unreadNotifications'] });
-      queryClient.invalidateQueries({ queryKey: ['allNotifications'] });
+    },
+  });
+}
+
+// ============================================
+// ANNOUNCEMENT QUERIES (COMMENTED OUT - HIDDEN FROM UI)
+// ============================================
+// export function useGetAllAnnouncements() {
+//   const { actor, isFetching } = useActor();
+//
+//   return useQuery<Announcement[]>({
+//     queryKey: ['announcements'],
+//     queryFn: async () => {
+//       if (!actor) throw new Error('Actor not available');
+//       return actor.getAllAnnouncements();
+//     },
+//     enabled: !!actor && !isFetching,
+//   });
+// }
+
+// export function useGetAnnouncement(id: string) {
+//   const { actor, isFetching } = useActor();
+//
+//   return useQuery<Announcement | null>({
+//     queryKey: ['announcement', id],
+//     queryFn: async () => {
+//       if (!actor) throw new Error('Actor not available');
+//       return actor.getAnnouncement(id);
+//     },
+//     enabled: !!actor && !isFetching && !!id,
+//   });
+// }
+
+// export function useCreateAnnouncement() {
+//   const { actor } = useActor();
+//   const queryClient = useQueryClient();
+//
+//   return useMutation<string, Error, { title: string; content: string }>({
+//     mutationFn: async ({ title, content }) => {
+//       if (!actor) throw new Error('Actor not available');
+//       return await actor.createAnnouncement(title, content);
+//     },
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ['announcements'] });
+//     },
+//   });
+// }
+
+// export function useEditAnnouncement() {
+//   const { actor } = useActor();
+//   const queryClient = useQueryClient();
+//
+//   return useMutation<void, Error, { id: string; newTitle: string; newContent: string }>({
+//     mutationFn: async ({ id, newTitle, newContent }) => {
+//       if (!actor) throw new Error('Actor not available');
+//       await actor.editAnnouncement(id, newTitle, newContent);
+//     },
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ['announcements'] });
+//     },
+//   });
+// }
+
+// Blog Queries
+export function useGetAllBlogPosts() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<BlogPost[]>({
+    queryKey: ['blogPosts'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getAllBlogPosts();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useGetBlogPost(id: string) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<BlogPost | null>({
+    queryKey: ['blogPost', id],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getBlogPost(id);
+    },
+    enabled: !!actor && !isFetching && !!id,
+  });
+}
+
+export function useCreateBlogPost() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<string, Error, { title: string; content: string }>({
+    mutationFn: async ({ title, content }) => {
+      if (!actor) throw new Error('Actor not available');
+      return await actor.createBlogPost(title, content);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogPosts'] });
+    },
+  });
+}
+
+export function useEditBlogPost() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, { id: string; newTitle: string; newContent: string }>({
+    mutationFn: async ({ id, newTitle, newContent }) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.editBlogPost(id, newTitle, newContent);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogPosts'] });
+    },
+  });
+}
+
+export function useDeleteBlogPost() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: async (id: string) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.deleteBlogPost(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogPosts'] });
+    },
+  });
+}
+
+export function useGetBlogComments(postId: string) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<Comment[]>({
+    queryKey: ['blogComments', postId],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getBlogCommentsByPost(postId);
+    },
+    enabled: !!actor && !isFetching && !!postId,
+  });
+}
+
+export function useCreateBlogComment() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<string, Error, { postId: string; content: string }>({
+    mutationFn: async ({ postId, content }) => {
+      if (!actor) throw new Error('Actor not available');
+      return await actor.createBlogComment(postId, content);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['blogComments', variables.postId] });
+    },
+  });
+}
+
+export function useAddBlogReaction() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: async (postId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.addBlogReaction(postId);
+    },
+    onSuccess: (_, postId) => {
+      queryClient.invalidateQueries({ queryKey: ['blogReactionCount', postId] });
+      queryClient.invalidateQueries({ queryKey: ['hasUserReacted', postId] });
+    },
+  });
+}
+
+export function useGetBlogReactionCount(postId: string) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<bigint>({
+    queryKey: ['blogReactionCount', postId],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getBlogReactionCount(postId);
+    },
+    enabled: !!actor && !isFetching && !!postId,
+  });
+}
+
+export function useHasUserReactedToBlogPost(postId: string) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<boolean>({
+    queryKey: ['hasUserReacted', postId],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.hasUserReactedToBlogPost(postId);
+    },
+    enabled: !!actor && !isFetching && !!postId,
+  });
+}
+
+export function useTipBlogPost() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<string, Error, { postId: string; amount: bigint }>({
+    mutationFn: async ({ postId, amount }) => {
+      if (!actor) throw new Error('Actor not available');
+      return await actor.tipBlogPost(postId, amount);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['blogTips', variables.postId] });
+      queryClient.invalidateQueries({ queryKey: ['tokenBalance'] });
+    },
+  });
+}
+
+export function useGetBlogTips(postId: string) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<bigint>({
+    queryKey: ['blogTips', postId],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getTotalBlogTipsForPost(postId);
+    },
+    enabled: !!actor && !isFetching && !!postId,
+  });
+}
+
+// Consensus Meeting Queries
+export function useGetAllConsensusMeetings() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<ConsensusMeetingView[]>({
+    queryKey: ['consensusMeetings'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getAllConsensusMeetings();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useGetConsensusMeeting(meetingId: string) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<ConsensusMeetingView | null>({
+    queryKey: ['consensusMeeting', meetingId],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getConsensusMeeting(meetingId);
+    },
+    enabled: !!actor && !isFetching && !!meetingId,
+  });
+}
+
+export function useCreateConsensusMeeting() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: async (id: string) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.createConsensusMeeting(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consensusMeetings'] });
+    },
+  });
+}
+
+export function useSignUpForConsensusMeeting() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: async (meetingId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.signUpForConsensusMeeting(meetingId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consensusMeetings'] });
+      queryClient.invalidateQueries({ queryKey: ['callerCategory'] });
+    },
+  });
+}
+
+export function useSubmitContribution() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, { meetingId: string; text: string; files: ExternalBlob[] }>({
+    mutationFn: async ({ meetingId, text, files }) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.submitContribution(meetingId, text, files);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consensusMeetings'] });
+    },
+  });
+}
+
+export function useSubmitRanking() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, { meetingId: string; rankings: Ranking[] }>({
+    mutationFn: async ({ meetingId, rankings }) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.submitRanking(meetingId, rankings);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consensusMeetings'] });
+    },
+  });
+}
+
+export function useAdvanceConsensusMeetingPhase() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: async (meetingId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.advanceConsensusMeetingPhase(meetingId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consensusMeetings'] });
+    },
+  });
+}
+
+export function useForceAdvanceConsensusMeetingPhase() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: async (meetingId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.forceAdvanceConsensusMeetingPhase(meetingId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consensusMeetings'] });
+    },
+  });
+}
+
+export function useFinalizeConsensusMeeting() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: async (meetingId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.finalizeConsensusMeeting(meetingId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consensusMeetings'] });
+      queryClient.invalidateQueries({ queryKey: ['tokenBalance'] });
+    },
+  });
+}
+
+// Admin Queries
+export function useIsCallerAdmin() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<boolean>({
+    queryKey: ['isAdmin'],
+    queryFn: async () => {
+      if (!actor) return false;
+      try {
+        return await actor.isCallerAdmin();
+      } catch (error) {
+        return false;
+      }
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useDeleteUser() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, Principal>({
+    mutationFn: async (user: Principal) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.deleteUser(user);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allMembers'] });
+      queryClient.invalidateQueries({ queryKey: ['allJoinRequests'] });
+    },
+  });
+}
+
+export function usePromoteToAdmin() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, Principal>({
+    mutationFn: async (user: Principal) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.promoteToAdmin(user);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allMembers'] });
     },
   });
 }

@@ -1,10 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Update the LoginPage hero description paragraph text to the new provided three-paragraph copy while preserving paragraph breaks.
+**Goal:** Add a hero visual element to the top of the LoginPage homepage to enhance visual appeal and represent Phil3's philanthropic mission.
 
 **Planned changes:**
-- Replace the text content of the LoginPage hero description paragraph at the specified XPath with the exact provided text.
-- Ensure the rendered description preserves the three intended paragraphs (line breaks) rather than collapsing into a single block.
+- Add a hero visual element at the top of the LoginPage component before the mission text section
+- Integrate the community-focused illustration as a static asset
+- Ensure proper layout integration without affecting existing styling
 
-**User-visible outcome:** On the LoginPage hero section, users see the updated description copy displayed as three separate paragraphs with the provided wording.
+**User-visible outcome:** Users visiting the Phil3 homepage will see an engaging hero visual at the top of the page that represents the platform's philanthropic mission and community focus.

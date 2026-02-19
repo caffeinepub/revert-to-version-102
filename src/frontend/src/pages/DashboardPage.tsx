@@ -1,11 +1,11 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Home, Users, Shield, MessageSquare, Crown, Megaphone, Loader2, FileText, Vote, Coins } from 'lucide-react';
+import { Home, Users, Shield, MessageSquare, Crown, Loader2, FileText, Vote, Coins } from 'lucide-react';
 import OverviewTab from '../components/dashboard/OverviewTab';
 import MembersTab from '../components/dashboard/MembersTab';
 import AdminTab from '../components/dashboard/AdminTab';
 import ConsensusMeetingsTab from '../components/dashboard/ConsensusMeetingsTab';
 import CouncilTab from '../components/dashboard/CouncilTab';
-import AnnouncementsTab from '../components/dashboard/AnnouncementsTab';
+// import AnnouncementsTab from '../components/dashboard/AnnouncementsTab';
 import DocumentationTab from '../components/dashboard/DocumentationTab';
 import ProposalsTab from '../components/dashboard/ProposalsTab';
 import TokenomicsTab from '../components/dashboard/TokenomicsTab';
@@ -77,14 +77,10 @@ export default function DashboardPage() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-8 lg:w-auto lg:inline-grid">
+        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7 lg:w-auto lg:inline-grid">
           <TabsTrigger value="overview" className="gap-2">
             <Home className="h-4 w-4" />
             <span className="hidden sm:inline">{t.dashboard.overview}</span>
-          </TabsTrigger>
-          <TabsTrigger value="announcements" className="gap-2">
-            <Megaphone className="h-4 w-4" />
-            <span className="hidden sm:inline">{t.announcements.title}</span>
           </TabsTrigger>
           {showMembersTab && (
             <TabsTrigger value="members" className="gap-2">
@@ -135,12 +131,6 @@ export default function DashboardPage() {
         <TabsContent value="overview" className="space-y-6">
           <Suspense fallback={<TabLoadingFallback />}>
             <OverviewTab />
-          </Suspense>
-        </TabsContent>
-
-        <TabsContent value="announcements" className="space-y-6">
-          <Suspense fallback={<TabLoadingFallback />}>
-            <AnnouncementsTab />
           </Suspense>
         </TabsContent>
 

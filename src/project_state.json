@@ -1,30 +1,46 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
-  "summary": "Phil3 platform/app content and messaging for a decentralized philanthropic community on the Internet Computer.",
+  "projectStateVersion": 9,
+  "summary": "New project",
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
+  "imageRequirements": "## Required Images\n- Abstract community-focused hero illustration representing philanthropy and decentralized community collaboration, featuring connected nodes or figures in a modern minimalist style with warm, welcoming tones (hero-community.dim_1200x400.png)",
   "existing_features": [
     {
-      "id": "feature-update-the-text-content-rendered-in-the-loginpage-hero-description-paragraph-xpath-html-1-body-1-div-1-div-1-main-1-section-1-div-2-div-1-p-2-to-exactly-the-following-content-including-paragraph-breaks-phil3-is-an-innovative-platform-designed-for-a-new-generation-of-philanthropists-who-want-to-contribute-in-achieving-shared-missions-we-believe-millennials-and-gen-z-will-approach-charitable-giving-differently-from-other-generations-they-will-want-to-be-involved-and-use-new-technologies-to-support-the-causes-they-care-about-join-a-decentralized-community-where-members-participate-in-democratic-governance-earn-rewards-through-consensus-meetings-and-shape-the-future-of-philanthropic-initiatives-on-the-internet-computer",
-      "title": "Update the text content rendered in the LoginPage hero description paragraph (XPath: /html[1]/body[1]/div[1]/div[1]/main[1]/section[1]/div[2]/div[1]/p[2]) to exactly the following content (including paragraph breaks):\n\nPhil3 is an innovative platform designed for a new generation of philanthropists, who want to contribute in achieving shared missions.\n\nWe believe Millennials and Gen Z will approach charitable giving differently from other generations. They will want to be involved and use new technologies to support the causes they care about.\n\nJoin a decentralized community where members participate in democratic governance, earn rewards through consensus meetings, and shape the future of philanthropic initiatives on the Internet Computer.",
+      "id": "feature-in-the-loginpage-homepage-section-insert-new-text-content-between-the-first-paragraph-and-the-paragraph-at-xpath-html-1-body-1-div-1-div-1-main-1-section-1-div-2-div-1-p-2-the-new-content-must-include-the-heading-phil3-s-mission-is-to-democratize-philanthropy-in-the-era-of-web3-how-do-we-do-that-followed-by-three-bullet-points-by-building-a-functional-platform-by-growing-our-membership-base-and-by-helping-our-members-realize-their-first-philanthropy-goal",
+      "title": "In the LoginPage homepage section, insert new text content between the first paragraph and the paragraph at XPath /html[1]/body[1]/div[1]/div[1]/main[1]/section[1]/div[2]/div[1]/p[2]. The new content must include: the heading 'Phil3's mission is to democratize Philanthropy in the era of web3. How do we do that?' followed by three bullet points: 'By building a functional platform', 'By growing our membership base', and 'By helping our members realize their first philanthropy goal.'",
       "reqIds": [
         "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-the-loginpage-component-frontend-src-pages-loginpage-tsx-replace-the-existing-mission-text-block-with-the-following-reordered-content-start-with-phil3-is-an-innovative-platform-designed-for-a-new-generation-of-philanthropists-who-want-to-contribute-in-achieving-shared-missions-followed-by-the-heading-phil3-s-mission-is-to-democratize-philanthropy-in-the-era-of-web3-how-do-we-do-that-then-list-the-three-goals-as-regular-paragraphs-not-bullet-points-by-building-a-functional-platform-by-growing-our-membership-base-by-helping-our-members-realize-their-first-philanthropy-goal-and-end-with-join-a-decentralized-community-where-members-participate-in-democratic-governance-earn-rewards-through-consensus-meetings-and-shape-the-future-of-philanthropic-initiatives-on-the-internet-computer-maintain-the-existing-styling-and-structure-of-the-section",
+      "title": "In the LoginPage component (frontend/src/pages/LoginPage.tsx), replace the existing mission text block with the following reordered content: Start with 'Phil3 is an innovative platform designed for a new generation of philanthropists, who want to contribute in achieving shared missions.', followed by the heading 'Phil3's mission is to democratize Philanthropy in the era of web3. How do we do that?', then list the three goals as regular paragraphs (not bullet points): 'By building a functional platform', 'By growing our membership base', 'By helping our members realize their first philanthropy goal.', and end with 'Join a decentralized community where members participate in democratic governance, earn rewards through consensus meetings, and shape the future of philanthropic initiatives on the Internet Computer'. Maintain the existing styling and structure of the section.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-hero-visual-element-at-the-top-of-the-loginpage-component-frontend-src-pages-loginpage-tsx-before-the-existing-mission-text-section-the-visual-should-be-an-abstract-community-focused-illustration-that-represents-phil3-s-philanthropic-mission-and-adds-visual-interest-to-the-landing-page",
+      "title": "Add a hero visual element at the top of the LoginPage component (frontend/src/pages/LoginPage.tsx) before the existing mission text section. The visual should be an abstract community-focused illustration that represents Phil3's philanthropic mission and adds visual interest to the landing page.",
+      "reqIds": [
+        "REQ-3"
       ],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
-      "id": "AR-1",
-      "summary": "Update the specified UI element content with the provided Phil3 platform description text",
+      "id": "AR-5",
+      "summary": "Add hero visual element to homepage: abstract community-focused illustration representing Phil3's philanthropic mission",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "gameProjectType": "none",
-  "projectName": "Phil3",
+  "projectName": "Remove generational giving quote from homepage",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

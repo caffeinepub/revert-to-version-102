@@ -1,36 +1,44 @@
 {
   "kind": "build_request",
-  "title": "Update homepage hero description text",
+  "title": "Add hero visual element to LoginPage homepage",
+  "projectName": "Phil3",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Update the text content rendered in the LoginPage hero description paragraph (XPath: /html[1]/body[1]/div[1]/div[1]/main[1]/section[1]/div[2]/div[1]/p[2]) to exactly the following content (including paragraph breaks):\n\nPhil3 is an innovative platform designed for a new generation of philanthropists, who want to contribute in achieving shared missions.\n\nWe believe Millennials and Gen Z will approach charitable giving differently from other generations. They will want to be involved and use new technologies to support the causes they care about.\n\nJoin a decentralized community where members participate in democratic governance, earn rewards through consensus meetings, and shape the future of philanthropic initiatives on the Internet Computer.",
+      "id": "REQ-3",
+      "text": "Add a hero visual element at the top of the LoginPage component (frontend/src/pages/LoginPage.tsx) before the existing mission text section. The visual should be an abstract community-focused illustration that represents Phil3's philanthropic mission and adds visual interest to the landing page.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-9"
+          "msg-latest"
         ],
         "quotes": [
-          "Replace the content of this element by this new content: ''Phil3 is an innovative platform designed for a new generation of philanthropists, who want to contribute in achieving shared missions.\n\nWe believe Millennials and Gen Z will approach charitable giving differently from other generations. They will want to be involved and use new technologies to support the causes they care about. \n\nJoin a decentralized community where members participate in democratic governance, earn rewards through consensus meetings, and shape the future of philanthropic initiatives on the Internet Computer.''"
+          "I'll add a hero visual element to the top of the homepage. I'll create an abstract community-focused illustration that represents the philanthropic mission of Phil3."
         ]
       },
       "acceptanceCriteria": [
-        "In the LoginPage hero section, the third paragraph (currently bound to t.homepage.description) displays exactly the provided text.",
-        "The displayed content preserves the intended paragraph breaks (three paragraphs) rather than collapsing into a single block of text."
+        "Hero visual element is positioned at the top of the LoginPage before the mission text section",
+        "Visual uses an abstract community-focused design that aligns with Phil3's philanthropic mission",
+        "Image is properly integrated into the existing layout without breaking the current styling",
+        "Visual loads as a static asset from frontend/public/assets/generated"
       ]
     }
   ],
   "constraints": [
-    "Apply the change only to the selected element (XPath: /html[1]/body[1]/div[1]/div[1]/main[1]/section[1]/div[2]/div[1]/p[2]).",
-    "Do not edit files in frontend/src/components/ui (read-only)."
+    "Do not modify the existing mission text content or structure that was recently updated",
+    "Maintain the existing styling and layout of the LoginPage component",
+    "Do not change authentication flow or functionality"
   ],
   "nonGoals": [
-    "No changes to other homepage copy such as headline, tagline, value proposition, features, or CTA text.",
-    "No backend changes."
+    "Modifying the mission text section content",
+    "Changing the color scheme beyond the hero visual",
+    "Adding interactive elements to the hero visual",
+    "Implementing other homepage improvements mentioned in the earlier conversation"
   ],
   "imageRequirements": {
-    "required": [],
+    "required": [
+      "Abstract community-focused hero illustration representing philanthropy and decentralized community collaboration, featuring connected nodes or figures in a modern minimalist style with warm, welcoming tones (hero-community.dim_1200x400.png)"
+    ],
     "edits": []
   }
 }

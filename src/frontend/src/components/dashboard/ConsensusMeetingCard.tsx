@@ -7,9 +7,9 @@ import { Loader2, Clock, Users, CheckCircle2, AlertCircle, Zap, ShieldAlert } fr
 import { ConsensusPhase, type ConsensusMeetingView } from '../../types/backend-extensions';
 import { UserCategory, type UserProfile } from '../../backend';
 import {
-  useJoinConsensusMeeting,
-  useAdvancePhase,
-  useForceAdvancePhase,
+  useSignUpForConsensusMeeting,
+  useAdvanceConsensusMeetingPhase,
+  useForceAdvanceConsensusMeetingPhase,
   useIsCallerAdmin,
   useGetCallerCategory,
 } from '../../hooks/useQueries';
@@ -26,9 +26,9 @@ interface ConsensusMeetingCardProps {
 
 export default function ConsensusMeetingCard({ meeting, userProfile }: ConsensusMeetingCardProps) {
   const { t } = useLanguage();
-  const signUpMutation = useJoinConsensusMeeting();
-  const nextPhaseMutation = useAdvancePhase();
-  const forceNextPhaseMutation = useForceAdvancePhase();
+  const signUpMutation = useSignUpForConsensusMeeting();
+  const nextPhaseMutation = useAdvanceConsensusMeetingPhase();
+  const forceNextPhaseMutation = useForceAdvanceConsensusMeetingPhase();
   const { data: isAdmin } = useIsCallerAdmin();
   const { data: userCategory, isLoading: categoryLoading } = useGetCallerCategory();
 

@@ -20,6 +20,15 @@ export default function LoginPage() {
         <section className="relative py-12 px-4 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 pointer-events-none" />
           <div className="container max-w-6xl mx-auto relative z-10">
+            {/* Hero Visual Element */}
+            <div className="mb-12 animate-in fade-in slide-in-from-top-4 duration-1000">
+              <img 
+                src="/assets/generated/hero-community.dim_1200x400.png" 
+                alt="Phil3 Community" 
+                className="w-full h-auto rounded-2xl shadow-2xl object-cover max-h-[400px]"
+              />
+            </div>
+
             <div className="text-center mb-12">
               <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000">
                 {t.homepage.headline}
@@ -27,13 +36,29 @@ export default function LoginPage() {
               <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-8 animate-in fade-in slide-in-from-bottom-5 duration-1000 delay-150">
                 {t.homepage.tagline}
               </p>
-              <p className="text-lg text-muted-foreground/80 max-w-2xl mx-auto leading-relaxed whitespace-pre-line animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-300">
-                {t.homepage.description}
+              
+              {/* Mission Statement - Reordered */}
+              <div className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
+                <p className="mb-4">
+                  Phil3 is an innovative platform designed for a new generation of philanthropists, who want to contribute in achieving shared missions.
+                </p>
+                <p className="font-semibold mb-3">
+                  Phil3's mission is to democratize Philanthropy in the era of web3. How do we do that?
+                </p>
+                <div className="text-left space-y-2 inline-block">
+                  <p>By building a functional platform</p>
+                  <p>By growing our membership base</p>
+                  <p>By helping our members realize their first philanthropy goal.</p>
+                </div>
+              </div>
+
+              <p className="text-lg text-muted-foreground/80 max-w-2xl mx-auto leading-relaxed whitespace-pre-line animate-in fade-in slide-in-from-bottom-7 duration-1000 delay-300">
+                Join a decentralized community where members participate in democratic governance, earn rewards through consensus meetings, and shape the future of philanthropic initiatives on the Internet Computer
               </p>
             </div>
 
             {/* CTA Button */}
-            <div className="flex justify-center mb-20 animate-in fade-in slide-in-from-bottom-7 duration-1000 delay-500">
+            <div className="flex justify-center mb-20 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
               <Button
                 size="lg"
                 onClick={login}

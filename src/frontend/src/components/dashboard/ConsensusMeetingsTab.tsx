@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGetAllConsensusMeetings, useGetCallerUserProfile, useJoinConsensusMeeting, useIsCallerAdmin, useGetCallerCategory } from '../../hooks/useQueries';
+import { useGetAllConsensusMeetings, useGetCallerUserProfile, useSignUpForConsensusMeeting, useIsCallerAdmin, useGetCallerCategory } from '../../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +16,7 @@ export default function ConsensusMeetingsTab() {
   const { data: userProfile } = useGetCallerUserProfile();
   const { data: isAdmin } = useIsCallerAdmin();
   const { data: userCategory, isLoading: categoryLoading } = useGetCallerCategory();
-  const signUpMutation = useJoinConsensusMeeting();
+  const signUpMutation = useSignUpForConsensusMeeting();
   const [selectedMeetingId, setSelectedMeetingId] = useState<string | null>(null);
 
   const activeMeeting = meetings?.find(m => m.phase !== ConsensusPhase.finalize);
@@ -106,205 +106,139 @@ export default function ConsensusMeetingsTab() {
       <Card className="border-primary/20">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
+            <div className="p-3 rounded-lg bg-primary/10">
               <img
                 src="/assets/generated/consensus-meeting-icon-transparent.dim_64x64.png"
                 alt={t.consensus.title}
-                className="h-6 w-6"
+                className="h-12 w-12"
               />
             </div>
             <div>
-              <CardTitle>{t.consensus.title}</CardTitle>
-              <CardDescription>
-                {t.consensus.subtitle}
-              </CardDescription>
+              <CardTitle className="text-2xl">{t.consensus.title}</CardTitle>
+              <CardDescription>{t.consensus.subtitle}</CardDescription>
             </div>
           </div>
         </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">
+            {t.consensus.subtitle}
+          </p>
+        </CardContent>
       </Card>
 
-      {/* Active Meeting */}
-      {activeMeeting && (
-        <Card className="border-accent/30">
+      {activeMeeting ? (
+        <Card className="border-accent/20">
           <CardHeader>
             <div className="flex items-start justify-between">
               <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-accent" />
-                  {t.consensus.activeMeeting}: {activeMeeting.id}
-                </CardTitle>
+                <CardTitle>{t.consensus.activeMeeting}</CardTitle>
                 <CardDescription className="mt-2">
-                  {t.consensus.currentPhase}: <Badge variant={getPhaseVariant(activeMeeting.phase)}>{getPhaseLabel(activeMeeting.phase)}</Badge>
+                  {activeMeeting.id}
                 </CardDescription>
               </div>
-              {(isParticipant || isAdmin) && (
-                <Button onClick={handleViewDetails}>
-                  {t.common.viewDetails}
-                </Button>
-              )}
+              <Badge variant={getPhaseVariant(activeMeeting.phase)}>
+                {getPhaseLabel(activeMeeting.phase)}
+              </Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
-                <Users className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">{t.consensus.participants}</p>
-                  <p className="text-2xl font-bold">{activeMeeting.participants.length}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
-                <TrendingUp className="h-5 w-5 text-accent" />
-                <div>
-                  <p className="text-sm text-muted-foreground">{t.consensus.groups}</p>
-                  <p className="text-2xl font-bold">{activeMeeting.groups.length}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
                 <Clock className="h-5 w-5 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">{t.consensus.phase}</p>
-                  <p className="text-lg font-semibold">{getPhaseLabel(activeMeeting.phase)}</p>
+                  <p className="font-semibold">{getPhaseLabel(activeMeeting.phase)}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
+                <Users className="h-5 w-5 text-accent" />
+                <div>
+                  <p className="text-sm text-muted-foreground">{t.consensus.participants}</p>
+                  <p className="font-semibold">{activeMeeting.participants.length}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
+                {isParticipant ? (
+                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                ) : (
+                  <AlertCircle className="h-5 w-5 text-yellow-500" />
+                )}
+                <div>
+                  <p className="text-sm text-muted-foreground">{t.consensus.status || 'Status'}</p>
+                  <p className="font-semibold">{isParticipant ? t.consensus.enrolled || 'Enrolled' : t.consensus.notEnrolled || 'Not Enrolled'}</p>
                 </div>
               </div>
             </div>
 
-            {/* Sign-up section for non-participants during signup phase */}
-            {activeMeeting.phase === ConsensusPhase.signup && (
-              <div className="pt-4 border-t">
-                {isNonMember ? (
-                  <div className="flex items-start gap-3 p-4 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800">
-                    <ShieldAlert className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
-                    <div className="flex-1">
-                      <p className="font-semibold text-red-900 dark:text-red-100">{t.consensus.membershipRequired}</p>
-                      <p className="text-sm text-red-700 dark:text-red-300 mt-1">
-                        {t.consensus.membershipRequiredDesc}
-                      </p>
-                    </div>
-                  </div>
-                ) : canSignUp ? (
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
-                      <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="font-semibold text-blue-900 dark:text-blue-100">{t.consensus.joinMeeting}</p>
-                        <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                          {t.consensus.joinMeetingDesc}
-                        </p>
-                      </div>
-                    </div>
-                    <Button 
-                      onClick={handleSignUp} 
-                      disabled={signUpMutation.isPending} 
-                      className="w-full"
-                      size="lg"
-                    >
-                      {signUpMutation.isPending ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          {t.consensus.signingUp}
-                        </>
-                      ) : (
-                        t.consensus.signUpButton
-                      )}
-                    </Button>
-                  </div>
-                ) : isParticipant ? (
-                  <div className="flex items-center gap-3 p-4 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
-                    <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-green-900 dark:text-green-100">{t.consensus.signedUp}</p>
-                      <p className="text-sm text-green-700 dark:text-green-300 mt-1">
-                        {t.consensus.signedUpDesc}
-                      </p>
-                    </div>
-                  </div>
-                ) : null}
+            {isNonMember ? (
+              <div className="flex items-start gap-3 p-4 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800">
+                <ShieldAlert className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="font-semibold text-red-900 dark:text-red-100">{t.consensus.membershipRequired}</p>
+                  <p className="text-sm text-red-700 dark:text-red-300 mt-1">
+                    {t.consensus.membershipRequiredDesc}
+                  </p>
+                </div>
               </div>
-            )}
-
-            {/* Status for other phases */}
-            {activeMeeting.phase !== ConsensusPhase.signup && (
-              <div className="pt-4 border-t">
-                {isParticipant ? (
-                  <div className="flex items-center gap-3 p-4 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
-                    <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-green-900 dark:text-green-100">{t.consensus.signedUp}</p>
-                      <p className="text-sm text-green-700 dark:text-green-300 mt-1">
-                        {t.common.viewDetails} {getPhaseLabel(activeMeeting.phase).toLowerCase()}.
-                      </p>
-                    </div>
-                  </div>
-                ) : isAdmin ? (
-                  <div className="flex items-center gap-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
-                    <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-blue-900 dark:text-blue-100">{t.consensus.adminView}</p>
-                      <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                        {getPhaseLabel(activeMeeting.phase)} {t.consensus.adminViewDesc}
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800">
-                    <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-yellow-900 dark:text-yellow-100">{t.consensus.notParticipating}</p>
-                      <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                        {t.consensus.notParticipatingDesc}
-                      </p>
-                    </div>
-                  </div>
+            ) : (
+              <div className="flex gap-2">
+                {canSignUp && (
+                  <Button onClick={handleSignUp} disabled={signUpMutation.isPending} className="flex-1">
+                    {signUpMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {t.consensus.signingUp}
+                      </>
+                    ) : (
+                      t.consensus.signUpButton
+                    )}
+                  </Button>
                 )}
+                <Button onClick={handleViewDetails} variant="outline" className="flex-1">
+                  View Details
+                </Button>
               </div>
             )}
           </CardContent>
         </Card>
+      ) : (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-lg font-semibold mb-2">No Active Meeting</p>
+            <p className="text-sm text-muted-foreground">
+              There are currently no active consensus meetings. Check back later.
+            </p>
+          </CardContent>
+        </Card>
       )}
 
-      {/* Past Meetings */}
       {pastMeetings.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>{t.consensus.pastMeetings}</CardTitle>
-            <CardDescription>{t.consensus.pastMeetingsDesc}</CardDescription>
+            <CardDescription>
+              {t.consensus.pastMeetingsDesc}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {pastMeetings.map((meeting) => (
                 <div
                   key={meeting.id}
-                  className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                  className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
+                  onClick={() => setSelectedMeetingId(meeting.id)}
                 >
                   <div>
                     <p className="font-semibold">{meeting.id}</p>
                     <p className="text-sm text-muted-foreground">
-                      {meeting.participants.length} {t.consensus.participants} • {meeting.groups.length} {t.consensus.groups}
+                      {meeting.participants.length} {t.consensus.participants}
                     </p>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => setSelectedMeetingId(meeting.id)}>
-                    {t.consensus.viewResults}
-                  </Button>
+                  <Badge variant="secondary">{t.consensus.finalized}</Badge>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {!activeMeeting && pastMeetings.length === 0 && (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <img
-              src="/assets/generated/consensus-meeting-icon-transparent.dim_64x64.png"
-              alt={t.consensus.noMeetings}
-              className="h-16 w-16 mx-auto mb-4 opacity-50"
-            />
-            <p className="text-muted-foreground">{t.consensus.noMeetings}</p>
-            <p className="text-sm text-muted-foreground mt-2">
-              {t.consensus.noMeetingsDesc}
-            </p>
           </CardContent>
         </Card>
       )}

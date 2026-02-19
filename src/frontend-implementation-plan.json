@@ -1,25 +1,22 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Update LoginPage hero description copy with preserved paragraph breaks",
+  "title": "Add hero visual element to LoginPage homepage",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Replace the LoginPage hero description paragraph text with the provided 3-paragraph copy and ensure line breaks render correctly.",
+      "id": "REQ-3",
+      "summary": "Add a hero visual element at the top of the LoginPage component before the existing mission text section. The visual should be an abstract community-focused illustration that represents Phil3's philanthropic mission.",
       "acceptanceCriteria": [
-        "In the LoginPage hero section, the third paragraph (currently bound to t.homepage.description) displays exactly the provided text.",
-        "The displayed content preserves the intended paragraph breaks (three paragraphs) rather than collapsing into a single block of text."
+        "Hero visual element is positioned at the top of the LoginPage before the mission text section",
+        "Visual uses an abstract community-focused design that aligns with Phil3's philanthropic mission",
+        "Image is properly integrated into the existing layout without breaking the current styling",
+        "Visual loads as a static asset from frontend/public/assets/generated"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/translations.ts",
-          "operation": "modify",
-          "description": "Update the translation value used by t.homepage.description to exactly match the provided copy, including the two blank lines between paragraphs (use explicit \\n\\n in the string). Apply this change only to the homepage.description translation key(s) used by LoginPage."
-        },
-        {
           "path": "frontend/src/pages/LoginPage.tsx",
           "operation": "modify",
-          "description": "Adjust only the hero description paragraph element (the <p> that renders {t.homepage.description}, matching the provided XPath) so newline characters are rendered as paragraph breaks (e.g., using a Tailwind whitespace-preserving class such as whitespace-pre-line on that same <p>). Do not modify other copy or any files in frontend/src/components/ui."
+          "description": "Add hero visual element at the top of the LoginPage component before the existing mission text section. Import and display the generated image frontend/public/assets/generated/hero-community.dim_1200x400.png as a static asset positioned before the headline and mission content. Ensure the image is responsive and maintains aspect ratio without breaking the existing layout styling or authentication flow."
         }
       ]
     }
