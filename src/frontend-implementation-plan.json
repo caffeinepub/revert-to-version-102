@@ -1,22 +1,37 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add hero visual element to LoginPage homepage",
+  "title": "Make LoginPage fully bilingual (French/English)",
   "requirements": [
     {
-      "id": "REQ-3",
-      "summary": "Add a hero visual element at the top of the LoginPage component before the existing mission text section. The visual should be an abstract community-focused illustration that represents Phil3's philanthropic mission.",
+      "id": "REQ-1",
+      "summary": "Update LoginPage component to use bilingual translations for all text content including mission statement, feature descriptions, and button labels",
       "acceptanceCriteria": [
-        "Hero visual element is positioned at the top of the LoginPage before the mission text section",
-        "Visual uses an abstract community-focused design that aligns with Phil3's philanthropic mission",
-        "Image is properly integrated into the existing layout without breaking the current styling",
-        "Visual loads as a static asset from frontend/public/assets/generated"
+        "All text content on LoginPage displays in the user's selected language (English or French)",
+        "Mission statement, feature cards, and login button text are translated",
+        "Language switch updates all text on the page immediately without page reload"
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/LoginPage.tsx",
           "operation": "modify",
-          "description": "Add hero visual element at the top of the LoginPage component before the existing mission text section. Import and display the generated image frontend/public/assets/generated/hero-community.dim_1200x400.png as a static asset positioned before the headline and mission content. Ensure the image is responsive and maintains aspect ratio without breaking the existing layout styling or authentication flow."
+          "description": "Replace all hardcoded English text strings with translation keys from the translations system. Import useLanguage hook from LanguageContext to access translations. Update hero title, mission statement, feature card titles and descriptions, and login button text to use translation keys like t.login.heroTitle, t.login.missionStatement, t.login.features[0].title, etc. Ensure the component re-renders when language changes via the context."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Add French translations for all LoginPage text strings to the translations system, ensuring complete parity with English content",
+      "acceptanceCriteria": [
+        "French translations exist for hero title, mission statement, all feature cards (titles and descriptions), and call-to-action button",
+        "Translation keys follow existing naming conventions in the translations system",
+        "No untranslated text remains on the LoginPage when French locale is selected"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/lib/translations.ts",
+          "operation": "modify",
+          "description": "Add French translations to the existing translations object for all LoginPage content. Create or expand the 'login' translation section with keys for heroTitle, missionStatement, features array (with title and description for each feature), and loginButton. Ensure French translations are culturally appropriate and maintain the same tone as English content. Follow the existing translation structure pattern used in the file (e.g., common, header, footer sections)."
         }
       ]
     }

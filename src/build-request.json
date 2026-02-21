@@ -1,44 +1,58 @@
 {
   "kind": "build_request",
-  "title": "Add hero visual element to LoginPage homepage",
+  "title": "Make LoginPage fully bilingual (French/English)",
   "projectName": "Phil3",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-3",
-      "text": "Add a hero visual element at the top of the LoginPage component (frontend/src/pages/LoginPage.tsx) before the existing mission text section. The visual should be an abstract community-focused illustration that represents Phil3's philanthropic mission and adds visual interest to the landing page.",
+      "id": "REQ-1",
+      "text": "Update LoginPage component to use bilingual translations for all text content including mission statement, feature descriptions, and button labels",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-latest"
         ],
         "quotes": [
-          "I'll add a hero visual element to the top of the homepage. I'll create an abstract community-focused illustration that represents the philanthropic mission of Phil3."
+          "Make the homepage/landing page fully bilingual (fr, en)"
         ]
       },
       "acceptanceCriteria": [
-        "Hero visual element is positioned at the top of the LoginPage before the mission text section",
-        "Visual uses an abstract community-focused design that aligns with Phil3's philanthropic mission",
-        "Image is properly integrated into the existing layout without breaking the current styling",
-        "Visual loads as a static asset from frontend/public/assets/generated"
+        "All text content on LoginPage displays in the user's selected language (English or French)",
+        "Mission statement, feature cards, and login button text are translated",
+        "Language switch updates all text on the page immediately without page reload"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Add French translations for all LoginPage text strings to the translations system, ensuring complete parity with English content",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ]
+      },
+      "acceptanceCriteria": [
+        "French translations exist for hero title, mission statement, all feature cards (titles and descriptions), and call-to-action button",
+        "Translation keys follow existing naming conventions in the translations system",
+        "No untranslated text remains on the LoginPage when French locale is selected"
       ]
     }
   ],
   "constraints": [
-    "Do not modify the existing mission text content or structure that was recently updated",
-    "Maintain the existing styling and layout of the LoginPage component",
-    "Do not change authentication flow or functionality"
+    "Do not modify frontend/src/hooks/useInternetIdentity.ts or frontend/src/hooks/useInternetIdentity.tsx",
+    "Do not modify frontend/src/hooks/useActor.ts",
+    "Do not modify frontend/src/main.tsx",
+    "Do not edit files in frontend/src/components/ui",
+    "Use existing LanguageContext and translations system from frontend/src/contexts/LanguageContext.tsx and frontend/src/lib/translations.ts"
   ],
   "nonGoals": [
-    "Modifying the mission text section content",
-    "Changing the color scheme beyond the hero visual",
-    "Adding interactive elements to the hero visual",
-    "Implementing other homepage improvements mentioned in the earlier conversation"
+    "Translating other pages besides LoginPage",
+    "Adding new languages beyond French and English",
+    "Changing the visual design or layout of the LoginPage",
+    "Modifying authentication flow or Internet Identity integration"
   ],
   "imageRequirements": {
-    "required": [
-      "Abstract community-focused hero illustration representing philanthropy and decentralized community collaboration, featuring connected nodes or figures in a modern minimalist style with warm, welcoming tones (hero-community.dim_1200x400.png)"
-    ],
+    "required": [],
     "edits": []
   }
 }

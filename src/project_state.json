@@ -1,46 +1,52 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 9,
-  "summary": "New project",
-  "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Abstract community-focused hero illustration representing philanthropy and decentralized community collaboration, featuring connected nodes or figures in a modern minimalist style with warm, welcoming tones (hero-community.dim_1200x400.png)",
+  "projectStateVersion": 3,
+  "summary": "Phil3 community platform with consensus meeting feature that needs majority-based consensus detection fix, and bilingual (fr, en) homepage implementation",
+  "architectural_notes": [
+    "Consensus meetings use group-based ranking system where participants rank contributions from first to last place",
+    "Rankings are submitted as ordered arrays of user IDs (e.g., [User1, User2, User3, User4])",
+    "Current consensus logic requires 100% agreement but should check for majority agreement within each group",
+    "Groups are assigned during Sign-up phase (max 6/group, min 3/group)",
+    "REP distribution uses Fibonacci-based logic; PHIL rewards are proportional to REP"
+  ],
+  "known_issues": [
+    "Consensus detection fails when 3/4 participants submit matching ranks - requires 100% agreement instead of majority",
+    "Consensus logic needs refactoring to count ranking patterns and detect majority support (≥50%+1)"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-in-the-loginpage-homepage-section-insert-new-text-content-between-the-first-paragraph-and-the-paragraph-at-xpath-html-1-body-1-div-1-div-1-main-1-section-1-div-2-div-1-p-2-the-new-content-must-include-the-heading-phil3-s-mission-is-to-democratize-philanthropy-in-the-era-of-web3-how-do-we-do-that-followed-by-three-bullet-points-by-building-a-functional-platform-by-growing-our-membership-base-and-by-helping-our-members-realize-their-first-philanthropy-goal",
-      "title": "In the LoginPage homepage section, insert new text content between the first paragraph and the paragraph at XPath /html[1]/body[1]/div[1]/div[1]/main[1]/section[1]/div[2]/div[1]/p[2]. The new content must include: the heading 'Phil3's mission is to democratize Philanthropy in the era of web3. How do we do that?' followed by three bullet points: 'By building a functional platform', 'By growing our membership base', and 'By helping our members realize their first philanthropy goal.'",
+      "id": "feature-update-loginpage-component-to-use-bilingual-translations-for-all-text-content-including-mission-statement-feature-descriptions-and-button-labels",
+      "title": "Update LoginPage component to use bilingual translations for all text content including mission statement, feature descriptions, and button labels",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-in-the-loginpage-component-frontend-src-pages-loginpage-tsx-replace-the-existing-mission-text-block-with-the-following-reordered-content-start-with-phil3-is-an-innovative-platform-designed-for-a-new-generation-of-philanthropists-who-want-to-contribute-in-achieving-shared-missions-followed-by-the-heading-phil3-s-mission-is-to-democratize-philanthropy-in-the-era-of-web3-how-do-we-do-that-then-list-the-three-goals-as-regular-paragraphs-not-bullet-points-by-building-a-functional-platform-by-growing-our-membership-base-by-helping-our-members-realize-their-first-philanthropy-goal-and-end-with-join-a-decentralized-community-where-members-participate-in-democratic-governance-earn-rewards-through-consensus-meetings-and-shape-the-future-of-philanthropic-initiatives-on-the-internet-computer-maintain-the-existing-styling-and-structure-of-the-section",
-      "title": "In the LoginPage component (frontend/src/pages/LoginPage.tsx), replace the existing mission text block with the following reordered content: Start with 'Phil3 is an innovative platform designed for a new generation of philanthropists, who want to contribute in achieving shared missions.', followed by the heading 'Phil3's mission is to democratize Philanthropy in the era of web3. How do we do that?', then list the three goals as regular paragraphs (not bullet points): 'By building a functional platform', 'By growing our membership base', 'By helping our members realize their first philanthropy goal.', and end with 'Join a decentralized community where members participate in democratic governance, earn rewards through consensus meetings, and shape the future of philanthropic initiatives on the Internet Computer'. Maintain the existing styling and structure of the section.",
+      "id": "feature-add-french-translations-for-all-loginpage-text-strings-to-the-translations-system-ensuring-complete-parity-with-english-content",
+      "title": "Add French translations for all LoginPage text strings to the translations system, ensuring complete parity with English content",
       "reqIds": [
         "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-hero-visual-element-at-the-top-of-the-loginpage-component-frontend-src-pages-loginpage-tsx-before-the-existing-mission-text-section-the-visual-should-be-an-abstract-community-focused-illustration-that-represents-phil3-s-philanthropic-mission-and-adds-visual-interest-to-the-landing-page",
-      "title": "Add a hero visual element at the top of the LoginPage component (frontend/src/pages/LoginPage.tsx) before the existing mission text section. The visual should be an abstract community-focused illustration that represents Phil3's philanthropic mission and adds visual interest to the landing page.",
-      "reqIds": [
-        "REQ-3"
       ],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
-      "id": "AR-5",
-      "summary": "Add hero visual element to homepage: abstract community-focused illustration representing Phil3's philanthropic mission",
+      "id": "AR-1",
+      "summary": "Fix consensus detection to use majority agreement (≥50%+1) instead of requiring 100% agreement",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Make homepage/landing page fully bilingual (French and English)",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Remove generational giving quote from homepage",
+  "projectName": "Phil3",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

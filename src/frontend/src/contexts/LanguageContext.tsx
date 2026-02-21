@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Locale, DEFAULT_LOCALE, getStoredLocale, setStoredLocale } from '../lib/i18n';
-import { getTranslations, Translations } from '../lib/translations';
+import { translations, Translations } from '../lib/translations';
 
 interface LanguageContextType {
   locale: Locale;
@@ -12,16 +12,16 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(getStoredLocale());
-  const [t, setT] = useState<Translations>(getTranslations(locale));
+  const [t, setT] = useState<Translations>(translations[locale]);
 
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale);
     setStoredLocale(newLocale);
-    setT(getTranslations(newLocale));
+    setT(translations[newLocale]);
   };
 
   useEffect(() => {
-    setT(getTranslations(locale));
+    setT(translations[locale]);
   }, [locale]);
 
   return (

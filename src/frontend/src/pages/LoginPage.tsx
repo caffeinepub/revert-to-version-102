@@ -40,20 +40,20 @@ export default function LoginPage() {
               {/* Mission Statement - Reordered */}
               <div className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
                 <p className="mb-4">
-                  Phil3 is an innovative platform designed for a new generation of philanthropists, who want to contribute in achieving shared missions.
+                  {t.login.missionIntro}
                 </p>
                 <p className="font-semibold mb-3">
-                  Phil3's mission is to democratize Philanthropy in the era of web3. How do we do that?
+                  {t.login.missionStatement}
                 </p>
                 <div className="text-left space-y-2 inline-block">
-                  <p>By building a functional platform</p>
-                  <p>By growing our membership base</p>
-                  <p>By helping our members realize their first philanthropy goal.</p>
+                  <p>{t.login.missionGoal1}</p>
+                  <p>{t.login.missionGoal2}</p>
+                  <p>{t.login.missionGoal3}</p>
                 </div>
               </div>
 
               <p className="text-lg text-muted-foreground/80 max-w-2xl mx-auto leading-relaxed whitespace-pre-line animate-in fade-in slide-in-from-bottom-7 duration-1000 delay-300">
-                Join a decentralized community where members participate in democratic governance, earn rewards through consensus meetings, and shape the future of philanthropic initiatives on the Internet Computer
+                {t.login.communityDescription}
               </p>
             </div>
 

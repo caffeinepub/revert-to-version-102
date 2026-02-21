@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-hero-visual-element-at-the-top-of-the-loginpage-component-frontend-src-pages-loginpage-tsx-before-the-existing-mission-text-section-the-visual-should-be-an-abstract-community-focused-illustration-that-represents-phil3-s-philanthropic-mission-and-adds-visual-interest-to-the-landing-page",
-      "featureTitle": "Add a hero visual element at the top of the LoginPage component (frontend/src/pages/LoginPage.tsx) before the existing mission text section. The visual should be an abstract community-focused illustration that represents Phil3's philanthropic mission and adds visual interest to the landing page.",
+      "featureId": "feature-update-loginpage-component-to-use-bilingual-translations-for-all-text-content-including-mission-statement-feature-descriptions-and-button-labels",
+      "featureTitle": "Update LoginPage component to use bilingual translations for all text content including mission statement, feature descriptions, and button labels",
       "files": [
         "frontend/src/pages/LoginPage.tsx"
       ],
@@ -20,7 +20,30 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-3"
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-french-translations-for-all-loginpage-text-strings-to-the-translations-system-ensuring-complete-parity-with-english-content",
+      "featureTitle": "Add French translations for all LoginPage text strings to the translations system, ensuring complete parity with English content",
+      "files": [
+        "frontend/src/lib/translations.ts"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@4.0.0",
+        "user-approval@3.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
       ],
       "confidence": "high"
     }

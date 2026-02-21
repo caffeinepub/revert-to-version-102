@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Add a hero visual element to the top of the LoginPage homepage to enhance visual appeal and represent Phil3's philanthropic mission.
+**Goal:** Make the LoginPage fully bilingual with French and English language support.
 
 **Planned changes:**
-- Add a hero visual element at the top of the LoginPage component before the mission text section
-- Integrate the community-focused illustration as a static asset
-- Ensure proper layout integration without affecting existing styling
+- Update LoginPage component to use translation keys for all text content (mission statement, feature descriptions, button labels)
+- Add comprehensive French translations for all LoginPage strings to the translations system
+- Ensure language switching updates LoginPage text immediately
 
-**User-visible outcome:** Users visiting the Phil3 homepage will see an engaging hero visual at the top of the page that represents the platform's philanthropic mission and community focus.
+**User-visible outcome:** Users can view the LoginPage in either English or French by toggling the language selector, with all content (hero title, mission statement, feature cards, and login button) displaying in their selected language.
