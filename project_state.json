@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Phil3 community platform with consensus meeting feature that needs majority-based consensus detection fix, and bilingual (fr, en) homepage implementation",
+  "architectural_notes": [
+    "Consensus meetings use group-based ranking system where participants rank contributions from first to last place",
+    "Rankings are submitted as ordered arrays of user IDs (e.g., [User1, User2, User3, User4])",
+    "Current consensus logic requires 100% agreement but should check for majority agreement within each group",
+    "Groups are assigned during Sign-up phase (max 6/group, min 3/group)",
+    "REP distribution uses Fibonacci-based logic; PHIL rewards are proportional to REP"
+  ],
+  "known_issues": [
+    "Consensus detection fails when 3/4 participants submit matching ranks - requires 100% agreement instead of majority",
+    "Consensus logic needs refactoring to count ranking patterns and detect majority support (≥50%+1)"
+  ],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-update-loginpage-component-to-use-bilingual-translations-for-all-text-content-including-mission-statement-feature-descriptions-and-button-labels",
+      "title": "Update LoginPage component to use bilingual translations for all text content including mission statement, feature descriptions, and button labels",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-french-translations-for-all-loginpage-text-strings-to-the-translations-system-ensuring-complete-parity-with-english-content",
+      "title": "Add French translations for all LoginPage text strings to the translations system, ensuring complete parity with English content",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Fix consensus detection to use majority agreement (≥50%+1) instead of requiring 100% agreement",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Make homepage/landing page fully bilingual (French and English)",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Phil3",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

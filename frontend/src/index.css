@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --radius: 0.75rem;
+        /* Governance-themed color palette with deep blues and purples */
+        --background: 0.98 0 0;
+        --foreground: 0.15 0 0;
+        --card: 1 0 0;
+        --card-foreground: 0.15 0 0;
+        --popover: 1 0 0;
+        --popover-foreground: 0.15 0 0;
+        /* Primary: Deep governance blue */
+        --primary: 0.45 0.15 250;
+        --primary-foreground: 0.98 0 0;
+        /* Secondary: Elegant purple accent */
+        --secondary: 0.92 0.02 270;
+        --secondary-foreground: 0.25 0 0;
+        --muted: 0.95 0.01 250;
+        --muted-foreground: 0.50 0.02 250;
+        /* Accent: Vibrant governance purple */
+        --accent: 0.65 0.20 280;
+        --accent-foreground: 0.98 0 0;
+        --destructive: 0.55 0.22 25;
+        --destructive-foreground: 0.98 0 0;
+        --border: 0.90 0.01 250;
+        --input: 0.90 0.01 250;
+        --ring: 0.45 0.15 250;
+        /* Success for voting/acceptance */
+        --success: 0.65 0.18 150;
+        --success-foreground: 0.98 0 0;
+        /* Warning for pending actions */
+        --warning: 0.70 0.18 60;
+        --warning-foreground: 0.15 0 0;
+        --chart-1: 0.65 0.20 280;
+        --chart-2: 0.60 0.18 200;
+        --chart-3: 0.55 0.15 320;
+        --chart-4: 0.70 0.18 150;
+        --chart-5: 0.75 0.20 40;
+        --sidebar: 0.98 0 0;
+        --sidebar-foreground: 0.15 0 0;
+        --sidebar-primary: 0.45 0.15 250;
+        --sidebar-primary-foreground: 0.98 0 0;
+        --sidebar-accent: 0.95 0.01 250;
+        --sidebar-accent-foreground: 0.25 0 0;
+        --sidebar-border: 0.90 0.01 250;
+        --sidebar-ring: 0.45 0.15 250;
+    }
+
+    .dark {
+        --background: 0.12 0.01 250;
+        --foreground: 0.95 0.01 250;
+        --card: 0.18 0.02 250;
+        --card-foreground: 0.95 0.01 250;
+        --popover: 0.15 0.02 250;
+        --popover-foreground: 0.95 0.01 250;
+        /* Primary: Bright governance blue for dark mode */
+        --primary: 0.70 0.20 250;
+        --primary-foreground: 0.12 0.01 250;
+        --secondary: 0.25 0.03 270;
+        --secondary-foreground: 0.95 0.01 250;
+        --muted: 0.22 0.02 250;
+        --muted-foreground: 0.65 0.03 250;
+        /* Accent: Vibrant purple for dark mode */
+        --accent: 0.65 0.22 280;
+        --accent-foreground: 0.98 0 0;
+        --destructive: 0.60 0.20 25;
+        --destructive-foreground: 0.98 0 0;
+        --border: 0.25 0.02 250;
+        --input: 0.25 0.02 250;
+        --ring: 0.70 0.20 250;
+        --success: 0.65 0.18 150;
+        --success-foreground: 0.98 0 0;
+        --warning: 0.70 0.18 60;
+        --warning-foreground: 0.15 0 0;
+        --chart-1: 0.65 0.22 280;
+        --chart-2: 0.60 0.20 200;
+        --chart-3: 0.55 0.18 320;
+        --chart-4: 0.70 0.18 150;
+        --chart-5: 0.75 0.20 40;
+        --sidebar: 0.15 0.02 250;
+        --sidebar-foreground: 0.95 0.01 250;
+        --sidebar-primary: 0.70 0.20 250;
+        --sidebar-primary-foreground: 0.12 0.01 250;
+        --sidebar-accent: 0.22 0.02 250;
+        --sidebar-accent-foreground: 0.95 0.01 250;
+        --sidebar-border: 0.25 0.02 250;
+        --sidebar-ring: 0.70 0.20 250;
+    }
+
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
+}
+
+@layer utilities {
+    .text-balance {
+        text-wrap: balance;
+    }
+}
+
