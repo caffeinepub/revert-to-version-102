@@ -1,15 +1,27 @@
-import { useGetDailyRewardEligibility, useClaimDailyReward, useGetCallerCategory, useGetDailyRewardConfig } from '../../hooks/useQueries';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Gift, Loader2, Clock, AlertCircle, Info } from 'lucide-react';
-import { toast } from 'sonner';
-import { UserCategory } from '../../backend';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { AlertCircle, Clock, Gift, Info, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { UserCategory } from "../../backend";
+import { useLanguage } from "../../contexts/LanguageContext";
+import {
+  useClaimDailyReward,
+  useGetCallerCategory,
+  useGetDailyRewardConfig,
+  useGetDailyRewardEligibility,
+} from "../../hooks/useQueries";
 
 export default function DailyRewardCard() {
   const { t } = useLanguage();
-  const { data: eligibility, isLoading: eligibilityLoading } = useGetDailyRewardEligibility();
+  const { data: eligibility, isLoading: eligibilityLoading } =
+    useGetDailyRewardEligibility();
   const { data: userCategory } = useGetCallerCategory();
   const { data: config } = useGetDailyRewardConfig();
   const claimReward = useClaimDailyReward();
@@ -17,17 +29,26 @@ export default function DailyRewardCard() {
   const handleClaimReward = async () => {
     try {
       const amount = await claimReward.mutateAsync();
-      toast.success(`${t.toast.genericError.replace('An error occurred', `Successfully claimed ${amount.toString()} PHIL tokens!`)}`);
+      toast.success(
+        `${t.toast.genericError.replace("An error occurred", `Successfully claimed ${amount.toString()} PHIL tokens!`)}`,
+      );
     } catch (error: any) {
-      const errorMessage = error?.message || 'Failed to claim daily reward';
-      if (errorMessage.includes('insufficient funds') || errorMessage.includes('allocated pool')) {
-        toast.error('Daily reward currently unavailable - insufficient funds in allocated pool');
-      } else if (errorMessage.includes('cooldown')) {
-        toast.error('Daily reward already claimed. Please wait for cooldown to expire.');
+      const errorMessage = error?.message || "Failed to claim daily reward";
+      if (
+        errorMessage.includes("insufficient funds") ||
+        errorMessage.includes("allocated pool")
+      ) {
+        toast.error(
+          "Daily reward currently unavailable - insufficient funds in allocated pool",
+        );
+      } else if (errorMessage.includes("cooldown")) {
+        toast.error(
+          "Daily reward already claimed. Please wait for cooldown to expire.",
+        );
       } else {
         toast.error(errorMessage);
       }
-      console.error('Error claiming daily reward:', error);
+      console.error("Error claiming daily reward:", error);
     }
   };
 
@@ -35,7 +56,7 @@ export default function DailyRewardCard() {
     const seconds = Number(nanoseconds) / 1_000_000_000;
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     }
@@ -51,7 +72,7 @@ export default function DailyRewardCard() {
       case UserCategory.activeMember:
         return t.categories.activeMember;
       default:
-        return 'Unknown';
+        return "Unknown";
     }
   };
 
@@ -78,7 +99,13 @@ export default function DailyRewardCard() {
   }
 
   return (
-    <Card className={eligibility.canClaim ? 'border-accent/30 bg-accent/5' : 'border-muted/30'}>
+    <Card
+      className={
+        eligibility.canClaim
+          ? "border-accent/30 bg-accent/5"
+          : "border-muted/30"
+      }
+    >
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
@@ -90,7 +117,9 @@ export default function DailyRewardCard() {
               />
             </div>
             <div>
-              <CardTitle className="text-xl">{t.overview.dailyRewards}</CardTitle>
+              <CardTitle className="text-xl">
+                {t.overview.dailyRewards}
+              </CardTitle>
               <CardDescription className="mt-1">
                 {t.overview.dailyRewardsDesc}
               </CardDescription>
@@ -105,7 +134,9 @@ export default function DailyRewardCard() {
               <span className="text-3xl font-bold text-accent">
                 {eligibility.amount.toString()}
               </span>
-              <Badge variant="secondary" className="text-xs">PHIL</Badge>
+              <Badge variant="secondary" className="text-xs">
+                PHIL
+              </Badge>
             </div>
             {userCategory && (
               <p className="text-sm text-muted-foreground mt-1">
@@ -113,10 +144,10 @@ export default function DailyRewardCard() {
               </p>
             )}
           </div>
-          
+
           {eligibility.canClaim ? (
-            <Button 
-              onClick={handleClaimReward} 
+            <Button
+              onClick={handleClaimReward}
               disabled={claimReward.isPending}
               size="lg"
               className="bg-accent hover:bg-accent/90"
@@ -158,9 +189,7 @@ export default function DailyRewardCard() {
         {!eligibility.canClaim && (
           <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 text-sm text-muted-foreground">
             <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-            <p>
-              {formatCooldown(eligibility.cooldown)}
-            </p>
+            <p>{formatCooldown(eligibility.cooldown)}</p>
           </div>
         )}
       </CardContent>

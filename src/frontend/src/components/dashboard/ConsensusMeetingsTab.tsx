@@ -1,33 +1,66 @@
-import { useState } from 'react';
-import { useGetAllConsensusMeetings, useGetCallerUserProfile, useSignUpForConsensusMeeting, useIsCallerAdmin, useGetCallerCategory } from '../../hooks/useQueries';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Loader2, Clock, Users, TrendingUp, CheckCircle2, AlertCircle, ShieldAlert } from 'lucide-react';
-import { ConsensusPhase } from '../../types/backend-extensions';
-import { UserCategory } from '../../backend';
-import ConsensusMeetingCard from './ConsensusMeetingCard';
-import { toast } from 'sonner';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Loader2,
+  ShieldAlert,
+  TrendingUp,
+  Users,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { UserCategory } from "../../backend";
+import { useLanguage } from "../../contexts/LanguageContext";
+import {
+  useGetAllConsensusMeetings,
+  useGetCallerCategory,
+  useGetCallerUserProfile,
+  useIsCallerAdmin,
+  useSignUpForConsensusMeeting,
+} from "../../hooks/useQueries";
+import { ConsensusPhase } from "../../types/backend-extensions";
+import ConsensusMeetingCard from "./ConsensusMeetingCard";
 
 export default function ConsensusMeetingsTab() {
   const { t } = useLanguage();
   const { data: meetings, isLoading } = useGetAllConsensusMeetings();
   const { data: userProfile } = useGetCallerUserProfile();
   const { data: isAdmin } = useIsCallerAdmin();
-  const { data: userCategory, isLoading: categoryLoading } = useGetCallerCategory();
+  const { data: userCategory, isLoading: categoryLoading } =
+    useGetCallerCategory();
   const signUpMutation = useSignUpForConsensusMeeting();
-  const [selectedMeetingId, setSelectedMeetingId] = useState<string | null>(null);
+  const [selectedMeetingId, setSelectedMeetingId] = useState<string | null>(
+    null,
+  );
 
-  const activeMeeting = meetings?.find(m => m.phase !== ConsensusPhase.finalize);
-  const pastMeetings = meetings?.filter(m => m.phase === ConsensusPhase.finalize) || [];
+  const activeMeeting = meetings?.find(
+    (m) => m.phase !== ConsensusPhase.finalize,
+  );
+  const pastMeetings =
+    meetings?.filter((m) => m.phase === ConsensusPhase.finalize) || [];
 
-  const isParticipant = activeMeeting && userProfile
-    ? activeMeeting.participants.some(p => p.toString() === userProfile.principal.toString())
-    : false;
+  const isParticipant =
+    activeMeeting && userProfile
+      ? activeMeeting.participants.some(
+          (p) => p.toString() === userProfile.principal.toString(),
+        )
+      : false;
 
   const isNonMember = userCategory === UserCategory.nonMember;
-  const canSignUp = activeMeeting && activeMeeting.phase === ConsensusPhase.signup && !isParticipant && !isNonMember;
+  const canSignUp =
+    activeMeeting &&
+    activeMeeting.phase === ConsensusPhase.signup &&
+    !isParticipant &&
+    !isNonMember;
 
   const getPhaseLabel = (phase: ConsensusPhase) => {
     switch (phase) {
@@ -40,22 +73,24 @@ export default function ConsensusMeetingsTab() {
       case ConsensusPhase.finalize:
         return t.consensus.finalized;
       default:
-        return 'Unknown';
+        return "Unknown";
     }
   };
 
-  const getPhaseVariant = (phase: ConsensusPhase): 'default' | 'secondary' | 'outline' => {
+  const getPhaseVariant = (
+    phase: ConsensusPhase,
+  ): "default" | "secondary" | "outline" => {
     switch (phase) {
       case ConsensusPhase.signup:
-        return 'default';
+        return "default";
       case ConsensusPhase.contribution:
-        return 'default';
+        return "default";
       case ConsensusPhase.ranking:
-        return 'default';
+        return "default";
       case ConsensusPhase.finalize:
-        return 'secondary';
+        return "secondary";
       default:
-        return 'outline';
+        return "outline";
     }
   };
 
@@ -88,11 +123,15 @@ export default function ConsensusMeetingsTab() {
   }
 
   if (selectedMeetingId) {
-    const meeting = meetings?.find(m => m.id === selectedMeetingId);
+    const meeting = meetings?.find((m) => m.id === selectedMeetingId);
     if (meeting) {
       return (
         <div>
-          <Button variant="outline" onClick={() => setSelectedMeetingId(null)} className="mb-4">
+          <Button
+            variant="outline"
+            onClick={() => setSelectedMeetingId(null)}
+            className="mb-4"
+          >
             ← {t.common.back}
           </Button>
           <ConsensusMeetingCard meeting={meeting} userProfile={userProfile} />
@@ -120,9 +159,7 @@ export default function ConsensusMeetingsTab() {
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
-            {t.consensus.subtitle}
-          </p>
+          <p className="text-muted-foreground">{t.consensus.subtitle}</p>
         </CardContent>
       </Card>
 
@@ -146,15 +183,23 @@ export default function ConsensusMeetingsTab() {
               <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
                 <Clock className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">{t.consensus.phase}</p>
-                  <p className="font-semibold">{getPhaseLabel(activeMeeting.phase)}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t.consensus.phase}
+                  </p>
+                  <p className="font-semibold">
+                    {getPhaseLabel(activeMeeting.phase)}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
                 <Users className="h-5 w-5 text-accent" />
                 <div>
-                  <p className="text-sm text-muted-foreground">{t.consensus.participants}</p>
-                  <p className="font-semibold">{activeMeeting.participants.length}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t.consensus.participants}
+                  </p>
+                  <p className="font-semibold">
+                    {activeMeeting.participants.length}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
@@ -164,8 +209,14 @@ export default function ConsensusMeetingsTab() {
                   <AlertCircle className="h-5 w-5 text-yellow-500" />
                 )}
                 <div>
-                  <p className="text-sm text-muted-foreground">{t.consensus.status || 'Status'}</p>
-                  <p className="font-semibold">{isParticipant ? t.consensus.enrolled || 'Enrolled' : t.consensus.notEnrolled || 'Not Enrolled'}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t.consensus.status || "Status"}
+                  </p>
+                  <p className="font-semibold">
+                    {isParticipant
+                      ? t.consensus.enrolled || "Enrolled"
+                      : t.consensus.notEnrolled || "Not Enrolled"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -174,7 +225,9 @@ export default function ConsensusMeetingsTab() {
               <div className="flex items-start gap-3 p-4 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800">
                 <ShieldAlert className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
-                  <p className="font-semibold text-red-900 dark:text-red-100">{t.consensus.membershipRequired}</p>
+                  <p className="font-semibold text-red-900 dark:text-red-100">
+                    {t.consensus.membershipRequired}
+                  </p>
                   <p className="text-sm text-red-700 dark:text-red-300 mt-1">
                     {t.consensus.membershipRequiredDesc}
                   </p>
@@ -183,7 +236,11 @@ export default function ConsensusMeetingsTab() {
             ) : (
               <div className="flex gap-2">
                 {canSignUp && (
-                  <Button onClick={handleSignUp} disabled={signUpMutation.isPending} className="flex-1">
+                  <Button
+                    onClick={handleSignUp}
+                    disabled={signUpMutation.isPending}
+                    className="flex-1"
+                  >
                     {signUpMutation.isPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -194,7 +251,11 @@ export default function ConsensusMeetingsTab() {
                     )}
                   </Button>
                 )}
-                <Button onClick={handleViewDetails} variant="outline" className="flex-1">
+                <Button
+                  onClick={handleViewDetails}
+                  variant="outline"
+                  className="flex-1"
+                >
                   View Details
                 </Button>
               </div>
@@ -207,7 +268,8 @@ export default function ConsensusMeetingsTab() {
             <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-lg font-semibold mb-2">No Active Meeting</p>
             <p className="text-sm text-muted-foreground">
-              There are currently no active consensus meetings. Check back later.
+              There are currently no active consensus meetings. Check back
+              later.
             </p>
           </CardContent>
         </Card>
@@ -217,16 +279,15 @@ export default function ConsensusMeetingsTab() {
         <Card>
           <CardHeader>
             <CardTitle>{t.consensus.pastMeetings}</CardTitle>
-            <CardDescription>
-              {t.consensus.pastMeetingsDesc}
-            </CardDescription>
+            <CardDescription>{t.consensus.pastMeetingsDesc}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {pastMeetings.map((meeting) => (
-                <div
+                <button
                   key={meeting.id}
-                  className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
+                  type="button"
+                  className="w-full text-left flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
                   onClick={() => setSelectedMeetingId(meeting.id)}
                 >
                   <div>
@@ -236,7 +297,7 @@ export default function ConsensusMeetingsTab() {
                     </p>
                   </div>
                   <Badge variant="secondary">{t.consensus.finalized}</Badge>
-                </div>
+                </button>
               ))}
             </div>
           </CardContent>

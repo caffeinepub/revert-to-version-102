@@ -1,18 +1,44 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { useGetTokenBalance, useGetAllMembers, useDonatePHIL } from '../../hooks/useQueries';
-import { TreasuryTarget } from '../../types/backend-extensions';
-import { Principal } from '@icp-sdk/core/principal';
-import { Coins, Loader2, Send } from 'lucide-react';
-import { toast } from 'sonner';
-import { useLanguage } from '../../contexts/LanguageContext';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Principal } from "@icp-sdk/core/principal";
+import { Coins, Loader2, Send } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import type { DonationTarget } from "../../backend";
+import { useLanguage } from "../../contexts/LanguageContext";
+import {
+  useDonatePHIL,
+  useGetAllMembers,
+  useGetTokenBalance,
+} from "../../hooks/useQueries";
+import { TreasuryTarget } from "../../types/backend-extensions";
 
-type RecipientType = 'user' | 'treasury';
+type RecipientType = "user" | "treasury";
 
 export default function DonatePHILCard() {
   const { t } = useLanguage();
@@ -20,16 +46,18 @@ export default function DonatePHILCard() {
   const { data: members = [] } = useGetAllMembers();
   const donatePHIL = useDonatePHIL();
 
-  const [recipientType, setRecipientType] = useState<RecipientType>('user');
-  const [selectedUser, setSelectedUser] = useState<string>('');
-  const [selectedTreasury, setSelectedTreasury] = useState<TreasuryTarget>(TreasuryTarget.rewards);
-  const [amount, setAmount] = useState<string>('');
+  const [recipientType, setRecipientType] = useState<RecipientType>("user");
+  const [selectedUser, setSelectedUser] = useState<string>("");
+  const [selectedTreasury, setSelectedTreasury] = useState<TreasuryTarget>(
+    TreasuryTarget.rewards,
+  );
+  const [amount, setAmount] = useState<string>("");
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
   const philBalance = tokenBalance?.phil ? Number(tokenBalance.phil) : 0;
 
   const handleDonate = () => {
-    const donationAmount = parseInt(amount);
+    const donationAmount = Number.parseInt(amount);
 
     if (!amount || donationAmount <= 0) {
       toast.error(t.blog.tipAmountInvalid);
@@ -41,7 +69,7 @@ export default function DonatePHILCard() {
       return;
     }
 
-    if (recipientType === 'user' && !selectedUser) {
+    if (recipientType === "user" && !selectedUser) {
       toast.error(t.common.error);
       return;
     }
@@ -51,34 +79,39 @@ export default function DonatePHILCard() {
 
   const confirmDonation = async () => {
     try {
-      const donationAmount = BigInt(parseInt(amount));
-      
-      let target;
-      if (recipientType === 'user') {
-        target = { __kind__: 'user' as const, user: Principal.fromText(selectedUser) };
+      const donationAmount = BigInt(Number.parseInt(amount));
+
+      let target: DonationTarget;
+      if (recipientType === "user") {
+        target = {
+          __kind__: "user" as const,
+          user: Principal.fromText(selectedUser),
+        };
       } else {
-        target = { __kind__: 'treasury' as const, treasury: selectedTreasury };
+        target = { __kind__: "treasury" as const, treasury: selectedTreasury };
       }
 
       await donatePHIL.mutateAsync({ target, amount: donationAmount });
-      
+
       toast.success(t.common.success);
-      setAmount('');
-      setSelectedUser('');
+      setAmount("");
+      setSelectedUser("");
       setConfirmDialogOpen(false);
     } catch (error: any) {
-      console.error('Donation error:', error);
-      const errorMessage = error.message || '';
-      
-      if (errorMessage.includes('Insufficient PHIL balance')) {
+      console.error("Donation error:", error);
+      const errorMessage = error.message || "";
+
+      if (errorMessage.includes("Insufficient PHIL balance")) {
         toast.error(t.blog.insufficientBalance);
-      } else if (errorMessage.includes('Only approved members')) {
+      } else if (errorMessage.includes("Only approved members")) {
         toast.error(t.common.error);
-      } else if (errorMessage.includes('Recipient user does not exist')) {
+      } else if (errorMessage.includes("Recipient user does not exist")) {
         toast.error(t.common.error);
-      } else if (errorMessage.includes('Cannot donate to yourself')) {
+      } else if (errorMessage.includes("Cannot donate to yourself")) {
         toast.error(t.common.error);
-      } else if (errorMessage.includes('Donation amount must be greater than 0')) {
+      } else if (
+        errorMessage.includes("Donation amount must be greater than 0")
+      ) {
         toast.error(t.blog.tipAmountInvalid);
       } else {
         toast.error(`${t.common.error}: ${errorMessage}`);
@@ -88,20 +121,21 @@ export default function DonatePHILCard() {
   };
 
   const getRecipientDisplay = () => {
-    if (recipientType === 'user') {
-      const member = members.find(m => m.principal.toString() === selectedUser);
+    if (recipientType === "user") {
+      const member = members.find(
+        (m) => m.principal.toString() === selectedUser,
+      );
       return member ? member.username : t.members.username;
-    } else {
-      switch (selectedTreasury) {
-        case TreasuryTarget.rewards:
-          return t.admin.rewardsTreasury;
-        case TreasuryTarget.marketing:
-          return t.admin.marketingTreasury;
-        case TreasuryTarget.council:
-          return t.admin.councilTreasury;
-        default:
-          return 'Treasury';
-      }
+    }
+    switch (selectedTreasury) {
+      case TreasuryTarget.rewards:
+        return t.admin.rewardsTreasury;
+      case TreasuryTarget.marketing:
+        return t.admin.marketingTreasury;
+      case TreasuryTarget.council:
+        return t.admin.councilTreasury;
+      default:
+        return "Treasury";
     }
   };
 
@@ -119,7 +153,9 @@ export default function DonatePHILCard() {
                 />
               </div>
               <div>
-                <CardTitle className="text-xl">{t.overview.sendToken}</CardTitle>
+                <CardTitle className="text-xl">
+                  {t.overview.sendToken}
+                </CardTitle>
                 <CardDescription className="mt-1">
                   {t.overview.sendTokenDesc}
                 </CardDescription>
@@ -130,12 +166,20 @@ export default function DonatePHILCard() {
         <CardContent className="space-y-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
             <Coins className="h-4 w-4" />
-            <span>{t.blog.yourBalance}: <span className="font-semibold text-accent">{philBalance}</span></span>
+            <span>
+              {t.blog.yourBalance}:{" "}
+              <span className="font-semibold text-accent">{philBalance}</span>
+            </span>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="recipient-type">{t.members.username}</Label>
-            <Select value={recipientType} onValueChange={(value) => setRecipientType(value as RecipientType)}>
+            <Select
+              value={recipientType}
+              onValueChange={(value) =>
+                setRecipientType(value as RecipientType)
+              }
+            >
               <SelectTrigger id="recipient-type">
                 <SelectValue />
               </SelectTrigger>
@@ -146,7 +190,7 @@ export default function DonatePHILCard() {
             </Select>
           </div>
 
-          {recipientType === 'user' ? (
+          {recipientType === "user" ? (
             <div className="space-y-2">
               <Label htmlFor="user-select">{t.members.username}</Label>
               <Select value={selectedUser} onValueChange={setSelectedUser}>
@@ -155,7 +199,10 @@ export default function DonatePHILCard() {
                 </SelectTrigger>
                 <SelectContent>
                   {members.map((member) => (
-                    <SelectItem key={member.principal.toString()} value={member.principal.toString()}>
+                    <SelectItem
+                      key={member.principal.toString()}
+                      value={member.principal.toString()}
+                    >
                       {member.username} ({member.email})
                     </SelectItem>
                   ))}
@@ -165,14 +212,25 @@ export default function DonatePHILCard() {
           ) : (
             <div className="space-y-2">
               <Label htmlFor="treasury-select">Treasury</Label>
-              <Select value={selectedTreasury} onValueChange={(value) => setSelectedTreasury(value as TreasuryTarget)}>
+              <Select
+                value={selectedTreasury}
+                onValueChange={(value) =>
+                  setSelectedTreasury(value as TreasuryTarget)
+                }
+              >
                 <SelectTrigger id="treasury-select">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={TreasuryTarget.rewards}>{t.admin.rewardsTreasury}</SelectItem>
-                  <SelectItem value={TreasuryTarget.marketing}>{t.admin.marketingTreasury}</SelectItem>
-                  <SelectItem value={TreasuryTarget.council}>{t.admin.councilTreasury}</SelectItem>
+                  <SelectItem value={TreasuryTarget.rewards}>
+                    {t.admin.rewardsTreasury}
+                  </SelectItem>
+                  <SelectItem value={TreasuryTarget.marketing}>
+                    {t.admin.marketingTreasury}
+                  </SelectItem>
+                  <SelectItem value={TreasuryTarget.council}>
+                    {t.admin.councilTreasury}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -191,9 +249,14 @@ export default function DonatePHILCard() {
             />
           </div>
 
-          <Button 
+          <Button
             onClick={handleDonate}
-            disabled={donatePHIL.isPending || !amount || parseInt(amount) <= 0 || (recipientType === 'user' && !selectedUser)}
+            disabled={
+              donatePHIL.isPending ||
+              !amount ||
+              Number.parseInt(amount) <= 0 ||
+              (recipientType === "user" && !selectedUser)
+            }
             className="w-full"
             size="lg"
           >
@@ -217,15 +280,16 @@ export default function DonatePHILCard() {
           <AlertDialogHeader>
             <AlertDialogTitle>{t.common.confirm}</AlertDialogTitle>
             <AlertDialogDescription>
-              <span className="font-semibold text-accent">{amount} PHIL</span>{' '}
+              <span className="font-semibold text-accent">{amount} PHIL</span>{" "}
               <span className="font-semibold">{getRecipientDisplay()}</span>.
-              <br /><br />
+              <br />
+              <br />
               {t.common.confirm}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={confirmDonation}
               disabled={donatePHIL.isPending}
               className="bg-accent text-accent-foreground hover:bg-accent/90"

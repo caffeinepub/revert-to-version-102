@@ -1,29 +1,58 @@
-import { useGetAllMembers, useIsCouncilMember, useGetPendingJoinRequests, useApproveMemberJoinRequest, useGetCallerCategory, useIsCallerAdmin, useCalculateAverageREP } from '../../hooks/useQueries';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Users, Search, Loader2, Crown, UserCheck, Lock } from 'lucide-react';
-import { useState } from 'react';
-import type { UserProfile } from '../../backend';
-import { UserCategory } from '../../backend';
-import { Principal } from '@icp-sdk/core/principal';
-import { toast } from 'sonner';
-import { useLanguage } from '../../contexts/LanguageContext';
-import CopyAddressButton from '../CopyAddressButton';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import type { Principal } from "@icp-sdk/core/principal";
+import { Crown, Loader2, Lock, Search, UserCheck, Users } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import type { UserProfile } from "../../backend";
+import { UserCategory } from "../../backend";
+import { useLanguage } from "../../contexts/LanguageContext";
+import {
+  useApproveMemberJoinRequest,
+  useCalculateAverageREP,
+  useGetAllMembers,
+  useGetCallerCategory,
+  useGetPendingJoinRequests,
+  useIsCallerAdmin,
+  useIsCouncilMember,
+} from "../../hooks/useQueries";
+import CopyAddressButton from "../CopyAddressButton";
 
 export default function MembersTab() {
   const { t } = useLanguage();
   const { data: isAdmin, isLoading: isAdminLoading } = useIsCallerAdmin();
-  const { data: userCategory, isLoading: categoryLoading } = useGetCallerCategory();
-  const { data: profiles, isLoading: profilesLoading, error: profilesError } = useGetAllMembers();
-  const { data: pendingRequests, isLoading: pendingLoading } = useGetPendingJoinRequests();
+  const { data: userCategory, isLoading: categoryLoading } =
+    useGetCallerCategory();
+  const {
+    data: profiles,
+    isLoading: profilesLoading,
+    error: profilesError,
+  } = useGetAllMembers();
+  const { data: pendingRequests, isLoading: pendingLoading } =
+    useGetPendingJoinRequests();
   const approveRequest = useApproveMemberJoinRequest();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [processingRequest, setProcessingRequest] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [processingRequest, setProcessingRequest] = useState<string | null>(
+    null,
+  );
 
   const isActiveMember = userCategory === UserCategory.activeMember;
   const isAuthorized = isAdmin || isActiveMember;
@@ -46,7 +75,9 @@ export default function MembersTab() {
               <Lock className="h-12 w-12 text-destructive" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-xl font-semibold">{t.members.accessRestricted}</h3>
+              <h3 className="text-xl font-semibold">
+                {t.members.accessRestricted}
+              </h3>
               <p className="text-muted-foreground max-w-md">
                 {t.members.accessRestrictedDesc}
               </p>
@@ -61,30 +92,29 @@ export default function MembersTab() {
     return (
       <Alert variant="destructive">
         <AlertTitle>{t.common.error}</AlertTitle>
-        <AlertDescription>
-          {t.members.accessRestrictedDesc}
-        </AlertDescription>
+        <AlertDescription>{t.members.accessRestrictedDesc}</AlertDescription>
       </Alert>
     );
   }
 
-  const filteredProfiles = profiles?.filter(profile =>
-    profile.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    profile.email.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProfiles = profiles?.filter(
+    (profile) =>
+      profile.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      profile.email.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const getAvatarUrl = (profile: UserProfile) => {
     if (profile.profilePicture) {
       return profile.profilePicture.getDirectURL();
     }
-    return '/assets/generated/default-avatar.dim_150x150.png';
+    return "/assets/generated/default-avatar.dim_150x150.png";
   };
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
@@ -92,24 +122,27 @@ export default function MembersTab() {
   const handleApproveRequest = async (userPrincipal: Principal) => {
     const principalStr = userPrincipal.toString();
     setProcessingRequest(principalStr);
-    
+
     try {
       await approveRequest.mutateAsync(userPrincipal);
       toast.success(t.toast.approveSuccess);
     } catch (error: any) {
       const errorMessage = error?.message || t.toast.approveError;
       toast.error(errorMessage);
-      console.error('Error approving request:', error);
+      console.error("Error approving request:", error);
     } finally {
       setProcessingRequest(null);
     }
   };
 
   const getProfileForRequest = (principal: Principal) => {
-    return profiles?.find((p) => p.principal.toString() === principal.toString());
+    return profiles?.find(
+      (p) => p.principal.toString() === principal.toString(),
+    );
   };
 
-  const showMemberApprovalSection = isActiveMember && pendingRequests && pendingRequests.length > 0;
+  const showMemberApprovalSection =
+    isActiveMember && pendingRequests && pendingRequests.length > 0;
 
   return (
     <div className="space-y-6">
@@ -154,20 +187,23 @@ export default function MembersTab() {
                       const principalStr = request.principal.toString();
                       const isProcessing = processingRequest === principalStr;
                       const approvalCount = request.approvals.length;
-                      
+
                       return (
                         <TableRow key={principalStr}>
                           <TableCell className="font-medium">
-                            {profile?.username || 'Unknown'}
+                            {profile?.username || "Unknown"}
                           </TableCell>
-                          <TableCell>{profile?.email || 'N/A'}</TableCell>
+                          <TableCell>{profile?.email || "N/A"}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Badge variant="secondary">
                                 {approvalCount} / 2 {t.members.approvals}
                               </Badge>
                               {approvalCount >= 2 && (
-                                <Badge variant="default" className="bg-green-600">
+                                <Badge
+                                  variant="default"
+                                  className="bg-green-600"
+                                >
                                   {t.members.ready}
                                 </Badge>
                               )}
@@ -177,8 +213,12 @@ export default function MembersTab() {
                             <Button
                               size="sm"
                               variant="default"
-                              onClick={() => handleApproveRequest(request.principal)}
-                              disabled={isProcessing || approveRequest.isPending}
+                              onClick={() =>
+                                handleApproveRequest(request.principal)
+                              }
+                              disabled={
+                                isProcessing || approveRequest.isPending
+                              }
                             >
                               {isProcessing ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -235,7 +275,12 @@ export default function MembersTab() {
       ) : filteredProfiles && filteredProfiles.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredProfiles.map((profile) => (
-            <MemberCard key={profile.principal.toString()} profile={profile} getAvatarUrl={getAvatarUrl} getInitials={getInitials} />
+            <MemberCard
+              key={profile.principal.toString()}
+              profile={profile}
+              getAvatarUrl={getAvatarUrl}
+              getInitials={getInitials}
+            />
           ))}
         </div>
       ) : (
@@ -252,13 +297,13 @@ export default function MembersTab() {
   );
 }
 
-function MemberCard({ 
-  profile, 
-  getAvatarUrl, 
-  getInitials 
-}: { 
-  profile: UserProfile; 
-  getAvatarUrl: (profile: UserProfile) => string; 
+function MemberCard({
+  profile,
+  getAvatarUrl,
+  getInitials,
+}: {
+  profile: UserProfile;
+  getAvatarUrl: (profile: UserProfile) => string;
   getInitials: (name: string) => string;
 }) {
   const { t } = useLanguage();
@@ -289,12 +334,17 @@ function MemberCard({
               )}
             </div>
             {isCouncil && (
-              <Badge variant="default" className="bg-amber-600 hover:bg-amber-700 mb-2">
+              <Badge
+                variant="default"
+                className="bg-amber-600 hover:bg-amber-700 mb-2"
+              >
                 <Crown className="mr-1 h-3 w-3" />
                 {t.members.council}
               </Badge>
             )}
-            <p className="text-sm text-muted-foreground truncate">{profile.email}</p>
+            <p className="text-sm text-muted-foreground truncate">
+              {profile.email}
+            </p>
             {averageREP !== undefined && averageREP > 0n && (
               <div className="mt-2 flex items-center gap-1">
                 <Badge variant="secondary" className="text-xs">
@@ -314,4 +364,3 @@ function MemberCard({
     </Card>
   );
 }
-

@@ -1,16 +1,26 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Loader2, CheckCircle2, GripVertical } from 'lucide-react';
-import type { ConsensusMeetingView, GroupView, Ranking } from '../../types/backend-extensions';
-import type { UserProfile } from '../../backend';
-import { useSubmitRanking, useGetAllMembers } from '../../hooks/useQueries';
-import { toast } from 'sonner';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { Principal } from '@icp-sdk/core/principal';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Principal } from "@icp-sdk/core/principal";
+import { CheckCircle2, GripVertical, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import type { UserProfile } from "../../backend";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { useGetAllMembers, useSubmitRanking } from "../../hooks/useQueries";
+import type {
+  ConsensusMeetingView,
+  GroupView,
+  Ranking,
+} from "../../types/backend-extensions";
 
 interface RankingFormProps {
   meeting: ConsensusMeetingView;
@@ -32,26 +42,34 @@ export default function RankingForm({
 
   useEffect(() => {
     if (userGroup) {
-      setRankedMembers(userGroup.members.map(m => m.toString()));
+      setRankedMembers(userGroup.members.map((m) => m.toString()));
     }
   }, [userGroup]);
 
   const getUsernameByPrincipal = (principal: string) => {
-    const profile = allProfiles?.find(p => p.principal.toString() === principal);
-    return profile?.username || t.consensus.unknownUser || 'Unknown User';
+    const profile = allProfiles?.find(
+      (p) => p.principal.toString() === principal,
+    );
+    return profile?.username || t.consensus.unknownUser || "Unknown User";
   };
 
   const moveUp = (index: number) => {
     if (index === 0) return;
     const newRanked = [...rankedMembers];
-    [newRanked[index - 1], newRanked[index]] = [newRanked[index], newRanked[index - 1]];
+    [newRanked[index - 1], newRanked[index]] = [
+      newRanked[index],
+      newRanked[index - 1],
+    ];
     setRankedMembers(newRanked);
   };
 
   const moveDown = (index: number) => {
     if (index === rankedMembers.length - 1) return;
     const newRanked = [...rankedMembers];
-    [newRanked[index], newRanked[index + 1]] = [newRanked[index + 1], newRanked[index]];
+    [newRanked[index], newRanked[index + 1]] = [
+      newRanked[index + 1],
+      newRanked[index],
+    ];
     setRankedMembers(newRanked);
   };
 
@@ -77,7 +95,10 @@ export default function RankingForm({
     return (
       <Card>
         <CardContent className="py-12 text-center">
-          <p className="text-muted-foreground">{t.consensus.noGroupAssigned || 'You are not assigned to a group yet.'}</p>
+          <p className="text-muted-foreground">
+            {t.consensus.noGroupAssigned ||
+              "You are not assigned to a group yet."}
+          </p>
         </CardContent>
       </Card>
     );
@@ -89,22 +110,29 @@ export default function RankingForm({
       <Card>
         <CardHeader>
           <CardTitle>{t.consensus.groupContributions}</CardTitle>
-          <CardDescription>{t.consensus.reviewContributions || 'Review contributions before ranking'}</CardDescription>
+          <CardDescription>
+            {t.consensus.reviewContributions ||
+              "Review contributions before ranking"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[300px] pr-4">
             <div className="space-y-4">
-              {userGroup.contributions.map(([principal, contribution], index) => (
-                <div key={principal.toString()}>
-                  {index > 0 && <Separator className="my-4" />}
-                  <div className="space-y-2">
-                    <div className="font-semibold">
-                      {getUsernameByPrincipal(principal.toString())}
+              {userGroup.contributions.map(
+                ([principal, contribution], index) => (
+                  <div key={principal.toString()}>
+                    {index > 0 && <Separator className="my-4" />}
+                    <div className="space-y-2">
+                      <div className="font-semibold">
+                        {getUsernameByPrincipal(principal.toString())}
+                      </div>
+                      <p className="text-sm whitespace-pre-wrap">
+                        {contribution.text}
+                      </p>
                     </div>
-                    <p className="text-sm whitespace-pre-wrap">{contribution.text}</p>
                   </div>
-                </div>
-              ))}
+                ),
+              )}
             </div>
           </ScrollArea>
         </CardContent>
@@ -122,15 +150,15 @@ export default function RankingForm({
               />
               <div>
                 <CardTitle>{t.consensus.rankMembers}</CardTitle>
-                <CardDescription>
-                  {t.consensus.rankMembersDesc}
-                </CardDescription>
+                <CardDescription>{t.consensus.rankMembersDesc}</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>{t.consensus.rankingOrder || 'Ranking Order (Drag to reorder)'}</Label>
+              <Label>
+                {t.consensus.rankingOrder || "Ranking Order (Drag to reorder)"}
+              </Label>
               <div className="space-y-2">
                 {rankedMembers.map((principalStr, index) => (
                   <div
@@ -165,7 +193,9 @@ export default function RankingForm({
                         {getUsernameByPrincipal(principalStr)}
                       </div>
                       {principalStr === userProfile?.principal.toString() && (
-                        <span className="text-xs text-muted-foreground">({t.consensus.you || 'You'})</span>
+                        <span className="text-xs text-muted-foreground">
+                          ({t.consensus.you || "You"})
+                        </span>
                       )}
                     </div>
                     <GripVertical className="h-5 w-5 text-muted-foreground" />
@@ -194,9 +224,12 @@ export default function RankingForm({
         <Card>
           <CardContent className="py-12 text-center">
             <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-2" />
-            <p className="font-semibold">{t.consensus.rankingsSubmitted || 'Rankings Submitted!'}</p>
+            <p className="font-semibold">
+              {t.consensus.rankingsSubmitted || "Rankings Submitted!"}
+            </p>
             <p className="text-sm text-muted-foreground mt-1">
-              {t.consensus.waitingForRankings || 'Waiting for other group members to submit their rankings.'}
+              {t.consensus.waitingForRankings ||
+                "Waiting for other group members to submit their rankings."}
             </p>
           </CardContent>
         </Card>
@@ -207,7 +240,10 @@ export default function RankingForm({
         <CardContent className="pt-6">
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
-              {userGroup.rankings.length} {t.consensus.of || 'of'} {userGroup.members.length} {t.consensus.membersSubmittedRankings || 'members have submitted rankings'}
+              {userGroup.rankings.length} {t.consensus.of || "of"}{" "}
+              {userGroup.members.length}{" "}
+              {t.consensus.membersSubmittedRankings ||
+                "members have submitted rankings"}
             </p>
           </div>
         </CardContent>

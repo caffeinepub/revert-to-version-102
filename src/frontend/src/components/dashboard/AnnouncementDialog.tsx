@@ -1,14 +1,21 @@
-import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Loader2 } from 'lucide-react';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
-import type { Announcement } from '../../types/backend-extensions';
-import { toast } from 'sonner';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
+import { toast } from "sonner";
+import { useLanguage } from "../../contexts/LanguageContext";
+import type { Announcement } from "../../types/backend-extensions";
 
 // NOTE: This component is not currently used in the UI as announcements are hidden
 // It remains here for potential future use and to prevent build errors
@@ -20,10 +27,15 @@ interface AnnouncementDialogProps {
   onSuccess?: () => void;
 }
 
-export default function AnnouncementDialog({ open, onOpenChange, announcement, onSuccess }: AnnouncementDialogProps) {
+export default function AnnouncementDialog({
+  open,
+  onOpenChange,
+  announcement,
+  onSuccess,
+}: AnnouncementDialogProps) {
   const { t } = useLanguage();
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -31,15 +43,15 @@ export default function AnnouncementDialog({ open, onOpenChange, announcement, o
       setTitle(announcement.title);
       setContent(announcement.content);
     } else {
-      setTitle('');
-      setContent('');
+      setTitle("");
+      setContent("");
     }
-  }, [announcement, open]);
+  }, [announcement]);
 
   const stripHtml = (html: string) => {
-    const tmp = document.createElement('DIV');
+    const tmp = document.createElement("DIV");
     tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || '';
+    return tmp.textContent || tmp.innerText || "";
   };
 
   const isFormValid = () => {
@@ -49,9 +61,9 @@ export default function AnnouncementDialog({ open, onOpenChange, announcement, o
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isFormValid()) {
-      toast.error('Please fill in all fields');
+      toast.error("Please fill in all fields");
       return;
     }
 
@@ -59,11 +71,11 @@ export default function AnnouncementDialog({ open, onOpenChange, announcement, o
     try {
       // Note: These mutations are commented out in useQueries.ts
       // This is a placeholder to prevent build errors
-      toast.info('Announcements feature is currently disabled');
+      toast.info("Announcements feature is currently disabled");
       onOpenChange(false);
       onSuccess?.();
     } catch (error: any) {
-      toast.error(error.message || 'An error occurred');
+      toast.error(error.message || "An error occurred");
     } finally {
       setIsSubmitting(false);
     }
@@ -74,10 +86,14 @@ export default function AnnouncementDialog({ open, onOpenChange, announcement, o
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {announcement ? t.announcements.editTitle : t.announcements.createTitle}
+            {announcement
+              ? t.announcements.editTitle
+              : t.announcements.createTitle}
           </DialogTitle>
           <DialogDescription>
-            {announcement ? t.announcements.editDesc : t.announcements.createDesc}
+            {announcement
+              ? t.announcements.editDesc
+              : t.announcements.createDesc}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -102,17 +118,21 @@ export default function AnnouncementDialog({ open, onOpenChange, announcement, o
                 modules={{
                   toolbar: [
                     [{ header: [1, 2, 3, false] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ list: 'ordered' }, { list: 'bullet' }],
-                    ['link'],
-                    ['clean'],
+                    ["bold", "italic", "underline", "strike"],
+                    [{ list: "ordered" }, { list: "bullet" }],
+                    ["link"],
+                    ["clean"],
                   ],
                 }}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               {t.common.cancel}
             </Button>
             <Button type="submit" disabled={isSubmitting || !isFormValid()}>
@@ -121,8 +141,10 @@ export default function AnnouncementDialog({ open, onOpenChange, announcement, o
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {t.common.loading}
                 </>
+              ) : announcement ? (
+                t.announcements.updated
               ) : (
-                announcement ? t.announcements.updated : t.announcements.createButton
+                t.announcements.createButton
               )}
             </Button>
           </DialogFooter>

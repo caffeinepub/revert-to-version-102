@@ -1,14 +1,21 @@
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useGetCallerUserProfile, useIsCallerAdmin } from '../hooks/useQueries';
-import { useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LogOut, User, Shield, Moon, Sun } from 'lucide-react';
-import { useTheme } from 'next-themes';
-import { useLanguage } from '../contexts/LanguageContext';
-import LanguageSwitcher from './LanguageSwitcher';
-import NotificationsDropdown from './NotificationsDropdown';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useQueryClient } from "@tanstack/react-query";
+import { LogOut, Moon, Shield, Sun, User } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
+import { useGetCallerUserProfile, useIsCallerAdmin } from "../hooks/useQueries";
+import LanguageSwitcher from "./LanguageSwitcher";
+import NotificationsDropdown from "./NotificationsDropdown";
 
 export default function Header() {
   const { clear, identity } = useInternetIdentity();
@@ -27,9 +34,9 @@ export default function Header() {
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
@@ -38,7 +45,7 @@ export default function Header() {
     if (userProfile?.profilePicture) {
       return userProfile.profilePicture.getDirectURL();
     }
-    return '/assets/generated/default-avatar.dim_150x150.png';
+    return "/assets/generated/default-avatar.dim_150x150.png";
   };
 
   return (
@@ -55,11 +62,11 @@ export default function Header() {
 
         <div className="flex items-center gap-4">
           <LanguageSwitcher />
-          
+
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="rounded-full"
           >
             <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -70,14 +77,20 @@ export default function Header() {
           {isAuthenticated && (
             <>
               <NotificationsDropdown />
-              
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Button
+                    variant="ghost"
+                    className="relative h-10 w-10 rounded-full"
+                  >
                     <Avatar className="h-10 w-10 border-2 border-primary/20">
-                      <AvatarImage src={getAvatarUrl()} alt={userProfile?.username || 'User'} />
+                      <AvatarImage
+                        src={getAvatarUrl()}
+                        alt={userProfile?.username || "User"}
+                      />
                       <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                        {userProfile ? getInitials(userProfile.username) : 'U'}
+                        {userProfile ? getInitials(userProfile.username) : "U"}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -85,8 +98,12 @@ export default function Header() {
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{userProfile?.username}</p>
-                      <p className="text-xs leading-none text-muted-foreground">{userProfile?.email}</p>
+                      <p className="text-sm font-medium leading-none">
+                        {userProfile?.username}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {userProfile?.email}
+                      </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -104,7 +121,10 @@ export default function Header() {
                     <span>{t.header.profileSettings}</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="cursor-pointer text-destructive focus:text-destructive"
+                  >
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>{t.header.logout}</span>
                   </DropdownMenuItem>
@@ -117,4 +137,3 @@ export default function Header() {
     </header>
   );
 }
-

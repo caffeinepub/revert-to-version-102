@@ -1,22 +1,31 @@
-import { useState } from 'react';
-import { useGetDailyRewardConfig, useUpdateDailyRewardConfig } from '../../hooks/useQueries';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Gift, Loader2, Save, Percent } from 'lucide-react';
-import { toast } from 'sonner';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Gift, Loader2, Percent, Save } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useLanguage } from "../../contexts/LanguageContext";
+import {
+  useGetDailyRewardConfig,
+  useUpdateDailyRewardConfig,
+} from "../../hooks/useQueries";
 
 export default function DailyRewardsConfigCard() {
   const { t } = useLanguage();
   const { data: config, isLoading } = useGetDailyRewardConfig();
   const updateConfig = useUpdateDailyRewardConfig();
-  
-  const [nonMemberReward, setNonMemberReward] = useState('');
-  const [memberReward, setMemberReward] = useState('');
-  const [activeMemberReward, setActiveMemberReward] = useState('');
-  const [allocationPercentage, setAllocationPercentage] = useState('');
+
+  const [nonMemberReward, setNonMemberReward] = useState("");
+  const [memberReward, setMemberReward] = useState("");
+  const [activeMemberReward, setActiveMemberReward] = useState("");
+  const [allocationPercentage, setAllocationPercentage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
 
   const handleEdit = () => {
@@ -32,7 +41,7 @@ export default function DailyRewardsConfigCard() {
   const handleSave = async () => {
     try {
       const percentage = BigInt(allocationPercentage);
-      
+
       if (percentage < 0n || percentage > 100n) {
         toast.error(t.common.error);
         return;
@@ -44,14 +53,14 @@ export default function DailyRewardsConfigCard() {
         activeMember: BigInt(activeMemberReward),
         allocationPercentage: percentage,
       };
-      
+
       await updateConfig.mutateAsync(newConfig);
       toast.success(t.common.success);
       setIsEditing(false);
     } catch (error: any) {
       const errorMessage = error?.message || t.common.error;
       toast.error(errorMessage);
-      console.error('Error updating config:', error);
+      console.error("Error updating config:", error);
     }
   };
 
@@ -97,7 +106,10 @@ export default function DailyRewardsConfigCard() {
         {isEditing ? (
           <>
             <div className="space-y-2">
-              <Label htmlFor="allocationPercentage" className="flex items-center gap-2">
+              <Label
+                htmlFor="allocationPercentage"
+                className="flex items-center gap-2"
+              >
                 <Percent className="h-4 w-4" />
                 {t.admin.marketingTreasury}
               </Label>
@@ -116,9 +128,11 @@ export default function DailyRewardsConfigCard() {
             </div>
 
             <div className="h-px bg-border my-4" />
-            
+
             <div className="space-y-2">
-              <Label htmlFor="nonMemberReward">{t.categories.nonMember} (PHIL)</Label>
+              <Label htmlFor="nonMemberReward">
+                {t.categories.nonMember} (PHIL)
+              </Label>
               <Input
                 id="nonMemberReward"
                 type="number"
@@ -128,7 +142,7 @@ export default function DailyRewardsConfigCard() {
                 min="0"
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="memberReward">{t.categories.member} (PHIL)</Label>
               <Input
@@ -140,9 +154,11 @@ export default function DailyRewardsConfigCard() {
                 min="0"
               />
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="activeMemberReward">{t.categories.activeMember} (PHIL)</Label>
+              <Label htmlFor="activeMemberReward">
+                {t.categories.activeMember} (PHIL)
+              </Label>
               <Input
                 id="activeMemberReward"
                 type="number"
@@ -152,7 +168,7 @@ export default function DailyRewardsConfigCard() {
                 min="0"
               />
             </div>
-            
+
             <div className="flex gap-2 pt-2">
               <Button onClick={handleSave} disabled={updateConfig.isPending}>
                 {updateConfig.isPending ? (
@@ -177,9 +193,13 @@ export default function DailyRewardsConfigCard() {
             <div className="flex justify-between items-center p-3 rounded-lg bg-primary/10 border border-primary/20">
               <div className="flex items-center gap-2">
                 <Percent className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">{t.admin.marketingTreasury}</span>
+                <span className="text-sm font-medium">
+                  {t.admin.marketingTreasury}
+                </span>
               </div>
-              <span className="text-xl font-bold text-primary">{config?.allocationPercentage.toString()}%</span>
+              <span className="text-xl font-bold text-primary">
+                {config?.allocationPercentage.toString()}%
+              </span>
             </div>
 
             <p className="text-xs text-muted-foreground px-3">
@@ -187,22 +207,32 @@ export default function DailyRewardsConfigCard() {
             </p>
 
             <div className="h-px bg-border my-4" />
-            
+
             <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
-              <span className="text-sm font-medium">{t.categories.nonMember}</span>
-              <span className="text-lg font-bold text-accent">{config?.nonMember.toString()} PHIL</span>
+              <span className="text-sm font-medium">
+                {t.categories.nonMember}
+              </span>
+              <span className="text-lg font-bold text-accent">
+                {config?.nonMember.toString()} PHIL
+              </span>
             </div>
-            
+
             <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
               <span className="text-sm font-medium">{t.categories.member}</span>
-              <span className="text-lg font-bold text-accent">{config?.member.toString()} PHIL</span>
+              <span className="text-lg font-bold text-accent">
+                {config?.member.toString()} PHIL
+              </span>
             </div>
-            
+
             <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
-              <span className="text-sm font-medium">{t.categories.activeMember}</span>
-              <span className="text-lg font-bold text-accent">{config?.activeMember.toString()} PHIL</span>
+              <span className="text-sm font-medium">
+                {t.categories.activeMember}
+              </span>
+              <span className="text-lg font-bold text-accent">
+                {config?.activeMember.toString()} PHIL
+              </span>
             </div>
-            
+
             <p className="text-sm text-muted-foreground pt-2">
               {t.overview.philReward}
             </p>

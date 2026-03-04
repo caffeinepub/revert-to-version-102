@@ -1,38 +1,51 @@
-import { useState, useEffect } from 'react';
-import { useGetCallerUserProfile, useUpdateCallerUserProfile } from '../../hooks/useQueries';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, Upload } from 'lucide-react';
-import { toast } from 'sonner';
-import { ExternalBlob } from '../../backend';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, Upload } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { ExternalBlob } from "../../backend";
+import {
+  useGetCallerUserProfile,
+  useUpdateCallerUserProfile,
+} from "../../hooks/useQueries";
 
 interface EditProfileDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export default function EditProfileDialog({ open, onOpenChange }: EditProfileDialogProps) {
+export default function EditProfileDialog({
+  open,
+  onOpenChange,
+}: EditProfileDialogProps) {
   const { data: userProfile } = useGetCallerUserProfile();
   const updateProfile = useUpdateCallerUserProfile();
-  
-  const [username, setUsername] = useState('');
-  const [bio, setBio] = useState('');
+
+  const [username, setUsername] = useState("");
+  const [bio, setBio] = useState("");
   const [newPicture, setNewPicture] = useState<ExternalBlob | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [previewUrl, setPreviewUrl] = useState<string>("");
   const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     if (userProfile) {
       setUsername(userProfile.username);
-      setBio(userProfile.bio || '');
+      setBio(userProfile.bio || "");
       setPreviewUrl(
         userProfile.profilePicture
           ? userProfile.profilePicture.getDirectURL()
-          : '/assets/generated/default-avatar.dim_150x150.png'
+          : "/assets/generated/default-avatar.dim_150x150.png",
       );
     }
   }, [userProfile]);
@@ -41,29 +54,31 @@ export default function EditProfileDialog({ open, onOpenChange }: EditProfileDia
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size must be less than 5MB');
+      toast.error("Image size must be less than 5MB");
       return;
     }
 
     try {
       const arrayBuffer = await file.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
-      const blob = ExternalBlob.fromBytes(uint8Array).withUploadProgress((percentage) => {
-        setUploadProgress(percentage);
-      });
-      
+      const blob = ExternalBlob.fromBytes(uint8Array).withUploadProgress(
+        (percentage) => {
+          setUploadProgress(percentage);
+        },
+      );
+
       setNewPicture(blob);
       setPreviewUrl(URL.createObjectURL(file));
-      toast.success('New profile picture selected');
+      toast.success("New profile picture selected");
     } catch (error) {
-      toast.error('Failed to process image');
-      console.error('Error processing image:', error);
+      toast.error("Failed to process image");
+      console.error("Error processing image:", error);
     }
   };
 
@@ -74,20 +89,20 @@ export default function EditProfileDialog({ open, onOpenChange }: EditProfileDia
         bio,
         profilePicture: newPicture,
       });
-      
-      toast.success('Profile updated successfully!');
+
+      toast.success("Profile updated successfully!");
       onOpenChange(false);
     } catch (error) {
-      toast.error('Failed to update profile');
-      console.error('Error updating profile:', error);
+      toast.error("Failed to update profile");
+      console.error("Error updating profile:", error);
     }
   };
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
@@ -106,7 +121,7 @@ export default function EditProfileDialog({ open, onOpenChange }: EditProfileDia
             <Avatar className="h-32 w-32 border-4 border-primary/20">
               <AvatarImage src={previewUrl} alt="Profile" />
               <AvatarFallback className="bg-primary/10 text-primary text-3xl font-semibold">
-                {username ? getInitials(username) : 'U'}
+                {username ? getInitials(username) : "U"}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col items-center gap-2">
@@ -124,7 +139,9 @@ export default function EditProfileDialog({ open, onOpenChange }: EditProfileDia
                 />
               </Label>
               {uploadProgress > 0 && uploadProgress < 100 && (
-                <p className="text-xs text-muted-foreground">Uploading: {uploadProgress}%</p>
+                <p className="text-xs text-muted-foreground">
+                  Uploading: {uploadProgress}%
+                </p>
               )}
             </div>
           </div>
@@ -158,17 +175,14 @@ export default function EditProfileDialog({ open, onOpenChange }: EditProfileDia
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={updateProfile.isPending}
-          >
+          <Button onClick={handleSave} disabled={updateProfile.isPending}>
             {updateProfile.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Saving...
               </>
             ) : (
-              'Save Changes'
+              "Save Changes"
             )}
           </Button>
         </DialogFooter>

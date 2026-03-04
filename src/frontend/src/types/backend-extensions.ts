@@ -1,8 +1,8 @@
 // Extended types for backend functionality that aren't exported from the generated backend interface
 // These types match the backend implementation but need to be defined here since they're not in the interface
 
-import type { Principal } from '@icp-sdk/core/principal';
-import type { Time, ExternalBlob } from '../backend';
+import type { Principal } from "@icp-sdk/core/principal";
+import type { ExternalBlob, Time } from "../backend";
 
 export interface Announcement {
   id: string;
@@ -44,10 +44,10 @@ export interface Candidate {
 }
 
 export enum ConsensusPhase {
-  signup = 'signup',
-  contribution = 'contribution',
-  ranking = 'ranking',
-  finalize = 'finalize',
+  signup = "signup",
+  contribution = "contribution",
+  ranking = "ranking",
+  finalize = "finalize",
 }
 
 export interface ConsensusMeetingView {
@@ -96,7 +96,7 @@ export interface TreasuryBalance {
 }
 
 // Re-export the backend type directly to avoid type conflicts (type-only)
-export type { CouncilMultiSigAction, DonationTarget } from '../backend';
+export type { CouncilMultiSigAction, DonationTarget } from "../backend";
 
 // Re-export TreasuryTarget as both type and value (enum)
-export { TreasuryTarget } from '../backend';
+export { TreasuryTarget } from "../backend";

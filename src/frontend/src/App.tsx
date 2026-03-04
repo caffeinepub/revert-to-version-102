@@ -1,17 +1,23 @@
-import { useInternetIdentity } from './hooks/useInternetIdentity';
-import { useGetCallerUserProfile } from './hooks/useQueries';
-import { ThemeProvider } from 'next-themes';
-import { Toaster } from '@/components/ui/sonner';
-import { LanguageProvider } from './contexts/LanguageContext';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import LoginPage from './pages/LoginPage';
-import ProfileSetupPage from './pages/ProfileSetupPage';
-import DashboardPage from './pages/DashboardPage';
-import { Loader2, AlertTriangle } from 'lucide-react';
-import { Component, ErrorInfo, ReactNode } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Toaster } from "@/components/ui/sonner";
+import { AlertTriangle, Loader2 } from "lucide-react";
+import { ThemeProvider } from "next-themes";
+import { Component, type ErrorInfo, type ReactNode } from "react";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
+import { LanguageProvider } from "./contexts/LanguageContext";
+import { useInternetIdentity } from "./hooks/useInternetIdentity";
+import { useGetCallerUserProfile } from "./hooks/useQueries";
+import DashboardPage from "./pages/DashboardPage";
+import LoginPage from "./pages/LoginPage";
+import ProfileSetupPage from "./pages/ProfileSetupPage";
 
 // Global Error Boundary Component
 class ErrorBoundary extends Component<
@@ -28,7 +34,7 @@ class ErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error boundary caught an error:', error, errorInfo);
+    console.error("Error boundary caught an error:", error, errorInfo);
   }
 
   render() {
@@ -42,15 +48,19 @@ class ErrorBoundary extends Component<
                   <AlertTriangle className="h-8 w-8 text-destructive" />
                 </div>
                 <div>
-                  <CardTitle className="text-2xl">Something went wrong</CardTitle>
-                  <CardDescription>The application encountered an unexpected error</CardDescription>
+                  <CardTitle className="text-2xl">
+                    Something went wrong
+                  </CardTitle>
+                  <CardDescription>
+                    The application encountered an unexpected error
+                  </CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="p-4 rounded-lg bg-muted/50 border">
                 <p className="text-sm font-mono text-muted-foreground break-all">
-                  {this.state.error?.message || 'Unknown error'}
+                  {this.state.error?.message || "Unknown error"}
                 </p>
               </div>
               <Button
@@ -73,7 +83,9 @@ class ErrorBoundary extends Component<
 }
 
 // Loading Fallback Component
-function LoadingFallback({ message = 'Loading Phil3...' }: { message?: string }) {
+function LoadingFallback({
+  message = "Loading Phil3...",
+}: { message?: string }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5">
       <div className="text-center space-y-4">
@@ -113,14 +125,17 @@ function AppContent() {
 
   // Handle profile fetch error
   if (profileError) {
-    console.error('Profile fetch error:', profileError);
+    console.error("Profile fetch error:", profileError);
     // If error is due to no profile, treat as no profile
     // Otherwise show error
-    if (profileError.message?.includes('not found') || profileError.message?.includes('Unauthorized')) {
+    if (
+      profileError.message?.includes("not found") ||
+      profileError.message?.includes("Unauthorized")
+    ) {
       // Treat as no profile - show setup
       return <ProfileSetupPage />;
     }
-    
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
         <Card className="max-w-lg w-full border-destructive/50">
@@ -130,7 +145,7 @@ function AppContent() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              {profileError.message || 'An unexpected error occurred'}
+              {profileError.message || "An unexpected error occurred"}
             </p>
             <Button onClick={() => window.location.reload()} className="w-full">
               Retry

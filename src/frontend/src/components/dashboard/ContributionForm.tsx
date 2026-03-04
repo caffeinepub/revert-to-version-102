@@ -1,18 +1,30 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Loader2, Upload, FileText, CheckCircle2, Users } from 'lucide-react';
-import { ExternalBlob, type UserProfile } from '../../backend';
-import type { ConsensusMeetingView, GroupView } from '../../types/backend-extensions';
-import { useSubmitContribution, useGetAllMembers } from '../../hooks/useQueries';
-import { toast } from 'sonner';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { CheckCircle2, FileText, Loader2, Upload, Users } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { ExternalBlob, type UserProfile } from "../../backend";
+import { useLanguage } from "../../contexts/LanguageContext";
+import {
+  useGetAllMembers,
+  useSubmitContribution,
+} from "../../hooks/useQueries";
+import type {
+  ConsensusMeetingView,
+  GroupView,
+} from "../../types/backend-extensions";
 
 interface ContributionFormProps {
   meeting: ConsensusMeetingView;
@@ -30,9 +42,11 @@ export default function ContributionForm({
   const { t } = useLanguage();
   const submitMutation = useSubmitContribution();
   const { data: allProfiles } = useGetAllMembers();
-  const [contributionText, setContributionText] = useState('');
+  const [contributionText, setContributionText] = useState("");
   const [files, setFiles] = useState<File[]>([]);
-  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
+  const [uploadProgress, setUploadProgress] = useState<{
+    [key: string]: number;
+  }>({});
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -42,7 +56,10 @@ export default function ContributionForm({
 
   const handleSubmit = async () => {
     if (!contributionText.trim()) {
-      toast.error(t.consensus.contributionRequired || 'Please enter your contribution text');
+      toast.error(
+        t.consensus.contributionRequired ||
+          "Please enter your contribution text",
+      );
       return;
     }
 
@@ -52,9 +69,11 @@ export default function ContributionForm({
       for (const file of files) {
         const arrayBuffer = await file.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
-        const blob = ExternalBlob.fromBytes(uint8Array).withUploadProgress((percentage) => {
-          setUploadProgress(prev => ({ ...prev, [file.name]: percentage }));
-        });
+        const blob = ExternalBlob.fromBytes(uint8Array).withUploadProgress(
+          (percentage) => {
+            setUploadProgress((prev) => ({ ...prev, [file.name]: percentage }));
+          },
+        );
         externalBlobs.push(blob);
       }
 
@@ -65,7 +84,7 @@ export default function ContributionForm({
       });
 
       toast.success(t.toast.contributionSuccess);
-      setContributionText('');
+      setContributionText("");
       setFiles([]);
       setUploadProgress({});
     } catch (error: any) {
@@ -74,15 +93,20 @@ export default function ContributionForm({
   };
 
   const getUsernameByPrincipal = (principal: string) => {
-    const profile = allProfiles?.find(p => p.principal.toString() === principal);
-    return profile?.username || t.consensus.unknownUser || 'Unknown User';
+    const profile = allProfiles?.find(
+      (p) => p.principal.toString() === principal,
+    );
+    return profile?.username || t.consensus.unknownUser || "Unknown User";
   };
 
   if (!userGroup) {
     return (
       <Card>
         <CardContent className="py-12 text-center">
-          <p className="text-muted-foreground">{t.consensus.noGroupAssigned || 'You are not assigned to a group yet.'}</p>
+          <p className="text-muted-foreground">
+            {t.consensus.noGroupAssigned ||
+              "You are not assigned to a group yet."}
+          </p>
         </CardContent>
       </Card>
     );
@@ -98,7 +122,8 @@ export default function ContributionForm({
             <div>
               <CardTitle>{t.consensus.yourGroup}</CardTitle>
               <CardDescription>
-                {userGroup.members.length} {t.consensus.membersInGroup || 'members in your group'}
+                {userGroup.members.length}{" "}
+                {t.consensus.membersInGroup || "members in your group"}
               </CardDescription>
             </div>
           </div>
@@ -130,14 +155,17 @@ export default function ContributionForm({
               <div>
                 <CardTitle>{t.consensus.submitContribution}</CardTitle>
                 <CardDescription>
-                  {t.consensus.shareContribution || 'Share your weekly contribution with your group'}
+                  {t.consensus.shareContribution ||
+                    "Share your weekly contribution with your group"}
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="contribution">{t.consensus.contributionText}</Label>
+              <Label htmlFor="contribution">
+                {t.consensus.contributionText}
+              </Label>
               <Textarea
                 id="contribution"
                 placeholder={t.consensus.contributionPlaceholder}
@@ -148,7 +176,9 @@ export default function ContributionForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="files">{t.consensus.attachments || 'Attachments (optional)'}</Label>
+              <Label htmlFor="files">
+                {t.consensus.attachments || "Attachments (optional)"}
+              </Label>
               <Input
                 id="files"
                 type="file"
@@ -159,7 +189,10 @@ export default function ContributionForm({
               {files.length > 0 && (
                 <div className="space-y-2 mt-2">
                   {files.map((file) => (
-                    <div key={file.name} className="flex items-center gap-2 text-sm">
+                    <div
+                      key={file.name}
+                      className="flex items-center gap-2 text-sm"
+                    >
                       <FileText className="h-4 w-4" />
                       <span>{file.name}</span>
                       {uploadProgress[file.name] !== undefined && (
@@ -196,9 +229,12 @@ export default function ContributionForm({
         <Card>
           <CardContent className="py-12 text-center">
             <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-2" />
-            <p className="font-semibold">{t.consensus.contributionSubmitted || 'Contribution Submitted!'}</p>
+            <p className="font-semibold">
+              {t.consensus.contributionSubmitted || "Contribution Submitted!"}
+            </p>
             <p className="text-sm text-muted-foreground mt-1">
-              {t.consensus.viewGroupContributions || 'You can view all group contributions below.'}
+              {t.consensus.viewGroupContributions ||
+                "You can view all group contributions below."}
             </p>
           </CardContent>
         </Card>
@@ -210,44 +246,54 @@ export default function ContributionForm({
           <CardHeader>
             <CardTitle>{t.consensus.groupContributions}</CardTitle>
             <CardDescription>
-              {userGroup.contributions.length} {t.consensus.of || 'of'} {userGroup.members.length} {t.consensus.membersSubmitted || 'members have submitted'}
+              {userGroup.contributions.length} {t.consensus.of || "of"}{" "}
+              {userGroup.members.length}{" "}
+              {t.consensus.membersSubmitted || "members have submitted"}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[400px] pr-4">
               <div className="space-y-4">
-                {userGroup.contributions.map(([principal, contribution], index) => (
-                  <div key={principal.toString()}>
-                    {index > 0 && <Separator className="my-4" />}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className="font-semibold">
-                          {getUsernameByPrincipal(principal.toString())}
+                {userGroup.contributions.map(
+                  ([principal, contribution], index) => (
+                    <div key={principal.toString()}>
+                      {index > 0 && <Separator className="my-4" />}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="font-semibold">
+                            {getUsernameByPrincipal(principal.toString())}
+                          </div>
+                          {principal.toString() ===
+                            userProfile?.principal.toString() && (
+                            <Badge variant="outline">
+                              {t.consensus.you || "You"}
+                            </Badge>
+                          )}
                         </div>
-                        {principal.toString() === userProfile?.principal.toString() && (
-                          <Badge variant="outline">{t.consensus.you || 'You'}</Badge>
+                        <p className="text-sm whitespace-pre-wrap">
+                          {contribution.text}
+                        </p>
+                        {contribution.files.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {contribution.files.map((file, idx) => (
+                              <a
+                                key={file.getDirectURL()}
+                                href={file.getDirectURL()}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs px-2 py-1 rounded bg-muted hover:bg-muted/80 flex items-center gap-1"
+                              >
+                                <FileText className="h-3 w-3" />
+                                {t.consensus.attachment || "Attachment"}{" "}
+                                {idx + 1}
+                              </a>
+                            ))}
+                          </div>
                         )}
                       </div>
-                      <p className="text-sm whitespace-pre-wrap">{contribution.text}</p>
-                      {contribution.files.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {contribution.files.map((file, idx) => (
-                            <a
-                              key={idx}
-                              href={file.getDirectURL()}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-xs px-2 py-1 rounded bg-muted hover:bg-muted/80 flex items-center gap-1"
-                            >
-                              <FileText className="h-3 w-3" />
-                              {t.consensus.attachment || 'Attachment'} {idx + 1}
-                            </a>
-                          ))}
-                        </div>
-                      )}
                     </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             </ScrollArea>
           </CardContent>

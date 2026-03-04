@@ -1242,6 +1242,76 @@ actor {
     };
   };
 
+
+  ///////////////////////////////////////////////////////////////////////
+  // Admin Treasury Transfer
+  ///////////////////////////////////////////////////////////////////////
+  public shared ({ caller }) func transferFromTreasury(treasury : TreasuryTarget, recipient : Principal, amount : Nat) : async () {
+    // Authorization: Only admins can transfer from treasury
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can transfer from treasury");
+    };
+
+    if (amount == 0) {
+      Runtime.trap("Transfer amount must be greater than 0");
+    };
+
+    if (recipient == caller) {
+      Runtime.trap("Cannot transfer to yourself");
+    };
+
+    switch (treasury) {
+      case (#rewards) {
+        if (treasuryBalance.rewards < amount) {
+          Runtime.trap("Insufficient balance in Rewards Treasury");
+        };
+        treasuryBalance := {
+          rewards = treasuryBalance.rewards - amount;
+          marketing = treasuryBalance.marketing;
+          council = treasuryBalance.council;
+        };
+      };
+      case (#marketing) {
+        if (treasuryBalance.marketing < amount) {
+          Runtime.trap("Insufficient balance in Marketing Treasury");
+        };
+        treasuryBalance := {
+          rewards = treasuryBalance.rewards;
+          marketing = treasuryBalance.marketing - amount;
+          council = treasuryBalance.council;
+        };
+      };
+      case (#council) {
+        if (treasuryBalance.council < amount) {
+          Runtime.trap("Insufficient balance in Council Treasury");
+        };
+        treasuryBalance := {
+          rewards = treasuryBalance.rewards;
+          marketing = treasuryBalance.marketing;
+          council = treasuryBalance.council - amount;
+        };
+      };
+    };
+
+    let recipientBalance = switch (tokenBalances.get(recipient)) {
+      case (null) { { rep = 0; phil = 0 } };
+      case (?balance) { balance };
+    };
+
+    let updatedRecipientBalance : TokenBalance = {
+      rep = recipientBalance.rep;
+      phil = recipientBalance.phil + amount;
+    };
+    tokenBalances.add(recipient, updatedRecipientBalance);
+
+    Notifications.createNotification(
+      notificationsState,
+      recipient,
+      "Treasury Transfer",
+      "You received " # (amount.toText()) # " PHIL from the treasury"
+    );
+  };
+
   ///////////////////////////////////////////////////////////////////////
   // Proposal System Implementation
   ///////////////////////////////////////////////////////////////////////

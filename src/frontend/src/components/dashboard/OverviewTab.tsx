@@ -1,27 +1,62 @@
-import { useGetCallerUserProfile, useGetTokenBalance, useGetMembershipStatus, useSubmitJoinRequest, useHasAcceptedUCA, useLeaveCommunity, useGetCallerCategory } from '../../hooks/useQueries';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Coins, Award, Mail, User, Edit, UserPlus, CheckCircle2, Loader2, LogOut } from 'lucide-react';
-import { useState } from 'react';
-import EditProfileDialog from './EditProfileDialog';
-import UCADialog from './UCADialog';
-import DailyRewardCard from './DailyRewardCard';
-import DonatePHILCard from './DonatePHILCard';
-import TokenomicsInfoSection from './TokenomicsInfoSection';
-import { toast } from 'sonner';
-import { UserCategory } from '../../backend';
-import { useLanguage } from '../../contexts/LanguageContext';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Award,
+  CheckCircle2,
+  Coins,
+  Edit,
+  Loader2,
+  LogOut,
+  Mail,
+  User,
+  UserPlus,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { UserCategory } from "../../backend";
+import { useLanguage } from "../../contexts/LanguageContext";
+import {
+  useGetCallerCategory,
+  useGetCallerUserProfile,
+  useGetMembershipStatus,
+  useGetTokenBalance,
+  useHasAcceptedUCA,
+  useLeaveCommunity,
+  useSubmitJoinRequest,
+} from "../../hooks/useQueries";
+import DailyRewardCard from "./DailyRewardCard";
+import DonatePHILCard from "./DonatePHILCard";
+import EditProfileDialog from "./EditProfileDialog";
+import TokenomicsInfoSection from "./TokenomicsInfoSection";
+import UCADialog from "./UCADialog";
 
 export default function OverviewTab() {
   const { t } = useLanguage();
   const { data: userProfile } = useGetCallerUserProfile();
   const { data: tokenBalance } = useGetTokenBalance();
-  const { data: membershipStatus, isLoading: membershipLoading } = useGetMembershipStatus();
+  const { data: membershipStatus, isLoading: membershipLoading } =
+    useGetMembershipStatus();
   const { data: hasAcceptedUCA, isLoading: ucaLoading } = useHasAcceptedUCA();
-  const { data: userCategory, isLoading: categoryLoading } = useGetCallerCategory();
+  const { data: userCategory, isLoading: categoryLoading } =
+    useGetCallerCategory();
   const submitJoinRequest = useSubmitJoinRequest();
   const leaveCommunity = useLeaveCommunity();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -32,19 +67,19 @@ export default function OverviewTab() {
     if (userProfile?.profilePicture) {
       return userProfile.profilePicture.getDirectURL();
     }
-    return '/assets/generated/default-avatar.dim_150x150.png';
+    return "/assets/generated/default-avatar.dim_150x150.png";
   };
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
 
-  const getCategoryLabel = (category: UserCategory) => {
+  const _getCategoryLabel = (category: UserCategory) => {
     switch (category) {
       case UserCategory.nonMember:
         return t.categories.nonMember;
@@ -53,7 +88,7 @@ export default function OverviewTab() {
       case UserCategory.activeMember:
         return t.categories.activeMember;
       default:
-        return 'Unknown';
+        return "Unknown";
     }
   };
 
@@ -80,7 +115,10 @@ export default function OverviewTab() {
               alt={t.categories.member}
               className="h-6 w-6"
             />
-            <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+            <Badge
+              variant="secondary"
+              className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+            >
               {t.categories.member}
             </Badge>
           </div>
@@ -93,7 +131,10 @@ export default function OverviewTab() {
               alt={t.categories.activeMember}
               className="h-6 w-6"
             />
-            <Badge variant="default" className="bg-green-600 text-white dark:bg-green-700">
+            <Badge
+              variant="default"
+              className="bg-green-600 text-white dark:bg-green-700"
+            >
               {t.categories.activeMember}
             </Badge>
           </div>
@@ -112,7 +153,7 @@ export default function OverviewTab() {
         toast.success(t.toast.joinRequestSuccess);
       } catch (error) {
         toast.error(t.toast.joinRequestError);
-        console.error('Error submitting join request:', error);
+        console.error("Error submitting join request:", error);
       }
     }
   };
@@ -124,7 +165,7 @@ export default function OverviewTab() {
       toast.success(t.toast.joinRequestSuccess);
     } catch (error) {
       toast.error(t.toast.joinRequestError);
-      console.error('Error submitting join request:', error);
+      console.error("Error submitting join request:", error);
     }
   };
 
@@ -135,28 +176,28 @@ export default function OverviewTab() {
       setLeaveDialogOpen(false);
     } catch (error) {
       toast.error(t.toast.leaveCommunityError);
-      console.error('Error leaving community:', error);
+      console.error("Error leaving community:", error);
     }
   };
 
-  const showRequestButton = 
-    userProfile && 
-    !membershipLoading && 
+  const showRequestButton =
+    userProfile &&
+    !membershipLoading &&
     !ucaLoading &&
-    membershipStatus && 
-    !membershipStatus.isMember && 
+    membershipStatus &&
+    !membershipStatus.isMember &&
     !membershipStatus.hasPendingRequest;
 
-  const showRequestSent = 
-    userProfile && 
-    !membershipLoading && 
-    membershipStatus && 
+  const showRequestSent =
+    userProfile &&
+    !membershipLoading &&
+    membershipStatus &&
     membershipStatus.hasPendingRequest;
 
-  const showLeaveButton = 
-    userProfile && 
-    !membershipLoading && 
-    membershipStatus && 
+  const showLeaveButton =
+    userProfile &&
+    !membershipLoading &&
+    membershipStatus &&
     membershipStatus.isMember;
 
   return (
@@ -168,25 +209,32 @@ export default function OverviewTab() {
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
                 <Avatar className="h-20 w-20 border-4 border-primary/20">
-                  <AvatarImage src={getAvatarUrl()} alt={userProfile?.username || 'User'} />
+                  <AvatarImage
+                    src={getAvatarUrl()}
+                    alt={userProfile?.username || "User"}
+                  />
                   <AvatarFallback className="bg-primary/10 text-primary text-2xl font-semibold">
-                    {userProfile ? getInitials(userProfile.username) : 'U'}
+                    {userProfile ? getInitials(userProfile.username) : "U"}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <CardTitle className="text-2xl">{userProfile?.username}</CardTitle>
+                  <CardTitle className="text-2xl">
+                    {userProfile?.username}
+                  </CardTitle>
                   <CardDescription className="flex items-center gap-2 mt-1">
                     <Mail className="h-4 w-4" />
                     {userProfile?.email}
                   </CardDescription>
                   {!categoryLoading && userCategory && (
-                    <div className="mt-2">
-                      {getCategoryBadge(userCategory)}
-                    </div>
+                    <div className="mt-2">{getCategoryBadge(userCategory)}</div>
                   )}
                 </div>
               </div>
-              <Button variant="outline" size="sm" onClick={() => setEditDialogOpen(true)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setEditDialogOpen(true)}
+              >
                 <Edit className="h-4 w-4 mr-2" />
                 {t.overview.editProfile}
               </Button>
@@ -200,7 +248,9 @@ export default function OverviewTab() {
             )}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <User className="h-4 w-4" />
-              <span className="font-mono text-xs">{userProfile?.principal.toString()}</span>
+              <span className="font-mono text-xs">
+                {userProfile?.principal.toString()}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -220,9 +270,11 @@ export default function OverviewTab() {
           <CardContent>
             <div className="flex items-baseline gap-2">
               <span className="text-4xl font-bold text-primary">
-                {tokenBalance ? tokenBalance.rep.toString() : '0'}
+                {tokenBalance ? tokenBalance.rep.toString() : "0"}
               </span>
-              <Badge variant="secondary" className="text-xs">REP</Badge>
+              <Badge variant="secondary" className="text-xs">
+                REP
+              </Badge>
             </div>
             <p className="text-sm text-muted-foreground mt-2">
               {t.overview.repEarned}
@@ -245,9 +297,11 @@ export default function OverviewTab() {
           <CardContent>
             <div className="flex items-baseline gap-2">
               <span className="text-4xl font-bold text-accent">
-                {tokenBalance ? tokenBalance.phil.toString() : '0'}
+                {tokenBalance ? tokenBalance.phil.toString() : "0"}
               </span>
-              <Badge variant="secondary" className="text-xs">PHIL</Badge>
+              <Badge variant="secondary" className="text-xs">
+                PHIL
+              </Badge>
             </div>
             <p className="text-sm text-muted-foreground mt-2">
               {t.overview.philReward}
@@ -270,7 +324,9 @@ export default function OverviewTab() {
                   />
                 </div>
                 <div>
-                  <CardTitle className="text-xl">{t.overview.joinCommunity}</CardTitle>
+                  <CardTitle className="text-xl">
+                    {t.overview.joinCommunity}
+                  </CardTitle>
                   <CardDescription className="mt-1">
                     {t.overview.joinCommunityDesc}
                   </CardDescription>
@@ -279,8 +335,8 @@ export default function OverviewTab() {
             </div>
           </CardHeader>
           <CardContent>
-            <Button 
-              onClick={handleRequestToJoin} 
+            <Button
+              onClick={handleRequestToJoin}
               disabled={submitJoinRequest.isPending || ucaLoading}
               className="w-full sm:w-auto"
               size="lg"
@@ -310,7 +366,9 @@ export default function OverviewTab() {
                 <CheckCircle2 className="h-12 w-12 text-green-600" />
               </div>
               <div>
-                <CardTitle className="text-xl text-green-700 dark:text-green-400">{t.overview.requestSent}</CardTitle>
+                <CardTitle className="text-xl text-green-700 dark:text-green-400">
+                  {t.overview.requestSent}
+                </CardTitle>
                 <CardDescription className="mt-1">
                   {t.overview.requestSentDesc}
                 </CardDescription>
@@ -339,7 +397,9 @@ export default function OverviewTab() {
                   <LogOut className="h-12 w-12 text-destructive" />
                 </div>
                 <div>
-                  <CardTitle className="text-xl">{t.overview.leaveCommunity}</CardTitle>
+                  <CardTitle className="text-xl">
+                    {t.overview.leaveCommunity}
+                  </CardTitle>
                   <CardDescription className="mt-1">
                     {t.overview.leaveCommunityDesc}
                   </CardDescription>
@@ -348,8 +408,8 @@ export default function OverviewTab() {
             </div>
           </CardHeader>
           <CardContent>
-            <Button 
-              onClick={() => setLeaveDialogOpen(true)} 
+            <Button
+              onClick={() => setLeaveDialogOpen(true)}
               variant="destructive"
               className="w-full sm:w-auto"
               size="lg"
@@ -361,9 +421,16 @@ export default function OverviewTab() {
         </Card>
       )}
 
-      <EditProfileDialog open={editDialogOpen} onOpenChange={setEditDialogOpen} />
-      <UCADialog open={ucaDialogOpen} onOpenChange={setUcaDialogOpen} onAccepted={handleUCAAccepted} />
-      
+      <EditProfileDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+      />
+      <UCADialog
+        open={ucaDialogOpen}
+        onOpenChange={setUcaDialogOpen}
+        onAccepted={handleUCAAccepted}
+      />
+
       <AlertDialog open={leaveDialogOpen} onOpenChange={setLeaveDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -374,7 +441,7 @@ export default function OverviewTab() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleLeaveCommunity}
               disabled={leaveCommunity.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

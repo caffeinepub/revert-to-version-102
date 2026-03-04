@@ -1,20 +1,48 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Crown, Users, Shield, CheckCircle2, Clock, TrendingUp, Award } from 'lucide-react';
-import { useGetCouncilDashboard, useGetPendingCouncilActions, useProposeCouncilAction, useApproveCouncilAction, useIsCouncilMember, useIsCallerAdmin, useRecalculateCouncilByAverageREP, useGetCouncilMembers, useGetAverageREPForAllMembers } from '../../hooks/useQueries';
-import { toast } from 'sonner';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Award,
+  CheckCircle2,
+  Clock,
+  Crown,
+  Loader2,
+  Shield,
+  TrendingUp,
+  Users,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useLanguage } from "../../contexts/LanguageContext";
+import {
+  useApproveCouncilAction,
+  useGetAverageREPForAllMembers,
+  useGetCouncilDashboard,
+  useGetCouncilMembers,
+  useGetPendingCouncilActions,
+  useIsCallerAdmin,
+  useIsCouncilMember,
+  useProposeCouncilAction,
+  useRecalculateCouncilByAverageREP,
+} from "../../hooks/useQueries";
 
 export default function CouncilTab() {
   const { t } = useLanguage();
-  const { data: dashboard, isLoading: dashboardLoading } = useGetCouncilDashboard();
-  const { data: pendingActions, isLoading: actionsLoading } = useGetPendingCouncilActions();
-  const { data: isCouncilMember, isLoading: memberLoading } = useIsCouncilMember();
+  const { data: dashboard, isLoading: dashboardLoading } =
+    useGetCouncilDashboard();
+  const { data: pendingActions, isLoading: actionsLoading } =
+    useGetPendingCouncilActions();
+  const { data: isCouncilMember, isLoading: memberLoading } =
+    useIsCouncilMember();
   const { data: isAdmin } = useIsCallerAdmin();
   const { data: councilMembers } = useGetCouncilMembers();
   const { data: averageREPData } = useGetAverageREPForAllMembers();
@@ -22,22 +50,22 @@ export default function CouncilTab() {
   const approveAction = useApproveCouncilAction();
   const recalculateCouncil = useRecalculateCouncilByAverageREP();
 
-  const [actionId, setActionId] = useState('');
-  const [actionDetails, setActionDetails] = useState('');
+  const [actionId, setActionId] = useState("");
+  const [actionDetails, setActionDetails] = useState("");
 
   const handleProposeAction = async () => {
     if (!actionId.trim() || !actionDetails.trim()) {
-      toast.error('Please fill in all fields');
+      toast.error("Please fill in all fields");
       return;
     }
 
     try {
       await proposeAction.mutateAsync({ actionId, details: actionDetails });
-      toast.success('Action proposed successfully');
-      setActionId('');
-      setActionDetails('');
+      toast.success("Action proposed successfully");
+      setActionId("");
+      setActionDetails("");
     } catch (error: any) {
-      toast.error(error.message || 'Failed to propose action');
+      toast.error(error.message || "Failed to propose action");
     }
   };
 
@@ -53,9 +81,9 @@ export default function CouncilTab() {
   const handleRecalculateCouncil = async () => {
     try {
       await recalculateCouncil.mutateAsync();
-      toast.success('Council recalculated successfully');
+      toast.success("Council recalculated successfully");
     } catch (error: any) {
-      toast.error(error.message || 'Failed to recalculate council');
+      toast.error(error.message || "Failed to recalculate council");
     }
   };
 
@@ -109,8 +137,12 @@ export default function CouncilTab() {
           <CardContent>
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-muted-foreground mb-2">{t.council.lastUpdate}</p>
-                <p className="font-semibold">{formatLastUpdate(dashboard.lastCouncilUpdate)}</p>
+                <p className="text-sm text-muted-foreground mb-2">
+                  {t.council.lastUpdate}
+                </p>
+                <p className="font-semibold">
+                  {formatLastUpdate(dashboard.lastCouncilUpdate)}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -135,7 +167,9 @@ export default function CouncilTab() {
           <div className="space-y-3">
             {councilMembers && councilMembers.length > 0 ? (
               councilMembers.map((member, index) => {
-                const memberREP = averageREPData?.find(([p]) => p.toString() === member.toString());
+                const memberREP = averageREPData?.find(
+                  ([p]) => p.toString() === member.toString(),
+                );
                 return (
                   <div
                     key={member.toString()}
@@ -146,7 +180,9 @@ export default function CouncilTab() {
                         <Crown className="h-5 w-5 text-primary" />
                       </div>
                       <div>
-                        <p className="font-semibold">Council Member {index + 1}</p>
+                        <p className="font-semibold">
+                          Council Member {index + 1}
+                        </p>
                         <p className="text-xs text-muted-foreground font-mono">
                           {member.toString().slice(0, 20)}...
                         </p>
@@ -155,7 +191,9 @@ export default function CouncilTab() {
                     {memberREP && (
                       <div className="flex items-center gap-2">
                         <Award className="h-4 w-4 text-accent" />
-                        <span className="text-sm font-medium">{memberREP[1].toString()} Avg REP</span>
+                        <span className="text-sm font-medium">
+                          {memberREP[1].toString()} Avg REP
+                        </span>
                       </div>
                     )}
                   </div>
@@ -197,21 +235,23 @@ export default function CouncilTab() {
         <Card>
           <CardHeader>
             <CardTitle>Council Responsibilities</CardTitle>
-            <CardDescription>Key areas of oversight and governance</CardDescription>
+            <CardDescription>
+              Key areas of oversight and governance
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {dashboard.responsibilities.map((responsibility, index) => (
+              {dashboard.responsibilities.map((responsibility) => (
                 <div
-                  key={index}
+                  key={responsibility}
                   className="flex items-start gap-3 p-4 rounded-lg border"
                 >
                   <img
-                    src={`/assets/generated/${responsibility.toLowerCase().replace(/\s+/g, '-')}-icon-transparent.dim_48x48.png`}
+                    src={`/assets/generated/${responsibility.toLowerCase().replace(/\s+/g, "-")}-icon-transparent.dim_48x48.png`}
                     alt={responsibility}
                     className="h-8 w-8 mt-1"
                     onError={(e) => {
-                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.style.display = "none";
                     }}
                   />
                   <div>
@@ -228,7 +268,9 @@ export default function CouncilTab() {
       <Card>
         <CardHeader>
           <CardTitle>{t.council.multiSigActions}</CardTitle>
-          <CardDescription>Propose and approve council actions requiring multiple signatures</CardDescription>
+          <CardDescription>
+            Propose and approve council actions requiring multiple signatures
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Propose New Action */}
@@ -265,7 +307,7 @@ export default function CouncilTab() {
                     Proposing...
                   </>
                 ) : (
-                  'Propose Action'
+                  "Propose Action"
                 )}
               </Button>
             </div>

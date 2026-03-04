@@ -1,57 +1,87 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Loader2, Clock, Users, CheckCircle2, AlertCircle, Zap, ShieldAlert } from 'lucide-react';
-import { ConsensusPhase, type ConsensusMeetingView } from '../../types/backend-extensions';
-import { UserCategory, type UserProfile } from '../../backend';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-  useSignUpForConsensusMeeting,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Loader2,
+  ShieldAlert,
+  Users,
+  Zap,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { UserCategory, type UserProfile } from "../../backend";
+import { useLanguage } from "../../contexts/LanguageContext";
+import {
   useAdvanceConsensusMeetingPhase,
   useForceAdvanceConsensusMeetingPhase,
-  useIsCallerAdmin,
   useGetCallerCategory,
-} from '../../hooks/useQueries';
-import { toast } from 'sonner';
-import ContributionForm from './ContributionForm';
-import RankingForm from './RankingForm';
-import MeetingResults from './MeetingResults';
-import { useLanguage } from '../../contexts/LanguageContext';
+  useIsCallerAdmin,
+  useSignUpForConsensusMeeting,
+} from "../../hooks/useQueries";
+import {
+  type ConsensusMeetingView,
+  ConsensusPhase,
+} from "../../types/backend-extensions";
+import ContributionForm from "./ContributionForm";
+import MeetingResults from "./MeetingResults";
+import RankingForm from "./RankingForm";
 
 interface ConsensusMeetingCardProps {
   meeting: ConsensusMeetingView;
   userProfile: UserProfile | null | undefined;
 }
 
-export default function ConsensusMeetingCard({ meeting, userProfile }: ConsensusMeetingCardProps) {
+export default function ConsensusMeetingCard({
+  meeting,
+  userProfile,
+}: ConsensusMeetingCardProps) {
   const { t } = useLanguage();
   const signUpMutation = useSignUpForConsensusMeeting();
   const nextPhaseMutation = useAdvanceConsensusMeetingPhase();
   const forceNextPhaseMutation = useForceAdvanceConsensusMeetingPhase();
   const { data: isAdmin } = useIsCallerAdmin();
-  const { data: userCategory, isLoading: categoryLoading } = useGetCallerCategory();
+  const { data: userCategory, isLoading: categoryLoading } =
+    useGetCallerCategory();
 
-  const [timeRemaining, setTimeRemaining] = useState<string>('');
+  const [timeRemaining, setTimeRemaining] = useState<string>("");
 
   const isParticipant = userProfile
-    ? meeting.participants.some(p => p.toString() === userProfile.principal.toString())
+    ? meeting.participants.some(
+        (p) => p.toString() === userProfile.principal.toString(),
+      )
     : false;
 
-  const userGroup = meeting.groups.find(group =>
-    group.members.some(m => m.toString() === userProfile?.principal.toString())
+  const userGroup = meeting.groups.find((group) =>
+    group.members.some(
+      (m) => m.toString() === userProfile?.principal.toString(),
+    ),
   );
 
   const hasSubmittedContribution = userGroup
-    ? userGroup.contributions.some(([p]) => p.toString() === userProfile?.principal.toString())
+    ? userGroup.contributions.some(
+        ([p]) => p.toString() === userProfile?.principal.toString(),
+      )
     : false;
 
   const hasSubmittedRanking = userGroup
-    ? userGroup.rankings.some(([p]) => p.toString() === userProfile?.principal.toString())
+    ? userGroup.rankings.some(
+        ([p]) => p.toString() === userProfile?.principal.toString(),
+      )
     : false;
 
   const isNonMember = userCategory === UserCategory.nonMember;
-  const canSignUp = meeting.phase === ConsensusPhase.signup && !isParticipant && !isNonMember;
+  const canSignUp =
+    meeting.phase === ConsensusPhase.signup && !isParticipant && !isNonMember;
 
   useEffect(() => {
     const updateTimer = () => {
@@ -60,10 +90,12 @@ export default function ConsensusMeetingCard({ meeting, userProfile }: Consensus
       const diff = endTime - now;
 
       if (diff <= 0) {
-        setTimeRemaining(t.consensus.phaseExpired || 'Phase time expired');
+        setTimeRemaining(t.consensus.phaseExpired || "Phase time expired");
       } else {
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const hours = Math.floor(
+          (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+        );
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
@@ -95,7 +127,9 @@ export default function ConsensusMeetingCard({ meeting, userProfile }: Consensus
   const handleNextPhase = async () => {
     try {
       await nextPhaseMutation.mutateAsync(meeting.id);
-      toast.success(t.consensus.phaseAdvanced || 'Phase advanced successfully!');
+      toast.success(
+        t.consensus.phaseAdvanced || "Phase advanced successfully!",
+      );
     } catch (error: any) {
       toast.error(error.message || t.common.error);
     }
@@ -104,7 +138,7 @@ export default function ConsensusMeetingCard({ meeting, userProfile }: Consensus
   const handleForceNextPhase = async () => {
     try {
       await forceNextPhaseMutation.mutateAsync(meeting.id);
-      toast.success(t.consensus.phaseForced || 'Phase forced to next stage!');
+      toast.success(t.consensus.phaseForced || "Phase forced to next stage!");
     } catch (error: any) {
       toast.error(error.message || t.common.error);
     }
@@ -121,7 +155,7 @@ export default function ConsensusMeetingCard({ meeting, userProfile }: Consensus
       case ConsensusPhase.finalize:
         return t.consensus.finalized;
       default:
-        return 'Unknown Phase';
+        return "Unknown Phase";
     }
   };
 
@@ -153,11 +187,13 @@ export default function ConsensusMeetingCard({ meeting, userProfile }: Consensus
   const getNextPhaseButtonText = () => {
     switch (meeting.phase) {
       case ConsensusPhase.signup:
-        return t.consensus.advanceToContribution || 'Advance to Contribution Phase';
+        return (
+          t.consensus.advanceToContribution || "Advance to Contribution Phase"
+        );
       case ConsensusPhase.contribution:
-        return t.consensus.advanceToRanking || 'Advance to Ranking Phase';
+        return t.consensus.advanceToRanking || "Advance to Ranking Phase";
       case ConsensusPhase.ranking:
-        return t.consensus.finalizeMeeting || 'Finalize Meeting';
+        return t.consensus.finalizeMeeting || "Finalize Meeting";
       default:
         return t.consensus.nextPhase;
     }
@@ -183,7 +219,13 @@ export default function ConsensusMeetingCard({ meeting, userProfile }: Consensus
                 {getPhaseLabel(meeting.phase)}
               </CardDescription>
             </div>
-            <Badge variant={meeting.phase === ConsensusPhase.finalize ? 'secondary' : 'default'}>
+            <Badge
+              variant={
+                meeting.phase === ConsensusPhase.finalize
+                  ? "secondary"
+                  : "default"
+              }
+            >
               {getPhaseLabel(meeting.phase)}
             </Badge>
           </div>
@@ -191,7 +233,9 @@ export default function ConsensusMeetingCard({ meeting, userProfile }: Consensus
         <CardContent className="space-y-4">
           <div>
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-muted-foreground">{t.consensus.progress || 'Progress'}</span>
+              <span className="text-muted-foreground">
+                {t.consensus.progress || "Progress"}
+              </span>
               <span className="font-medium">{getPhaseProgress()}%</span>
             </div>
             <Progress value={getPhaseProgress()} className="h-2" />
@@ -201,14 +245,18 @@ export default function ConsensusMeetingCard({ meeting, userProfile }: Consensus
             <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
               <Clock className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-sm text-muted-foreground">{t.consensus.timeRemaining || 'Time Remaining'}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t.consensus.timeRemaining || "Time Remaining"}
+                </p>
                 <p className="font-semibold">{timeRemaining}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
               <Users className="h-5 w-5 text-accent" />
               <div>
-                <p className="text-sm text-muted-foreground">{t.consensus.participants}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t.consensus.participants}
+                </p>
                 <p className="font-semibold">{meeting.participants.length}</p>
               </div>
             </div>
@@ -219,8 +267,14 @@ export default function ConsensusMeetingCard({ meeting, userProfile }: Consensus
                 <AlertCircle className="h-5 w-5 text-yellow-500" />
               )}
               <div>
-                <p className="text-sm text-muted-foreground">{t.consensus.status || 'Status'}</p>
-                <p className="font-semibold">{isParticipant ? t.consensus.enrolled || 'Enrolled' : t.consensus.notEnrolled || 'Not Enrolled'}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t.consensus.status || "Status"}
+                </p>
+                <p className="font-semibold">
+                  {isParticipant
+                    ? t.consensus.enrolled || "Enrolled"
+                    : t.consensus.notEnrolled || "Not Enrolled"}
+                </p>
               </div>
             </div>
           </div>
@@ -231,24 +285,30 @@ export default function ConsensusMeetingCard({ meeting, userProfile }: Consensus
       {meeting.phase === ConsensusPhase.signup && (
         <Card>
           <CardHeader>
-            <CardTitle>{t.consensus.signUpForMeeting || 'Sign Up for Meeting'}</CardTitle>
-            <CardDescription>
-              {t.consensus.joinMeetingDesc}
-            </CardDescription>
+            <CardTitle>
+              {t.consensus.signUpForMeeting || "Sign Up for Meeting"}
+            </CardTitle>
+            <CardDescription>{t.consensus.joinMeetingDesc}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {isNonMember ? (
               <div className="flex items-start gap-3 p-4 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800">
                 <ShieldAlert className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
-                  <p className="font-semibold text-red-900 dark:text-red-100">{t.consensus.membershipRequired}</p>
+                  <p className="font-semibold text-red-900 dark:text-red-100">
+                    {t.consensus.membershipRequired}
+                  </p>
                   <p className="text-sm text-red-700 dark:text-red-300 mt-1">
                     {t.consensus.membershipRequiredDesc}
                   </p>
                 </div>
               </div>
             ) : canSignUp ? (
-              <Button onClick={handleSignUp} disabled={signUpMutation.isPending} className="w-full">
+              <Button
+                onClick={handleSignUp}
+                disabled={signUpMutation.isPending}
+                className="w-full"
+              >
                 {signUpMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -279,7 +339,7 @@ export default function ConsensusMeetingCard({ meeting, userProfile }: Consensus
                   {nextPhaseMutation.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {t.consensus.advancing || 'Advancing...'}
+                      {t.consensus.advancing || "Advancing..."}
                     </>
                   ) : (
                     getNextPhaseButtonText()
@@ -296,7 +356,7 @@ export default function ConsensusMeetingCard({ meeting, userProfile }: Consensus
                   {forceNextPhaseMutation.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {t.consensus.forcing || 'Forcing...'}
+                      {t.consensus.forcing || "Forcing..."}
                     </>
                   ) : (
                     <>
@@ -334,12 +394,14 @@ export default function ConsensusMeetingCard({ meeting, userProfile }: Consensus
       )}
 
       {/* Phase Transition Buttons for Contribution and Ranking phases */}
-      {(meeting.phase === ConsensusPhase.contribution || meeting.phase === ConsensusPhase.ranking) &&
+      {(meeting.phase === ConsensusPhase.contribution ||
+        meeting.phase === ConsensusPhase.ranking) &&
         isParticipant && (
           <Card>
             <CardContent className="pt-6">
               <div className="flex gap-2">
-                {(meeting.phase === ConsensusPhase.ranking || canAdvancePhase()) && (
+                {(meeting.phase === ConsensusPhase.ranking ||
+                  canAdvancePhase()) && (
                   <Button
                     onClick={handleNextPhase}
                     disabled={nextPhaseMutation.isPending}
@@ -348,7 +410,7 @@ export default function ConsensusMeetingCard({ meeting, userProfile }: Consensus
                     {nextPhaseMutation.isPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {t.consensus.advancing || 'Advancing...'}
+                        {t.consensus.advancing || "Advancing..."}
                       </>
                     ) : (
                       getNextPhaseButtonText()
@@ -365,7 +427,7 @@ export default function ConsensusMeetingCard({ meeting, userProfile }: Consensus
                     {forceNextPhaseMutation.isPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {t.consensus.forcing || 'Forcing...'}
+                        {t.consensus.forcing || "Forcing..."}
                       </>
                     ) : (
                       <>

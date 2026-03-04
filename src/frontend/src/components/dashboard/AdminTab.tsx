@@ -1,96 +1,127 @@
-import { useState } from 'react';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-  useGetActiveUCA,
-  useUpdateUCA,
-  useGetAllMembers,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import type { Principal } from "@icp-sdk/core/principal";
+import {
+  Coins,
+  Crown,
+  FileText,
+  Loader2,
+  MessageSquare,
+  Plus,
+  Save,
+  Shield,
+  Trash2,
+  UserCheck,
+  UserCog,
+  UserX,
+  Users,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { JoinRequestStatus } from "../../backend";
+import { useInternetIdentity } from "../../hooks/useInternetIdentity";
+import {
   useCreateConsensusMeeting,
-  useGetPendingJoinRequests,
-  useUpdateJoinRequestStatus,
-  usePromoteToAdmin,
   useDeleteUser,
+  useGetActiveUCA,
+  useGetAllMembers,
+  useGetPendingJoinRequests,
   useIsCouncilMember,
-} from '../../hooks/useQueries';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, FileText, Users, Loader2, Save, Plus, MessageSquare, Coins, UserCheck, UserX, UserCog, Trash2, Crown } from 'lucide-react';
-import { toast } from 'sonner';
-import TokenomicsTab from './TokenomicsTab';
-import DailyRewardsConfigCard from './DailyRewardsConfigCard';
-import { Principal } from '@icp-sdk/core/principal';
-import { useInternetIdentity } from '../../hooks/useInternetIdentity';
-import { JoinRequestStatus } from '../../backend';
+  usePromoteToAdmin,
+  useUpdateJoinRequestStatus,
+  useUpdateUCA,
+} from "../../hooks/useQueries";
+import DailyRewardsConfigCard from "./DailyRewardsConfigCard";
+import TokenomicsTab from "./TokenomicsTab";
+import TreasuryTransferCard from "./TreasuryTransferCard";
 
 export default function AdminTab() {
   const { identity } = useInternetIdentity();
   const { data: ucaText, isLoading: ucaLoading } = useGetActiveUCA();
   const { data: profiles } = useGetAllMembers();
-  const { data: pendingRequests, isLoading: requestsLoading } = useGetPendingJoinRequests();
+  const { data: pendingRequests, isLoading: requestsLoading } =
+    useGetPendingJoinRequests();
   const updateUCA = useUpdateUCA();
   const createMeeting = useCreateConsensusMeeting();
   const updateRequestStatus = useUpdateJoinRequestStatus();
   const promoteToAdmin = usePromoteToAdmin();
   const deleteUser = useDeleteUser();
 
-  const [editedUCA, setEditedUCA] = useState('');
+  const [editedUCA, setEditedUCA] = useState("");
   const [isEditingUCA, setIsEditingUCA] = useState(false);
-  const [newMeetingId, setNewMeetingId] = useState('');
-  const [processingRequest, setProcessingRequest] = useState<string | null>(null);
+  const [newMeetingId, setNewMeetingId] = useState("");
+  const [processingRequest, setProcessingRequest] = useState<string | null>(
+    null,
+  );
   const [processingMember, setProcessingMember] = useState<string | null>(null);
 
   const currentUserPrincipal = identity?.getPrincipal().toString();
 
   const handleEditUCA = () => {
-    setEditedUCA(ucaText || '');
+    setEditedUCA(ucaText || "");
     setIsEditingUCA(true);
   };
 
   const handleSaveUCA = async () => {
     try {
       await updateUCA.mutateAsync(editedUCA);
-      toast.success('UCA updated successfully!');
+      toast.success("UCA updated successfully!");
       setIsEditingUCA(false);
     } catch (error) {
-      toast.error('Failed to update UCA');
-      console.error('Error updating UCA:', error);
+      toast.error("Failed to update UCA");
+      console.error("Error updating UCA:", error);
     }
   };
 
   const handleCreateMeeting = async () => {
     if (!newMeetingId.trim()) {
-      toast.error('Please enter a meeting ID');
+      toast.error("Please enter a meeting ID");
       return;
     }
 
     try {
       await createMeeting.mutateAsync(newMeetingId.trim());
-      toast.success('Consensus meeting created successfully!');
-      setNewMeetingId('');
+      toast.success("Consensus meeting created successfully!");
+      setNewMeetingId("");
     } catch (error) {
-      toast.error('Failed to create meeting');
-      console.error('Error creating meeting:', error);
+      toast.error("Failed to create meeting");
+      console.error("Error creating meeting:", error);
     }
   };
 
   const handleApproveRequest = async (userPrincipal: Principal) => {
     const principalStr = userPrincipal.toString();
     setProcessingRequest(principalStr);
-    
+
     try {
       await updateRequestStatus.mutateAsync({
         user: userPrincipal,
         status: JoinRequestStatus.approved,
       });
-      toast.success('Join request approved successfully!');
+      toast.success("Join request approved successfully!");
     } catch (error: any) {
-      const errorMessage = error?.message || 'Unknown error occurred';
+      const errorMessage = error?.message || "Unknown error occurred";
       toast.error(`Failed to approve request: ${errorMessage}`);
-      console.error('Error approving request:', error);
+      console.error("Error approving request:", error);
     } finally {
       setProcessingRequest(null);
     }
@@ -99,17 +130,17 @@ export default function AdminTab() {
   const handleRejectRequest = async (userPrincipal: Principal) => {
     const principalStr = userPrincipal.toString();
     setProcessingRequest(principalStr);
-    
+
     try {
       await updateRequestStatus.mutateAsync({
         user: userPrincipal,
         status: JoinRequestStatus.rejected,
       });
-      toast.success('Join request rejected successfully');
+      toast.success("Join request rejected successfully");
     } catch (error: any) {
-      const errorMessage = error?.message || 'Unknown error occurred';
+      const errorMessage = error?.message || "Unknown error occurred";
       toast.error(`Failed to reject request: ${errorMessage}`);
-      console.error('Error rejecting request:', error);
+      console.error("Error rejecting request:", error);
     } finally {
       setProcessingRequest(null);
     }
@@ -118,14 +149,14 @@ export default function AdminTab() {
   const handlePromoteToAdmin = async (userPrincipal: Principal) => {
     const principalStr = userPrincipal.toString();
     setProcessingMember(principalStr);
-    
+
     try {
       await promoteToAdmin.mutateAsync(userPrincipal);
-      toast.success('User promoted to admin successfully!');
+      toast.success("User promoted to admin successfully!");
     } catch (error: any) {
-      const errorMessage = error?.message || 'Unknown error occurred';
+      const errorMessage = error?.message || "Unknown error occurred";
       toast.error(`Failed to promote user: ${errorMessage}`);
-      console.error('Error promoting user:', error);
+      console.error("Error promoting user:", error);
     } finally {
       setProcessingMember(null);
     }
@@ -133,20 +164,24 @@ export default function AdminTab() {
 
   const handleDeleteUser = async (userPrincipal: Principal) => {
     const principalStr = userPrincipal.toString();
-    
-    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+
+    if (
+      !confirm(
+        "Are you sure you want to delete this user? This action cannot be undone.",
+      )
+    ) {
       return;
     }
-    
+
     setProcessingMember(principalStr);
-    
+
     try {
       await deleteUser.mutateAsync(userPrincipal);
-      toast.success('User deleted successfully');
+      toast.success("User deleted successfully");
     } catch (error: any) {
-      const errorMessage = error?.message || 'Unknown error occurred';
+      const errorMessage = error?.message || "Unknown error occurred";
       toast.error(`Failed to delete user: ${errorMessage}`);
-      console.error('Error deleting user:', error);
+      console.error("Error deleting user:", error);
     } finally {
       setProcessingMember(null);
     }
@@ -154,7 +189,9 @@ export default function AdminTab() {
 
   // Get user profile for each pending request
   const getProfileForRequest = (principal: Principal) => {
-    return profiles?.find((p) => p.principal.toString() === principal.toString());
+    return profiles?.find(
+      (p) => p.principal.toString() === principal.toString(),
+    );
   };
 
   return (
@@ -171,7 +208,10 @@ export default function AdminTab() {
             </div>
             <div>
               <CardTitle>Admin Dashboard</CardTitle>
-              <CardDescription>Manage UCA, members, membership requests, consensus meetings, daily rewards, and tokenomics</CardDescription>
+              <CardDescription>
+                Manage UCA, members, membership requests, consensus meetings,
+                daily rewards, and tokenomics
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -200,7 +240,9 @@ export default function AdminTab() {
                   </div>
                   <div>
                     <CardTitle>User Contributor Agreement</CardTitle>
-                    <CardDescription>View and edit the active UCA text</CardDescription>
+                    <CardDescription>
+                      View and edit the active UCA text
+                    </CardDescription>
                   </div>
                 </div>
                 {!isEditingUCA && (
@@ -224,7 +266,10 @@ export default function AdminTab() {
                     placeholder="Enter UCA text..."
                   />
                   <div className="flex gap-2">
-                    <Button onClick={handleSaveUCA} disabled={updateUCA.isPending}>
+                    <Button
+                      onClick={handleSaveUCA}
+                      disabled={updateUCA.isPending}
+                    >
                       {updateUCA.isPending ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -237,7 +282,10 @@ export default function AdminTab() {
                         </>
                       )}
                     </Button>
-                    <Button variant="outline" onClick={() => setIsEditingUCA(false)}>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsEditingUCA(false)}
+                    >
                       Cancel
                     </Button>
                   </div>
@@ -267,7 +315,8 @@ export default function AdminTab() {
                 <div>
                   <CardTitle>Membership Requests</CardTitle>
                   <CardDescription>
-                    {pendingRequests?.length || 0} pending request{pendingRequests?.length !== 1 ? 's' : ''}
+                    {pendingRequests?.length || 0} pending request
+                    {pendingRequests?.length !== 1 ? "s" : ""}
                   </CardDescription>
                 </div>
               </div>
@@ -295,23 +344,27 @@ export default function AdminTab() {
                         const principalStr = request.principal.toString();
                         const isProcessing = processingRequest === principalStr;
                         const approvalCount = request.approvals.length;
-                        
+
                         return (
                           <TableRow key={principalStr}>
                             <TableCell className="font-medium">
-                              {profile?.username || 'Unknown'}
+                              {profile?.username || "Unknown"}
                             </TableCell>
-                            <TableCell>{profile?.email || 'N/A'}</TableCell>
+                            <TableCell>{profile?.email || "N/A"}</TableCell>
                             <TableCell className="font-mono text-xs">
                               {principalStr.slice(0, 20)}...
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center gap-2">
                                 <Badge variant="secondary">
-                                  {approvalCount} approval{approvalCount !== 1 ? 's' : ''}
+                                  {approvalCount} approval
+                                  {approvalCount !== 1 ? "s" : ""}
                                 </Badge>
                                 {approvalCount >= 2 && (
-                                  <Badge variant="default" className="bg-green-600">
+                                  <Badge
+                                    variant="default"
+                                    className="bg-green-600"
+                                  >
                                     Ready
                                   </Badge>
                                 )}
@@ -322,8 +375,13 @@ export default function AdminTab() {
                                 <Button
                                   size="sm"
                                   variant="default"
-                                  onClick={() => handleApproveRequest(request.principal)}
-                                  disabled={isProcessing || updateRequestStatus.isPending}
+                                  onClick={() =>
+                                    handleApproveRequest(request.principal)
+                                  }
+                                  disabled={
+                                    isProcessing ||
+                                    updateRequestStatus.isPending
+                                  }
                                 >
                                   {isProcessing ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -337,8 +395,13 @@ export default function AdminTab() {
                                 <Button
                                   size="sm"
                                   variant="destructive"
-                                  onClick={() => handleRejectRequest(request.principal)}
-                                  disabled={isProcessing || updateRequestStatus.isPending}
+                                  onClick={() =>
+                                    handleRejectRequest(request.principal)
+                                  }
+                                  disabled={
+                                    isProcessing ||
+                                    updateRequestStatus.isPending
+                                  }
                                 >
                                   {isProcessing ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -380,7 +443,8 @@ export default function AdminTab() {
                 <div>
                   <CardTitle>Members Management</CardTitle>
                   <CardDescription>
-                    Manage member roles and permissions - {profiles?.length || 0} total members
+                    Manage member roles and permissions -{" "}
+                    {profiles?.length || 0} total members
                   </CardDescription>
                 </div>
               </div>
@@ -400,9 +464,10 @@ export default function AdminTab() {
                   <TableBody>
                     {profiles?.map((profile) => {
                       const principalStr = profile.principal.toString();
-                      const isCurrentUser = principalStr === currentUserPrincipal;
+                      const isCurrentUser =
+                        principalStr === currentUserPrincipal;
                       const isProcessing = processingMember === principalStr;
-                      
+
                       return (
                         <MemberRow
                           key={principalStr}
@@ -422,6 +487,9 @@ export default function AdminTab() {
             </CardContent>
           </Card>
 
+          {/* Treasury Transfer */}
+          <TreasuryTransferCard />
+
           {/* Consensus Meeting Management */}
           <Card>
             <CardHeader>
@@ -431,7 +499,9 @@ export default function AdminTab() {
                 </div>
                 <div>
                   <CardTitle>Consensus Meeting Management</CardTitle>
-                  <CardDescription>Create weekly consensus meetings</CardDescription>
+                  <CardDescription>
+                    Create weekly consensus meetings
+                  </CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -443,7 +513,10 @@ export default function AdminTab() {
                   value={newMeetingId}
                   onChange={(e) => setNewMeetingId(e.target.value)}
                 />
-                <Button onClick={handleCreateMeeting} disabled={createMeeting.isPending}>
+                <Button
+                  onClick={handleCreateMeeting}
+                  disabled={createMeeting.isPending}
+                >
                   {createMeeting.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
@@ -492,7 +565,9 @@ function MemberRow({
       <TableCell className="font-medium">
         {profile.username}
         {isCurrentUser && (
-          <Badge variant="outline" className="ml-2">You</Badge>
+          <Badge variant="outline" className="ml-2">
+            You
+          </Badge>
         )}
       </TableCell>
       <TableCell>{profile.email}</TableCell>

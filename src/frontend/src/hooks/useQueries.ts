@@ -1,27 +1,46 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useActor } from './useActor';
-import { useInternetIdentity } from './useInternetIdentity';
-import type { UserProfile, TokenBalance, ExternalBlob, Time, MembershipStatusResponse, JoinRequestView, JoinRequestStatus, CouncilDashboard, DailyRewardConfig, DailyRewardResponse, TokenomicsConfig, TreasuryBalance, CouncilMultiSigAction, DonationTarget, WeeklyREPLog, WeeklyREPEntry, Notification, Proposal } from '../backend';
-import { UserCategory } from '../backend';
-import { Principal } from '@icp-sdk/core/principal';
-import type { 
-  Announcement, 
-  BlogPost, 
-  Comment, 
-  Election, 
-  ConsensusMeetingView, 
-  Contribution, 
+import type { Principal } from "@icp-sdk/core/principal";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type {
+  CouncilDashboard,
+  CouncilMultiSigAction,
+  DailyRewardConfig,
+  DailyRewardResponse,
+  DonationTarget,
+  ExternalBlob,
+  JoinRequestStatus,
+  JoinRequestView,
+  MembershipStatusResponse,
+  Notification,
+  Proposal,
+  Time,
+  TokenBalance,
+  TokenomicsConfig,
+  TreasuryBalance,
+  UserProfile,
+  WeeklyREPEntry,
+  WeeklyREPLog,
+} from "../backend";
+import { type TreasuryTarget, UserCategory } from "../backend";
+import type {
+  Announcement,
+  BlogPost,
+  Comment,
+  ConsensusMeetingView,
+  Contribution,
+  Election,
   Ranking,
-} from '../types/backend-extensions';
+} from "../types/backend-extensions";
+import { useActor } from "./useActor";
+import { useInternetIdentity } from "./useInternetIdentity";
 
 // UCA Queries
 export function useGetActiveUCA() {
   const { actor, isFetching } = useActor();
 
   return useQuery<string>({
-    queryKey: ['activeUCA'],
+    queryKey: ["activeUCA"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getActiveUCA();
     },
     enabled: !!actor && !isFetching,
@@ -32,12 +51,12 @@ export function useHasAcceptedUCA() {
   const { actor, isFetching } = useActor();
 
   return useQuery<boolean>({
-    queryKey: ['hasAcceptedUCA'],
+    queryKey: ["hasAcceptedUCA"],
     queryFn: async () => {
       if (!actor) return false;
       try {
         return await actor.hasAcceptedUCA();
-      } catch (error) {
+      } catch (_error) {
         // User not authenticated or hasn't accepted
         return false;
       }
@@ -53,11 +72,11 @@ export function useAcceptUCA() {
 
   return useMutation({
     mutationFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.acceptUCA();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['hasAcceptedUCA'] });
+      queryClient.invalidateQueries({ queryKey: ["hasAcceptedUCA"] });
     },
   });
 }
@@ -68,11 +87,11 @@ export function useUpdateUCA() {
 
   return useMutation({
     mutationFn: async (newUCA: string) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.updateUCA(newUCA);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['activeUCA'] });
+      queryClient.invalidateQueries({ queryKey: ["activeUCA"] });
     },
   });
 }
@@ -82,12 +101,12 @@ export function useGetCallerUserProfile() {
   const { actor, isFetching: actorFetching } = useActor();
 
   const query = useQuery<UserProfile | null>({
-    queryKey: ['currentUserProfile'],
+    queryKey: ["currentUserProfile"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       try {
         return await actor.getCallerUserProfile();
-      } catch (error) {
+      } catch (_error) {
         return null;
       }
     },
@@ -108,11 +127,11 @@ export function useSaveCallerUserProfile() {
 
   return useMutation({
     mutationFn: async (profile: UserProfile) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.saveCallerUserProfile(profile);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+      queryClient.invalidateQueries({ queryKey: ["currentUserProfile"] });
     },
   });
 }
@@ -122,12 +141,20 @@ export function useUpdateCallerUserProfile() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (params: { username: string; bio: string; profilePicture: ExternalBlob | null }) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.updateCallerUserProfile(params.username, params.bio, params.profilePicture);
+    mutationFn: async (params: {
+      username: string;
+      bio: string;
+      profilePicture: ExternalBlob | null;
+    }) => {
+      if (!actor) throw new Error("Actor not available");
+      await actor.updateCallerUserProfile(
+        params.username,
+        params.bio,
+        params.profilePicture,
+      );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+      queryClient.invalidateQueries({ queryKey: ["currentUserProfile"] });
     },
   });
 }
@@ -136,9 +163,9 @@ export function useGetAllMembers() {
   const { actor, isFetching } = useActor();
 
   return useQuery<UserProfile[]>({
-    queryKey: ['allMembers'],
+    queryKey: ["allMembers"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getAllMembers();
     },
     enabled: !!actor && !isFetching,
@@ -150,12 +177,12 @@ export function useGetCallerCategory() {
   const { actor, isFetching } = useActor();
 
   return useQuery<UserCategory>({
-    queryKey: ['callerCategory'],
+    queryKey: ["callerCategory"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       try {
         return await actor.getCallerCategory();
-      } catch (error) {
+      } catch (_error) {
         return UserCategory.nonMember;
       }
     },
@@ -170,9 +197,10 @@ export function useGetWeeklyREPLog() {
   const { identity } = useInternetIdentity();
 
   return useQuery<WeeklyREPLog | null>({
-    queryKey: ['weeklyREPLog'],
+    queryKey: ["weeklyREPLog"],
     queryFn: async () => {
-      if (!actor || !identity) throw new Error('Actor or identity not available');
+      if (!actor || !identity)
+        throw new Error("Actor or identity not available");
       const principal = identity.getPrincipal();
       return actor.getWeeklyREPLog(principal);
     },
@@ -185,9 +213,10 @@ export function useGet12WeekREPHistory() {
   const { identity } = useInternetIdentity();
 
   return useQuery<WeeklyREPEntry[]>({
-    queryKey: ['12WeekREPHistory'],
+    queryKey: ["12WeekREPHistory"],
     queryFn: async () => {
-      if (!actor || !identity) throw new Error('Actor or identity not available');
+      if (!actor || !identity)
+        throw new Error("Actor or identity not available");
       const principal = identity.getPrincipal();
       return actor.get12WeekREPHistory(principal);
     },
@@ -200,9 +229,10 @@ export function useCalculateAverageREP(principal: Principal | null) {
   const { actor, isFetching } = useActor();
 
   return useQuery<bigint>({
-    queryKey: ['averageREP', principal?.toString()],
+    queryKey: ["averageREP", principal?.toString()],
     queryFn: async () => {
-      if (!actor || !principal) throw new Error('Actor or principal not available');
+      if (!actor || !principal)
+        throw new Error("Actor or principal not available");
       return actor.calculateAverageREP(principal);
     },
     enabled: !!actor && !isFetching && !!principal,
@@ -213,9 +243,9 @@ export function useGetAverageREPForAllMembers() {
   const { actor, isFetching } = useActor();
 
   return useQuery<Array<[Principal, bigint]>>({
-    queryKey: ['averageREPForAllMembers'],
+    queryKey: ["averageREPForAllMembers"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getAverageREPForAllMembers();
     },
     enabled: !!actor && !isFetching,
@@ -228,14 +258,14 @@ export function useRecalculateCouncilByAverageREP() {
 
   return useMutation<void, Error>({
     mutationFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.recalculateCouncilByAverageREP();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['councilMembers'] });
-      queryClient.invalidateQueries({ queryKey: ['councilDashboard'] });
-      queryClient.invalidateQueries({ queryKey: ['averageREPForAllMembers'] });
-      queryClient.invalidateQueries({ queryKey: ['isCouncilMember'] });
+      queryClient.invalidateQueries({ queryKey: ["councilMembers"] });
+      queryClient.invalidateQueries({ queryKey: ["councilDashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["averageREPForAllMembers"] });
+      queryClient.invalidateQueries({ queryKey: ["isCouncilMember"] });
     },
   });
 }
@@ -245,9 +275,9 @@ export function useGetDailyRewardConfig() {
   const { actor, isFetching } = useActor();
 
   return useQuery<DailyRewardConfig>({
-    queryKey: ['dailyRewardConfig'],
+    queryKey: ["dailyRewardConfig"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getDailyRewardConfig();
     },
     enabled: !!actor && !isFetching,
@@ -258,9 +288,9 @@ export function useGetDailyRewardEligibility() {
   const { actor, isFetching } = useActor();
 
   return useQuery<DailyRewardResponse>({
-    queryKey: ['dailyRewardEligibility'],
+    queryKey: ["dailyRewardEligibility"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getDailyRewardEligibility();
     },
     enabled: !!actor && !isFetching,
@@ -274,14 +304,16 @@ export function useClaimDailyReward() {
 
   return useMutation<bigint, Error>({
     mutationFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return await actor.claimDailyReward();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['dailyRewardEligibility'] });
-      queryClient.invalidateQueries({ queryKey: ['tokenBalance'] });
-      queryClient.invalidateQueries({ queryKey: ['availableDailyRewardsPool'] });
-      queryClient.invalidateQueries({ queryKey: ['treasuryBalances'] });
+      queryClient.invalidateQueries({ queryKey: ["dailyRewardEligibility"] });
+      queryClient.invalidateQueries({ queryKey: ["tokenBalance"] });
+      queryClient.invalidateQueries({
+        queryKey: ["availableDailyRewardsPool"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["treasuryBalances"] });
     },
   });
 }
@@ -292,12 +324,12 @@ export function useUpdateDailyRewardConfig() {
 
   return useMutation<void, Error, DailyRewardConfig>({
     mutationFn: async (newConfig: DailyRewardConfig) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.updateDailyRewardConfig(newConfig);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['dailyRewardConfig'] });
-      queryClient.invalidateQueries({ queryKey: ['dailyRewardEligibility'] });
+      queryClient.invalidateQueries({ queryKey: ["dailyRewardConfig"] });
+      queryClient.invalidateQueries({ queryKey: ["dailyRewardEligibility"] });
     },
   });
 }
@@ -306,9 +338,9 @@ export function useGetAvailableDailyRewardsPool() {
   const { actor, isFetching } = useActor();
 
   return useQuery<bigint>({
-    queryKey: ['availableDailyRewardsPool'],
+    queryKey: ["availableDailyRewardsPool"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getAvailableDailyRewardsPool();
     },
     enabled: !!actor && !isFetching,
@@ -320,9 +352,9 @@ export function useGetConsensusDistributionAllocation() {
   const { actor, isFetching } = useActor();
 
   return useQuery<bigint>({
-    queryKey: ['consensusDistributionAllocation'],
+    queryKey: ["consensusDistributionAllocation"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getConsensusDistributionAllocation();
     },
     enabled: !!actor && !isFetching,
@@ -335,12 +367,16 @@ export function useUpdateConsensusDistributionAllocation() {
 
   return useMutation<void, Error, bigint>({
     mutationFn: async (newAllocation: bigint) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.updateConsensusDistributionAllocation(newAllocation);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['consensusDistributionAllocation'] });
-      queryClient.invalidateQueries({ queryKey: ['availableConsensusDistributionPool'] });
+      queryClient.invalidateQueries({
+        queryKey: ["consensusDistributionAllocation"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["availableConsensusDistributionPool"],
+      });
     },
   });
 }
@@ -349,9 +385,9 @@ export function useGetAvailableConsensusDistributionPool() {
   const { actor, isFetching } = useActor();
 
   return useQuery<bigint>({
-    queryKey: ['availableConsensusDistributionPool'],
+    queryKey: ["availableConsensusDistributionPool"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getAvailableConsensusDistributionPool();
     },
     enabled: !!actor && !isFetching,
@@ -363,9 +399,9 @@ export function useGetTokenomicsConfig() {
   const { actor, isFetching } = useActor();
 
   return useQuery<TokenomicsConfig>({
-    queryKey: ['tokenomicsConfig'],
+    queryKey: ["tokenomicsConfig"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getTokenomicsConfig();
     },
     enabled: !!actor && !isFetching,
@@ -376,9 +412,9 @@ export function useGetTreasuryBalances() {
   const { actor, isFetching } = useActor();
 
   return useQuery<TreasuryBalance>({
-    queryKey: ['treasuryBalances'],
+    queryKey: ["treasuryBalances"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getTreasuryBalances();
     },
     enabled: !!actor && !isFetching,
@@ -389,9 +425,9 @@ export function useGetCurrentSupply() {
   const { actor, isFetching } = useActor();
 
   return useQuery<bigint>({
-    queryKey: ['currentSupply'],
+    queryKey: ["currentSupply"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getCurrentSupply();
     },
     enabled: !!actor && !isFetching,
@@ -402,9 +438,9 @@ export function useGetMintCycleStatus() {
   const { actor, isFetching } = useActor();
 
   return useQuery<bigint>({
-    queryKey: ['mintCycleStatus'],
+    queryKey: ["mintCycleStatus"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getMintCycleStatus();
     },
     enabled: !!actor && !isFetching,
@@ -418,11 +454,11 @@ export function useUpdateTokenomicsConfig() {
 
   return useMutation<void, Error, TokenomicsConfig>({
     mutationFn: async (newConfig: TokenomicsConfig) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.updateTokenomicsConfig(newConfig);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tokenomicsConfig'] });
+      queryClient.invalidateQueries({ queryKey: ["tokenomicsConfig"] });
     },
   });
 }
@@ -433,13 +469,40 @@ export function useManualMint() {
 
   return useMutation<void, Error>({
     mutationFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.mintRewards();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['treasuryBalances'] });
-      queryClient.invalidateQueries({ queryKey: ['currentSupply'] });
-      queryClient.invalidateQueries({ queryKey: ['mintCycleStatus'] });
+      queryClient.invalidateQueries({ queryKey: ["treasuryBalances"] });
+      queryClient.invalidateQueries({ queryKey: ["currentSupply"] });
+      queryClient.invalidateQueries({ queryKey: ["mintCycleStatus"] });
+    },
+  });
+}
+
+export function useTransferFromTreasury() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    void,
+    Error,
+    { treasury: TreasuryTarget; recipient: Principal; amount: bigint }
+  >({
+    mutationFn: async ({ treasury, recipient, amount }) => {
+      if (!actor) throw new Error("Actor not available");
+      // Cast to access transferFromTreasury which is declared in backendInterface but may not be in the generated wrapper
+      const actorWithTransfer = actor as typeof actor & {
+        transferFromTreasury: (
+          treasury: TreasuryTarget,
+          recipient: Principal,
+          amount: bigint,
+        ) => Promise<void>;
+      };
+      await actorWithTransfer.transferFromTreasury(treasury, recipient, amount);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["treasuryBalances"] });
     },
   });
 }
@@ -449,12 +512,12 @@ export function useGetMembershipStatus() {
   const { actor, isFetching } = useActor();
 
   return useQuery<MembershipStatusResponse>({
-    queryKey: ['membershipStatus'],
+    queryKey: ["membershipStatus"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       try {
         return await actor.getMembershipStatus();
-      } catch (error) {
+      } catch (_error) {
         return { isMember: false, hasPendingRequest: false };
       }
     },
@@ -468,12 +531,12 @@ export function useSubmitJoinRequest() {
 
   return useMutation({
     mutationFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.submitJoinRequest();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['membershipStatus'] });
-      queryClient.invalidateQueries({ queryKey: ['callerCategory'] });
+      queryClient.invalidateQueries({ queryKey: ["membershipStatus"] });
+      queryClient.invalidateQueries({ queryKey: ["callerCategory"] });
     },
   });
 }
@@ -484,13 +547,13 @@ export function useLeaveCommunity() {
 
   return useMutation({
     mutationFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.leaveCommunity();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['membershipStatus'] });
-      queryClient.invalidateQueries({ queryKey: ['allMembers'] });
-      queryClient.invalidateQueries({ queryKey: ['callerCategory'] });
+      queryClient.invalidateQueries({ queryKey: ["membershipStatus"] });
+      queryClient.invalidateQueries({ queryKey: ["allMembers"] });
+      queryClient.invalidateQueries({ queryKey: ["callerCategory"] });
     },
   });
 }
@@ -499,9 +562,9 @@ export function useGetAllJoinRequests() {
   const { actor, isFetching } = useActor();
 
   return useQuery<JoinRequestView[]>({
-    queryKey: ['allJoinRequests'],
+    queryKey: ["allJoinRequests"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getAllJoinRequests();
     },
     enabled: !!actor && !isFetching,
@@ -512,9 +575,9 @@ export function useGetPendingJoinRequests() {
   const { actor, isFetching } = useActor();
 
   return useQuery<JoinRequestView[]>({
-    queryKey: ['pendingJoinRequests'],
+    queryKey: ["pendingJoinRequests"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getPendingJoinRequests();
     },
     enabled: !!actor && !isFetching,
@@ -525,15 +588,19 @@ export function useUpdateJoinRequestStatus() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
-  return useMutation<string, Error, { user: Principal; status: JoinRequestStatus }>({
+  return useMutation<
+    string,
+    Error,
+    { user: Principal; status: JoinRequestStatus }
+  >({
     mutationFn: async ({ user, status }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return await actor.updateJoinRequestStatus(user, status);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pendingJoinRequests'] });
-      queryClient.invalidateQueries({ queryKey: ['allJoinRequests'] });
-      queryClient.invalidateQueries({ queryKey: ['allMembers'] });
+      queryClient.invalidateQueries({ queryKey: ["pendingJoinRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["allJoinRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["allMembers"] });
     },
   });
 }
@@ -544,13 +611,13 @@ export function useApproveMemberJoinRequest() {
 
   return useMutation<void, Error, Principal>({
     mutationFn: async (user: Principal) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.approveMemberJoinRequest(user);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pendingJoinRequests'] });
-      queryClient.invalidateQueries({ queryKey: ['allJoinRequests'] });
-      queryClient.invalidateQueries({ queryKey: ['allMembers'] });
+      queryClient.invalidateQueries({ queryKey: ["pendingJoinRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["allJoinRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["allMembers"] });
     },
   });
 }
@@ -559,12 +626,12 @@ export function useIsCouncilMember() {
   const { actor, isFetching } = useActor();
 
   return useQuery<boolean>({
-    queryKey: ['isCouncilMember'],
+    queryKey: ["isCouncilMember"],
     queryFn: async () => {
       if (!actor) return false;
       try {
         return await actor.isCouncilMember();
-      } catch (error) {
+      } catch (_error) {
         return false;
       }
     },
@@ -576,9 +643,9 @@ export function useGetCouncilMembers() {
   const { actor, isFetching } = useActor();
 
   return useQuery<Principal[]>({
-    queryKey: ['councilMembers'],
+    queryKey: ["councilMembers"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getCouncilMembers();
     },
     enabled: !!actor && !isFetching,
@@ -590,12 +657,12 @@ export function useGetCouncilDashboard() {
   const { actor, isFetching } = useActor();
 
   return useQuery<CouncilDashboard | null>({
-    queryKey: ['councilDashboard'],
+    queryKey: ["councilDashboard"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       try {
         return await actor.getCouncilDashboard();
-      } catch (error) {
+      } catch (_error) {
         return null;
       }
     },
@@ -608,9 +675,9 @@ export function useGetPendingCouncilActions() {
   const { actor, isFetching } = useActor();
 
   return useQuery<CouncilMultiSigAction[]>({
-    queryKey: ['pendingCouncilActions'],
+    queryKey: ["pendingCouncilActions"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getPendingCouncilActions();
     },
     enabled: !!actor && !isFetching,
@@ -623,11 +690,11 @@ export function useProposeCouncilAction() {
 
   return useMutation<void, Error, { actionId: string; details: string }>({
     mutationFn: async ({ actionId, details }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.proposeCouncilAction(actionId, details);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pendingCouncilActions'] });
+      queryClient.invalidateQueries({ queryKey: ["pendingCouncilActions"] });
     },
   });
 }
@@ -638,11 +705,11 @@ export function useApproveCouncilAction() {
 
   return useMutation<void, Error, string>({
     mutationFn: async (actionId: string) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.approveCouncilAction(actionId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pendingCouncilActions'] });
+      queryClient.invalidateQueries({ queryKey: ["pendingCouncilActions"] });
     },
   });
 }
@@ -653,9 +720,10 @@ export function useGetTokenBalance() {
   const { identity } = useInternetIdentity();
 
   return useQuery<TokenBalance>({
-    queryKey: ['tokenBalance'],
+    queryKey: ["tokenBalance"],
     queryFn: async () => {
-      if (!actor || !identity) throw new Error('Actor or identity not available');
+      if (!actor || !identity)
+        throw new Error("Actor or identity not available");
       const principal = identity.getPrincipal();
       return actor.getTokenBalance(principal);
     },
@@ -670,12 +738,12 @@ export function useDonatePHIL() {
 
   return useMutation<void, Error, { target: DonationTarget; amount: bigint }>({
     mutationFn: async ({ target, amount }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.donatePHIL(target, amount);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tokenBalance'] });
-      queryClient.invalidateQueries({ queryKey: ['treasuryBalances'] });
+      queryClient.invalidateQueries({ queryKey: ["tokenBalance"] });
+      queryClient.invalidateQueries({ queryKey: ["treasuryBalances"] });
     },
   });
 }
@@ -685,9 +753,9 @@ export function useGetUnreadNotifications() {
   const { actor, isFetching } = useActor();
 
   return useQuery<Notification[]>({
-    queryKey: ['unreadNotifications'],
+    queryKey: ["unreadNotifications"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getUnreadNotifications();
     },
     enabled: !!actor && !isFetching,
@@ -699,9 +767,9 @@ export function useGetAllNotifications() {
   const { actor, isFetching } = useActor();
 
   return useQuery<Notification[]>({
-    queryKey: ['allNotifications'],
+    queryKey: ["allNotifications"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getAllNotificationsForUser();
     },
     enabled: !!actor && !isFetching,
@@ -714,12 +782,12 @@ export function useMarkNotificationAsRead() {
 
   return useMutation<void, Error, string>({
     mutationFn: async (notificationId: string) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.markNotificationAsRead(notificationId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['unreadNotifications'] });
-      queryClient.invalidateQueries({ queryKey: ['allNotifications'] });
+      queryClient.invalidateQueries({ queryKey: ["unreadNotifications"] });
+      queryClient.invalidateQueries({ queryKey: ["allNotifications"] });
     },
   });
 }
@@ -729,9 +797,9 @@ export function useGetAllProposals() {
   const { actor, isFetching } = useActor();
 
   return useQuery<Proposal[]>({
-    queryKey: ['allProposals'],
+    queryKey: ["allProposals"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getAllProposals();
     },
     enabled: !!actor && !isFetching,
@@ -742,9 +810,9 @@ export function useGetProposal(id: string) {
   const { actor, isFetching } = useActor();
 
   return useQuery<Proposal | null>({
-    queryKey: ['proposal', id],
+    queryKey: ["proposal", id],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getProposal(id);
     },
     enabled: !!actor && !isFetching && !!id,
@@ -757,11 +825,11 @@ export function useCreateProposal() {
 
   return useMutation<string, Error, { title: string; description: string }>({
     mutationFn: async ({ title, description }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return await actor.createProposal(title, description);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allProposals'] });
+      queryClient.invalidateQueries({ queryKey: ["allProposals"] });
     },
   });
 }
@@ -772,11 +840,11 @@ export function useApproveProposal() {
 
   return useMutation<void, Error, string>({
     mutationFn: async (id: string) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.approveProposal(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allProposals'] });
+      queryClient.invalidateQueries({ queryKey: ["allProposals"] });
     },
   });
 }
@@ -787,11 +855,11 @@ export function useRejectProposal() {
 
   return useMutation<void, Error, string>({
     mutationFn: async (id: string) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.rejectProposal(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allProposals'] });
+      queryClient.invalidateQueries({ queryKey: ["allProposals"] });
     },
   });
 }
@@ -860,9 +928,9 @@ export function useGetAllBlogPosts() {
   const { actor, isFetching } = useActor();
 
   return useQuery<BlogPost[]>({
-    queryKey: ['blogPosts'],
+    queryKey: ["blogPosts"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getAllBlogPosts();
     },
     enabled: !!actor && !isFetching,
@@ -873,9 +941,9 @@ export function useGetBlogPost(id: string) {
   const { actor, isFetching } = useActor();
 
   return useQuery<BlogPost | null>({
-    queryKey: ['blogPost', id],
+    queryKey: ["blogPost", id],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getBlogPost(id);
     },
     enabled: !!actor && !isFetching && !!id,
@@ -888,11 +956,11 @@ export function useCreateBlogPost() {
 
   return useMutation<string, Error, { title: string; content: string }>({
     mutationFn: async ({ title, content }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return await actor.createBlogPost(title, content);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['blogPosts'] });
+      queryClient.invalidateQueries({ queryKey: ["blogPosts"] });
     },
   });
 }
@@ -901,13 +969,17 @@ export function useEditBlogPost() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, { id: string; newTitle: string; newContent: string }>({
+  return useMutation<
+    void,
+    Error,
+    { id: string; newTitle: string; newContent: string }
+  >({
     mutationFn: async ({ id, newTitle, newContent }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.editBlogPost(id, newTitle, newContent);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['blogPosts'] });
+      queryClient.invalidateQueries({ queryKey: ["blogPosts"] });
     },
   });
 }
@@ -918,11 +990,11 @@ export function useDeleteBlogPost() {
 
   return useMutation<void, Error, string>({
     mutationFn: async (id: string) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.deleteBlogPost(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['blogPosts'] });
+      queryClient.invalidateQueries({ queryKey: ["blogPosts"] });
     },
   });
 }
@@ -931,9 +1003,9 @@ export function useGetBlogComments(postId: string) {
   const { actor, isFetching } = useActor();
 
   return useQuery<Comment[]>({
-    queryKey: ['blogComments', postId],
+    queryKey: ["blogComments", postId],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getBlogCommentsByPost(postId);
     },
     enabled: !!actor && !isFetching && !!postId,
@@ -946,11 +1018,13 @@ export function useCreateBlogComment() {
 
   return useMutation<string, Error, { postId: string; content: string }>({
     mutationFn: async ({ postId, content }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return await actor.createBlogComment(postId, content);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['blogComments', variables.postId] });
+      queryClient.invalidateQueries({
+        queryKey: ["blogComments", variables.postId],
+      });
     },
   });
 }
@@ -961,12 +1035,14 @@ export function useAddBlogReaction() {
 
   return useMutation<void, Error, string>({
     mutationFn: async (postId: string) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.addBlogReaction(postId);
     },
     onSuccess: (_, postId) => {
-      queryClient.invalidateQueries({ queryKey: ['blogReactionCount', postId] });
-      queryClient.invalidateQueries({ queryKey: ['hasUserReacted', postId] });
+      queryClient.invalidateQueries({
+        queryKey: ["blogReactionCount", postId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["hasUserReacted", postId] });
     },
   });
 }
@@ -975,9 +1051,9 @@ export function useGetBlogReactionCount(postId: string) {
   const { actor, isFetching } = useActor();
 
   return useQuery<bigint>({
-    queryKey: ['blogReactionCount', postId],
+    queryKey: ["blogReactionCount", postId],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getBlogReactionCount(postId);
     },
     enabled: !!actor && !isFetching && !!postId,
@@ -988,9 +1064,9 @@ export function useHasUserReactedToBlogPost(postId: string) {
   const { actor, isFetching } = useActor();
 
   return useQuery<boolean>({
-    queryKey: ['hasUserReacted', postId],
+    queryKey: ["hasUserReacted", postId],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.hasUserReactedToBlogPost(postId);
     },
     enabled: !!actor && !isFetching && !!postId,
@@ -1003,12 +1079,14 @@ export function useTipBlogPost() {
 
   return useMutation<string, Error, { postId: string; amount: bigint }>({
     mutationFn: async ({ postId, amount }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return await actor.tipBlogPost(postId, amount);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['blogTips', variables.postId] });
-      queryClient.invalidateQueries({ queryKey: ['tokenBalance'] });
+      queryClient.invalidateQueries({
+        queryKey: ["blogTips", variables.postId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["tokenBalance"] });
     },
   });
 }
@@ -1017,9 +1095,9 @@ export function useGetBlogTips(postId: string) {
   const { actor, isFetching } = useActor();
 
   return useQuery<bigint>({
-    queryKey: ['blogTips', postId],
+    queryKey: ["blogTips", postId],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getTotalBlogTipsForPost(postId);
     },
     enabled: !!actor && !isFetching && !!postId,
@@ -1031,9 +1109,9 @@ export function useGetAllConsensusMeetings() {
   const { actor, isFetching } = useActor();
 
   return useQuery<ConsensusMeetingView[]>({
-    queryKey: ['consensusMeetings'],
+    queryKey: ["consensusMeetings"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getAllConsensusMeetings();
     },
     enabled: !!actor && !isFetching,
@@ -1044,9 +1122,9 @@ export function useGetConsensusMeeting(meetingId: string) {
   const { actor, isFetching } = useActor();
 
   return useQuery<ConsensusMeetingView | null>({
-    queryKey: ['consensusMeeting', meetingId],
+    queryKey: ["consensusMeeting", meetingId],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getConsensusMeeting(meetingId);
     },
     enabled: !!actor && !isFetching && !!meetingId,
@@ -1059,11 +1137,11 @@ export function useCreateConsensusMeeting() {
 
   return useMutation<void, Error, string>({
     mutationFn: async (id: string) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.createConsensusMeeting(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['consensusMeetings'] });
+      queryClient.invalidateQueries({ queryKey: ["consensusMeetings"] });
     },
   });
 }
@@ -1074,12 +1152,12 @@ export function useSignUpForConsensusMeeting() {
 
   return useMutation<void, Error, string>({
     mutationFn: async (meetingId: string) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.signUpForConsensusMeeting(meetingId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['consensusMeetings'] });
-      queryClient.invalidateQueries({ queryKey: ['callerCategory'] });
+      queryClient.invalidateQueries({ queryKey: ["consensusMeetings"] });
+      queryClient.invalidateQueries({ queryKey: ["callerCategory"] });
     },
   });
 }
@@ -1088,13 +1166,17 @@ export function useSubmitContribution() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, { meetingId: string; text: string; files: ExternalBlob[] }>({
+  return useMutation<
+    void,
+    Error,
+    { meetingId: string; text: string; files: ExternalBlob[] }
+  >({
     mutationFn: async ({ meetingId, text, files }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.submitContribution(meetingId, text, files);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['consensusMeetings'] });
+      queryClient.invalidateQueries({ queryKey: ["consensusMeetings"] });
     },
   });
 }
@@ -1105,11 +1187,11 @@ export function useSubmitRanking() {
 
   return useMutation<void, Error, { meetingId: string; rankings: Ranking[] }>({
     mutationFn: async ({ meetingId, rankings }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.submitRanking(meetingId, rankings);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['consensusMeetings'] });
+      queryClient.invalidateQueries({ queryKey: ["consensusMeetings"] });
     },
   });
 }
@@ -1120,11 +1202,11 @@ export function useAdvanceConsensusMeetingPhase() {
 
   return useMutation<void, Error, string>({
     mutationFn: async (meetingId: string) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.advanceConsensusMeetingPhase(meetingId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['consensusMeetings'] });
+      queryClient.invalidateQueries({ queryKey: ["consensusMeetings"] });
     },
   });
 }
@@ -1135,11 +1217,11 @@ export function useForceAdvanceConsensusMeetingPhase() {
 
   return useMutation<void, Error, string>({
     mutationFn: async (meetingId: string) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.forceAdvanceConsensusMeetingPhase(meetingId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['consensusMeetings'] });
+      queryClient.invalidateQueries({ queryKey: ["consensusMeetings"] });
     },
   });
 }
@@ -1150,12 +1232,12 @@ export function useFinalizeConsensusMeeting() {
 
   return useMutation<void, Error, string>({
     mutationFn: async (meetingId: string) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.finalizeConsensusMeeting(meetingId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['consensusMeetings'] });
-      queryClient.invalidateQueries({ queryKey: ['tokenBalance'] });
+      queryClient.invalidateQueries({ queryKey: ["consensusMeetings"] });
+      queryClient.invalidateQueries({ queryKey: ["tokenBalance"] });
     },
   });
 }
@@ -1165,12 +1247,12 @@ export function useIsCallerAdmin() {
   const { actor, isFetching } = useActor();
 
   return useQuery<boolean>({
-    queryKey: ['isAdmin'],
+    queryKey: ["isAdmin"],
     queryFn: async () => {
       if (!actor) return false;
       try {
         return await actor.isCallerAdmin();
-      } catch (error) {
+      } catch (_error) {
         return false;
       }
     },
@@ -1184,12 +1266,12 @@ export function useDeleteUser() {
 
   return useMutation<void, Error, Principal>({
     mutationFn: async (user: Principal) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.deleteUser(user);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allMembers'] });
-      queryClient.invalidateQueries({ queryKey: ['allJoinRequests'] });
+      queryClient.invalidateQueries({ queryKey: ["allMembers"] });
+      queryClient.invalidateQueries({ queryKey: ["allJoinRequests"] });
     },
   });
 }
@@ -1200,11 +1282,11 @@ export function usePromoteToAdmin() {
 
   return useMutation<void, Error, Principal>({
     mutationFn: async (user: Principal) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       await actor.promoteToAdmin(user);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allMembers'] });
+      queryClient.invalidateQueries({ queryKey: ["allMembers"] });
     },
   });
 }

@@ -1,5 +1,5 @@
-import { Bell } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,13 +7,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { useGetUnreadNotifications, useMarkNotificationAsRead } from '../hooks/useQueries';
-import { useLanguage } from '../contexts/LanguageContext';
-import { formatDistanceToNow } from 'date-fns';
-import { enUS, fr } from 'date-fns/locale';
+} from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { formatDistanceToNow } from "date-fns";
+import { enUS, fr } from "date-fns/locale";
+import { Bell } from "lucide-react";
+import { useLanguage } from "../contexts/LanguageContext";
+import {
+  useGetUnreadNotifications,
+  useMarkNotificationAsRead,
+} from "../hooks/useQueries";
 
 export default function NotificationsDropdown() {
   const { data: notifications = [], isLoading } = useGetUnreadNotifications();
@@ -26,17 +29,19 @@ export default function NotificationsDropdown() {
     try {
       await markAsRead.mutateAsync(notificationId);
     } catch (error) {
-      console.error('Failed to mark notification as read:', error);
+      console.error("Failed to mark notification as read:", error);
     }
   };
 
   const handleMarkAllAsRead = async () => {
     try {
       await Promise.all(
-        notifications.map(notification => markAsRead.mutateAsync(notification.id))
+        notifications.map((notification) =>
+          markAsRead.mutateAsync(notification.id),
+        ),
       );
     } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
+      console.error("Failed to mark all notifications as read:", error);
     }
   };
 
@@ -44,7 +49,7 @@ export default function NotificationsDropdown() {
     const date = new Date(Number(timestamp) / 1000000);
     return formatDistanceToNow(date, {
       addSuffix: true,
-      locale: locale === 'fr' ? fr : enUS,
+      locale: locale === "fr" ? fr : enUS,
     });
   };
 
@@ -58,7 +63,7 @@ export default function NotificationsDropdown() {
               variant="destructive"
               className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
             >
-              {unreadCount > 9 ? '9+' : unreadCount}
+              {unreadCount > 9 ? "9+" : unreadCount}
             </Badge>
           )}
           <span className="sr-only">{t.notifications.title}</span>
@@ -119,4 +124,3 @@ export default function NotificationsDropdown() {
     </DropdownMenu>
   );
 }
-

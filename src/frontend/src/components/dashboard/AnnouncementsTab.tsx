@@ -1,12 +1,27 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Loader2, Megaphone, Plus, Calendar, User, ChevronDown, ChevronUp, Edit } from 'lucide-react';
-import { useIsCallerAdmin } from '../../hooks/useQueries';
-import AnnouncementDialog from './AnnouncementDialog';
-import type { Announcement } from '../../types/backend-extensions';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Calendar,
+  ChevronDown,
+  ChevronUp,
+  Edit,
+  Loader2,
+  Megaphone,
+  Plus,
+  User,
+} from "lucide-react";
+import { useState } from "react";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { useIsCallerAdmin } from "../../hooks/useQueries";
+import type { Announcement } from "../../types/backend-extensions";
+import AnnouncementDialog from "./AnnouncementDialog";
 
 // NOTE: This component is not currently used in the UI as announcements are hidden
 // It remains here for potential future use and to prevent build errors
@@ -15,7 +30,8 @@ export default function AnnouncementsTab() {
   const { t } = useLanguage();
   const { data: isAdmin } = useIsCallerAdmin();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
+  const [selectedAnnouncement, setSelectedAnnouncement] =
+    useState<Announcement | null>(null);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   // Placeholder empty announcements array since the feature is hidden
@@ -23,7 +39,7 @@ export default function AnnouncementsTab() {
   const isLoading = false;
 
   const toggleExpanded = (id: string) => {
-    setExpandedIds(prev => {
+    setExpandedIds((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
         newSet.delete(id);
@@ -46,14 +62,20 @@ export default function AnnouncementsTab() {
 
   const formatDate = (timestamp: bigint) => {
     const date = new Date(Number(timestamp) / 1_000_000);
-    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    return date.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
   };
 
-  const getPreviewText = (html: string, maxLength: number = 200) => {
-    const tmp = document.createElement('DIV');
+  const getPreviewText = (html: string, maxLength = 200) => {
+    const tmp = document.createElement("DIV");
     tmp.innerHTML = html;
-    const text = tmp.textContent || tmp.innerText || '';
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    const text = tmp.textContent || tmp.innerText || "";
+    return text.length > maxLength
+      ? `${text.substring(0, maxLength)}...`
+      : text;
   };
 
   if (isLoading) {
@@ -81,7 +103,9 @@ export default function AnnouncementsTab() {
                 />
               </div>
               <div>
-                <CardTitle className="text-2xl">{t.announcements.title}</CardTitle>
+                <CardTitle className="text-2xl">
+                  {t.announcements.title}
+                </CardTitle>
                 <CardDescription>{t.announcements.subtitle}</CardDescription>
               </div>
             </div>
@@ -99,7 +123,9 @@ export default function AnnouncementsTab() {
         <Card>
           <CardContent className="py-12 text-center">
             <Megaphone className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-lg font-semibold mb-2">{t.announcements.noAnnouncements}</p>
+            <p className="text-lg font-semibold mb-2">
+              {t.announcements.noAnnouncements}
+            </p>
             <p className="text-sm text-muted-foreground">
               {t.announcements.noAnnouncementsDesc}
             </p>
@@ -109,11 +135,16 @@ export default function AnnouncementsTab() {
         <>
           <div className="grid gap-6 md:grid-cols-2">
             {recentAnnouncements.map((announcement) => (
-              <Card key={announcement.id} className="border-accent/20 hover:border-accent/40 transition-colors">
+              <Card
+                key={announcement.id}
+                className="border-accent/20 hover:border-accent/40 transition-colors"
+              >
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-xl mb-2">{announcement.title}</CardTitle>
+                      <CardTitle className="text-xl mb-2">
+                        {announcement.title}
+                      </CardTitle>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
@@ -160,10 +191,9 @@ export default function AnnouncementsTab() {
                       )}
                     </Button>
                     {expandedIds.has(announcement.id) && (
-                      <div
-                        className="prose prose-sm dark:prose-invert max-w-none"
-                        dangerouslySetInnerHTML={{ __html: announcement.content }}
-                      />
+                      <p className="prose prose-sm dark:prose-invert max-w-none text-sm">
+                        {getPreviewText(announcement.content, 2000)}
+                      </p>
                     )}
                   </div>
                 </CardContent>
@@ -184,7 +214,9 @@ export default function AnnouncementsTab() {
                       className="p-4 rounded-lg border hover:border-accent/40 transition-colors space-y-3"
                     >
                       <div className="flex items-start justify-between">
-                        <h3 className="font-semibold line-clamp-2">{announcement.title}</h3>
+                        <h3 className="font-semibold line-clamp-2">
+                          {announcement.title}
+                        </h3>
                         {isAdmin && (
                           <Button
                             variant="ghost"
@@ -205,14 +237,15 @@ export default function AnnouncementsTab() {
                           size="sm"
                           onClick={() => toggleExpanded(announcement.id)}
                         >
-                          {expandedIds.has(announcement.id) ? 'Show Less' : 'Read More'}
+                          {expandedIds.has(announcement.id)
+                            ? "Show Less"
+                            : "Read More"}
                         </Button>
                       </div>
                       {expandedIds.has(announcement.id) && (
-                        <div
-                          className="prose prose-sm dark:prose-invert max-w-none pt-3 border-t"
-                          dangerouslySetInnerHTML={{ __html: announcement.content }}
-                        />
+                        <p className="prose prose-sm dark:prose-invert max-w-none pt-3 border-t text-sm">
+                          {getPreviewText(announcement.content, 2000)}
+                        </p>
                       )}
                     </div>
                   ))}

@@ -386,5 +386,6 @@ export interface backendInterface {
     updateDailyRewardConfig(newConfig: DailyRewardConfig): Promise<void>;
     updateJoinRequestStatus(user: Principal, status: JoinRequestStatus): Promise<string>;
     updateTokenomicsConfig(newConfig: TokenomicsConfig): Promise<void>;
+    transferFromTreasury(treasury: TreasuryTarget, recipient: Principal, amount: bigint): Promise<void>;
     updateUCA(newUCA: string): Promise<void>;
 }

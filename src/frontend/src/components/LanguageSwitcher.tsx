@@ -1,18 +1,24 @@
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Globe } from 'lucide-react';
-import { useLanguage } from '../contexts/LanguageContext';
-import { Locale } from '../lib/i18n';
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Globe } from "lucide-react";
+import { useLanguage } from "../contexts/LanguageContext";
+import type { Locale } from "../lib/i18n";
 
 export default function LanguageSwitcher() {
   const { locale, setLocale } = useLanguage();
 
   const languages: { code: Locale; label: string; flag: string }[] = [
-    { code: 'en', label: 'English', flag: '🇬🇧' },
-    { code: 'fr', label: 'Français', flag: '🇫🇷' },
+    { code: "en", label: "English", flag: "🇬🇧" },
+    { code: "fr", label: "Français", flag: "🇫🇷" },
   ];
 
-  const currentLanguage = languages.find(lang => lang.code === locale) || languages[0];
+  const _currentLanguage =
+    languages.find((lang) => lang.code === locale) || languages[0];
 
   return (
     <DropdownMenu>
@@ -27,7 +33,7 @@ export default function LanguageSwitcher() {
           <DropdownMenuItem
             key={lang.code}
             onClick={() => setLocale(lang.code)}
-            className={locale === lang.code ? 'bg-accent' : ''}
+            className={locale === lang.code ? "bg-accent" : ""}
           >
             <span className="mr-2">{lang.flag}</span>
             <span>{lang.label}</span>

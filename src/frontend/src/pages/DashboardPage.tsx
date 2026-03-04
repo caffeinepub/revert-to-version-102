@@ -1,19 +1,33 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Home, Users, Shield, MessageSquare, Crown, Loader2, FileText, Vote, Coins } from 'lucide-react';
-import OverviewTab from '../components/dashboard/OverviewTab';
-import MembersTab from '../components/dashboard/MembersTab';
-import AdminTab from '../components/dashboard/AdminTab';
-import ConsensusMeetingsTab from '../components/dashboard/ConsensusMeetingsTab';
-import CouncilTab from '../components/dashboard/CouncilTab';
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Coins,
+  Crown,
+  FileText,
+  Home,
+  Loader2,
+  MessageSquare,
+  Shield,
+  Users,
+  Vote,
+} from "lucide-react";
+import { Suspense } from "react";
+import { UserCategory } from "../backend";
+import AdminTab from "../components/dashboard/AdminTab";
+import ConsensusMeetingsTab from "../components/dashboard/ConsensusMeetingsTab";
+import CouncilTab from "../components/dashboard/CouncilTab";
 // import AnnouncementsTab from '../components/dashboard/AnnouncementsTab';
-import DocumentationTab from '../components/dashboard/DocumentationTab';
-import ProposalsTab from '../components/dashboard/ProposalsTab';
-import TokenomicsTab from '../components/dashboard/TokenomicsTab';
-import { useIsCallerAdmin, useGetCallerCategory, useIsCouncilMember } from '../hooks/useQueries';
-import { UserCategory } from '../backend';
-import { Suspense } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { useLanguage } from '../contexts/LanguageContext';
+import DocumentationTab from "../components/dashboard/DocumentationTab";
+import MembersTab from "../components/dashboard/MembersTab";
+import OverviewTab from "../components/dashboard/OverviewTab";
+import ProposalsTab from "../components/dashboard/ProposalsTab";
+import TokenomicsTab from "../components/dashboard/TokenomicsTab";
+import { useLanguage } from "../contexts/LanguageContext";
+import {
+  useGetCallerCategory,
+  useIsCallerAdmin,
+  useIsCouncilMember,
+} from "../hooks/useQueries";
 
 // Loading fallback for tab content
 function TabLoadingFallback() {
@@ -33,34 +47,39 @@ function TabLoadingFallback() {
 export default function DashboardPage() {
   const { t, locale } = useLanguage();
   const { data: isAdmin, isLoading: isAdminLoading } = useIsCallerAdmin();
-  const { data: userCategory, isLoading: isCategoryLoading } = useGetCallerCategory();
-  const { data: isCouncilMember, isLoading: isCouncilLoading } = useIsCouncilMember();
+  const { data: userCategory, isLoading: isCategoryLoading } =
+    useGetCallerCategory();
+  const { data: _isCouncilMember, isLoading: isCouncilLoading } =
+    useIsCouncilMember();
 
   // Only show tabs after role checks complete to prevent flashing
-  const rolesLoaded = !isAdminLoading && !isCategoryLoading && !isCouncilLoading;
-  
+  const rolesLoaded =
+    !isAdminLoading && !isCategoryLoading && !isCouncilLoading;
+
   // Admin tab is only visible to admins
   const showAdminTab = rolesLoaded && isAdmin;
-  
+
   // Members tab is only visible to Active Members or Admins
-  const showMembersTab = rolesLoaded && (isAdmin || userCategory === UserCategory.activeMember);
+  const showMembersTab =
+    rolesLoaded && (isAdmin || userCategory === UserCategory.activeMember);
 
   // Consensus tab is only visible to Members (including Active Members) or Admins
-  const showConsensusTab = rolesLoaded && (
-    isAdmin || 
-    userCategory === UserCategory.member || 
-    userCategory === UserCategory.activeMember
-  );
+  const showConsensusTab =
+    rolesLoaded &&
+    (isAdmin ||
+      userCategory === UserCategory.member ||
+      userCategory === UserCategory.activeMember);
 
   // Council tab is only visible to Members (including Active Members) or Admins
-  const showCouncilTab = rolesLoaded && (
-    isAdmin || 
-    userCategory === UserCategory.member || 
-    userCategory === UserCategory.activeMember
-  );
+  const showCouncilTab =
+    rolesLoaded &&
+    (isAdmin ||
+      userCategory === UserCategory.member ||
+      userCategory === UserCategory.activeMember);
 
   // Proposals tab is only visible to Active Members
-  const showProposalsTab = rolesLoaded && userCategory === UserCategory.activeMember;
+  const showProposalsTab =
+    rolesLoaded && userCategory === UserCategory.activeMember;
 
   // Tokenomics tab is only visible to Admins
   const showTokenomicsTab = rolesLoaded && isAdmin;
@@ -71,9 +90,7 @@ export default function DashboardPage() {
         <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           {t.dashboard.title}
         </h1>
-        <p className="text-muted-foreground text-lg">
-          {t.dashboard.subtitle}
-        </p>
+        <p className="text-muted-foreground text-lg">{t.dashboard.subtitle}</p>
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
@@ -110,7 +127,7 @@ export default function DashboardPage() {
             <TabsTrigger value="tokenomics" className="gap-2">
               <Coins className="h-4 w-4" />
               <span className="hidden sm:inline">
-                {locale === 'en' ? 'Tokenomics' : 'Tokenomics'}
+                {locale === "en" ? "Tokenomics" : "Tokenomics"}
               </span>
             </TabsTrigger>
           )}
@@ -123,7 +140,7 @@ export default function DashboardPage() {
           <TabsTrigger value="documentation" className="gap-2">
             <FileText className="h-4 w-4" />
             <span className="hidden sm:inline">
-              {locale === 'en' ? 'Docs' : 'Docs'}
+              {locale === "en" ? "Docs" : "Docs"}
             </span>
           </TabsTrigger>
         </TabsList>

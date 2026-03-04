@@ -1,20 +1,35 @@
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useLanguage } from '../contexts/LanguageContext';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogIn, Loader2, Users, Calendar, Coins, Globe, Award, TrendingUp } from 'lucide-react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Award,
+  Calendar,
+  Coins,
+  Globe,
+  Loader2,
+  LogIn,
+  TrendingUp,
+  Users,
+} from "lucide-react";
+import Footer from "../components/Footer";
+import Header from "../components/Header";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
 
 export default function LoginPage() {
   const { login, loginStatus } = useInternetIdentity();
   const { t } = useLanguage();
-  const isLoggingIn = loginStatus === 'logging-in';
+  const isLoggingIn = loginStatus === "logging-in";
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-background to-accent/5">
       <Header />
-      
+
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative py-12 px-4 overflow-hidden">
@@ -22,9 +37,9 @@ export default function LoginPage() {
           <div className="container max-w-6xl mx-auto relative z-10">
             {/* Hero Visual Element */}
             <div className="mb-12 animate-in fade-in slide-in-from-top-4 duration-1000">
-              <img 
-                src="/assets/generated/hero-community.dim_1200x400.png" 
-                alt="Phil3 Community" 
+              <img
+                src="/assets/generated/hero-community.dim_1200x400.png"
+                alt="Phil3 Community"
                 className="w-full h-auto rounded-2xl shadow-2xl object-cover max-h-[400px]"
               />
             </div>
@@ -36,15 +51,11 @@ export default function LoginPage() {
               <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-8 animate-in fade-in slide-in-from-bottom-5 duration-1000 delay-150">
                 {t.homepage.tagline}
               </p>
-              
+
               {/* Mission Statement - Reordered */}
               <div className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
-                <p className="mb-4">
-                  {t.login.missionIntro}
-                </p>
-                <p className="font-semibold mb-3">
-                  {t.login.missionStatement}
-                </p>
+                <p className="mb-4">{t.login.missionIntro}</p>
+                <p className="font-semibold mb-3">{t.login.missionStatement}</p>
                 <div className="text-left space-y-2 inline-block">
                   <p>{t.login.missionGoal1}</p>
                   <p>{t.login.missionGoal2}</p>
@@ -85,7 +96,9 @@ export default function LoginPage() {
         <section className="py-16 px-4 bg-gradient-to-b from-muted/30 to-background">
           <div className="container max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">{t.homepage.valueProposition.title}</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                {t.homepage.valueProposition.title}
+              </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 {t.homepage.valueProposition.subtitle}
               </p>
@@ -99,7 +112,9 @@ export default function LoginPage() {
                     <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-colors">
                       <Users className="h-6 w-6 text-primary" />
                     </div>
-                    <CardTitle className="text-lg">{t.homepage.valueProposition.onboarding}</CardTitle>
+                    <CardTitle className="text-lg">
+                      {t.homepage.valueProposition.onboarding}
+                    </CardTitle>
                   </div>
                   <CardDescription className="text-sm">
                     {t.homepage.valueProposition.onboardingDesc}
@@ -114,7 +129,9 @@ export default function LoginPage() {
                     <div className="p-3 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 group-hover:from-accent/20 group-hover:to-accent/10 transition-colors">
                       <Calendar className="h-6 w-6 text-accent" />
                     </div>
-                    <CardTitle className="text-lg">{t.homepage.valueProposition.consensus}</CardTitle>
+                    <CardTitle className="text-lg">
+                      {t.homepage.valueProposition.consensus}
+                    </CardTitle>
                   </div>
                   <CardDescription className="text-sm">
                     {t.homepage.valueProposition.consensusDesc}
@@ -129,7 +146,9 @@ export default function LoginPage() {
                     <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-colors">
                       <Award className="h-6 w-6 text-primary" />
                     </div>
-                    <CardTitle className="text-lg">{t.homepage.valueProposition.governance}</CardTitle>
+                    <CardTitle className="text-lg">
+                      {t.homepage.valueProposition.governance}
+                    </CardTitle>
                   </div>
                   <CardDescription className="text-sm">
                     {t.homepage.valueProposition.governanceDesc}
@@ -144,7 +163,9 @@ export default function LoginPage() {
                     <div className="p-3 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 group-hover:from-accent/20 group-hover:to-accent/10 transition-colors">
                       <Coins className="h-6 w-6 text-accent" />
                     </div>
-                    <CardTitle className="text-lg">{t.homepage.valueProposition.tokenomics}</CardTitle>
+                    <CardTitle className="text-lg">
+                      {t.homepage.valueProposition.tokenomics}
+                    </CardTitle>
                   </div>
                   <CardDescription className="text-sm">
                     {t.homepage.valueProposition.tokenomicsDesc}
@@ -159,7 +180,9 @@ export default function LoginPage() {
                     <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-colors">
                       <TrendingUp className="h-6 w-6 text-primary" />
                     </div>
-                    <CardTitle className="text-lg">{t.homepage.valueProposition.rewards}</CardTitle>
+                    <CardTitle className="text-lg">
+                      {t.homepage.valueProposition.rewards}
+                    </CardTitle>
                   </div>
                   <CardDescription className="text-sm">
                     {t.homepage.valueProposition.rewardsDesc}
@@ -174,7 +197,9 @@ export default function LoginPage() {
                     <div className="p-3 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 group-hover:from-accent/20 group-hover:to-accent/10 transition-colors">
                       <Globe className="h-6 w-6 text-accent" />
                     </div>
-                    <CardTitle className="text-lg">{t.homepage.valueProposition.multilang}</CardTitle>
+                    <CardTitle className="text-lg">
+                      {t.homepage.valueProposition.multilang}
+                    </CardTitle>
                   </div>
                   <CardDescription className="text-sm">
                     {t.homepage.valueProposition.multilangDesc}
@@ -189,7 +214,9 @@ export default function LoginPage() {
         <section className="py-16 px-4">
           <div className="container max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">{t.homepage.features.title}</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                {t.homepage.features.title}
+              </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 {t.homepage.features.subtitle}
               </p>
@@ -202,14 +229,16 @@ export default function LoginPage() {
                 <CardHeader className="relative">
                   <div className="flex justify-center mb-4">
                     <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 group-hover:scale-110 transition-transform duration-300">
-                      <img 
-                        src="/assets/generated/consensus-icon-transparent.dim_64x64.png" 
-                        alt="Consensus" 
-                        className="h-16 w-16" 
+                      <img
+                        src="/assets/generated/consensus-icon-transparent.dim_64x64.png"
+                        alt="Consensus"
+                        className="h-16 w-16"
                       />
                     </div>
                   </div>
-                  <CardTitle className="text-xl text-center mb-2">{t.homepage.features.consensus}</CardTitle>
+                  <CardTitle className="text-xl text-center mb-2">
+                    {t.homepage.features.consensus}
+                  </CardTitle>
                   <CardDescription className="text-center">
                     {t.homepage.features.consensusDesc}
                   </CardDescription>
@@ -222,14 +251,16 @@ export default function LoginPage() {
                 <CardHeader className="relative">
                   <div className="flex justify-center mb-4">
                     <div className="p-4 rounded-2xl bg-gradient-to-br from-accent/20 to-accent/10 group-hover:scale-110 transition-transform duration-300">
-                      <img 
-                        src="/assets/generated/voting-icon-transparent.dim_64x64.png" 
-                        alt="Governance" 
-                        className="h-16 w-16" 
+                      <img
+                        src="/assets/generated/voting-icon-transparent.dim_64x64.png"
+                        alt="Governance"
+                        className="h-16 w-16"
                       />
                     </div>
                   </div>
-                  <CardTitle className="text-xl text-center mb-2">{t.homepage.features.governance}</CardTitle>
+                  <CardTitle className="text-xl text-center mb-2">
+                    {t.homepage.features.governance}
+                  </CardTitle>
                   <CardDescription className="text-center">
                     {t.homepage.features.governanceDesc}
                   </CardDescription>
@@ -242,14 +273,16 @@ export default function LoginPage() {
                 <CardHeader className="relative">
                   <div className="flex justify-center mb-4">
                     <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 group-hover:scale-110 transition-transform duration-300">
-                      <img 
-                        src="/assets/generated/token-distribution-icon-transparent.dim_48x48.png" 
-                        alt="Tokenomics" 
-                        className="h-16 w-16" 
+                      <img
+                        src="/assets/generated/token-distribution-icon-transparent.dim_48x48.png"
+                        alt="Tokenomics"
+                        className="h-16 w-16"
                       />
                     </div>
                   </div>
-                  <CardTitle className="text-xl text-center mb-2">{t.homepage.features.tokenomics}</CardTitle>
+                  <CardTitle className="text-xl text-center mb-2">
+                    {t.homepage.features.tokenomics}
+                  </CardTitle>
                   <CardDescription className="text-center">
                     {t.homepage.features.tokenomicsDesc}
                   </CardDescription>
@@ -262,14 +295,16 @@ export default function LoginPage() {
                 <CardHeader className="relative">
                   <div className="flex justify-center mb-4">
                     <div className="p-4 rounded-2xl bg-gradient-to-br from-accent/20 to-accent/10 group-hover:scale-110 transition-transform duration-300">
-                      <img 
-                        src="/assets/generated/council-dashboard-icon-transparent.dim_64x64.png" 
-                        alt="Council" 
-                        className="h-16 w-16" 
+                      <img
+                        src="/assets/generated/council-dashboard-icon-transparent.dim_64x64.png"
+                        alt="Council"
+                        className="h-16 w-16"
                       />
                     </div>
                   </div>
-                  <CardTitle className="text-xl text-center mb-2">{t.homepage.features.council}</CardTitle>
+                  <CardTitle className="text-xl text-center mb-2">
+                    {t.homepage.features.council}
+                  </CardTitle>
                   <CardDescription className="text-center">
                     {t.homepage.features.councilDesc}
                   </CardDescription>
@@ -282,14 +317,16 @@ export default function LoginPage() {
                 <CardHeader className="relative">
                   <div className="flex justify-center mb-4">
                     <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 group-hover:scale-110 transition-transform duration-300">
-                      <img 
-                        src="/assets/generated/blog-icon-transparent.dim_64x64.png" 
-                        alt="Blog" 
-                        className="h-16 w-16" 
+                      <img
+                        src="/assets/generated/blog-icon-transparent.dim_64x64.png"
+                        alt="Blog"
+                        className="h-16 w-16"
                       />
                     </div>
                   </div>
-                  <CardTitle className="text-xl text-center mb-2">{t.homepage.features.blog}</CardTitle>
+                  <CardTitle className="text-xl text-center mb-2">
+                    {t.homepage.features.blog}
+                  </CardTitle>
                   <CardDescription className="text-center">
                     {t.homepage.features.blogDesc}
                   </CardDescription>
@@ -302,14 +339,16 @@ export default function LoginPage() {
                 <CardHeader className="relative">
                   <div className="flex justify-center mb-4">
                     <div className="p-4 rounded-2xl bg-gradient-to-br from-accent/20 to-accent/10 group-hover:scale-110 transition-transform duration-300">
-                      <img 
-                        src="/assets/generated/membership-approval-icon-transparent.dim_64x64.png" 
-                        alt="Community" 
-                        className="h-16 w-16" 
+                      <img
+                        src="/assets/generated/membership-approval-icon-transparent.dim_64x64.png"
+                        alt="Community"
+                        className="h-16 w-16"
                       />
                     </div>
                   </div>
-                  <CardTitle className="text-xl text-center mb-2">{t.homepage.features.community}</CardTitle>
+                  <CardTitle className="text-xl text-center mb-2">
+                    {t.homepage.features.community}
+                  </CardTitle>
                   <CardDescription className="text-center">
                     {t.homepage.features.communityDesc}
                   </CardDescription>
@@ -322,7 +361,9 @@ export default function LoginPage() {
         {/* Final CTA Section */}
         <section className="py-20 px-4 bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10">
           <div className="container max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">{t.homepage.cta.title}</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              {t.homepage.cta.title}
+            </h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
               {t.homepage.cta.subtitle}
             </p>

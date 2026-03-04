@@ -1,23 +1,34 @@
-import { useState } from 'react';
-import { useSaveCallerUserProfile } from '../hooks/useQueries';
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, UserPlus, Upload } from 'lucide-react';
-import { toast } from 'sonner';
-import { ExternalBlob } from '../backend';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, Upload, UserPlus } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { ExternalBlob } from "../backend";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
+import { useSaveCallerUserProfile } from "../hooks/useQueries";
 
 export default function ProfileSetupPage() {
   const { identity } = useInternetIdentity();
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [bio, setBio] = useState('');
-  const [profilePicture, setProfilePicture] = useState<ExternalBlob | undefined>(undefined);
-  const [previewUrl, setPreviewUrl] = useState<string>('/assets/generated/default-avatar.dim_150x150.png');
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [bio, setBio] = useState("");
+  const [profilePicture, setProfilePicture] = useState<
+    ExternalBlob | undefined
+  >(undefined);
+  const [previewUrl, setPreviewUrl] = useState<string>(
+    "/assets/generated/default-avatar.dim_150x150.png",
+  );
   const [uploadProgress, setUploadProgress] = useState(0);
   const saveProfile = useSaveCallerUserProfile();
 
@@ -25,29 +36,31 @@ export default function ProfileSetupPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size must be less than 5MB');
+      toast.error("Image size must be less than 5MB");
       return;
     }
 
     try {
       const arrayBuffer = await file.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
-      const blob = ExternalBlob.fromBytes(uint8Array).withUploadProgress((percentage) => {
-        setUploadProgress(percentage);
-      });
-      
+      const blob = ExternalBlob.fromBytes(uint8Array).withUploadProgress(
+        (percentage) => {
+          setUploadProgress(percentage);
+        },
+      );
+
       setProfilePicture(blob);
       setPreviewUrl(URL.createObjectURL(file));
-      toast.success('Profile picture selected');
+      toast.success("Profile picture selected");
     } catch (error) {
-      toast.error('Failed to process image');
-      console.error('Error processing image:', error);
+      toast.error("Failed to process image");
+      console.error("Error processing image:", error);
     }
   };
 
@@ -55,22 +68,22 @@ export default function ProfileSetupPage() {
     e.preventDefault();
 
     if (!username.trim()) {
-      toast.error('Please enter a username');
+      toast.error("Please enter a username");
       return;
     }
 
     if (!email.trim()) {
-      toast.error('Please enter an email');
+      toast.error("Please enter an email");
       return;
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error('Please enter a valid email address');
+      toast.error("Please enter a valid email address");
       return;
     }
 
     if (!identity) {
-      toast.error('Not authenticated');
+      toast.error("Not authenticated");
       return;
     }
 
@@ -82,10 +95,10 @@ export default function ProfileSetupPage() {
         profilePicture,
         principal: identity.getPrincipal(),
       });
-      toast.success('Profile created successfully!');
+      toast.success("Profile created successfully!");
     } catch (error) {
-      toast.error('Failed to create profile. Please try again.');
-      console.error('Error creating profile:', error);
+      toast.error("Failed to create profile. Please try again.");
+      console.error("Error creating profile:", error);
     }
   };
 
@@ -109,7 +122,7 @@ export default function ProfileSetupPage() {
               <Avatar className="h-32 w-32 border-4 border-primary/20">
                 <AvatarImage src={previewUrl} alt="Profile" />
                 <AvatarFallback className="bg-primary/10 text-primary text-3xl font-semibold">
-                  {username ? username[0].toUpperCase() : 'U'}
+                  {username ? username[0].toUpperCase() : "U"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col items-center gap-2">
@@ -127,7 +140,9 @@ export default function ProfileSetupPage() {
                   />
                 </Label>
                 {uploadProgress > 0 && uploadProgress < 100 && (
-                  <p className="text-xs text-muted-foreground">Uploading: {uploadProgress}%</p>
+                  <p className="text-xs text-muted-foreground">
+                    Uploading: {uploadProgress}%
+                  </p>
                 )}
               </div>
             </div>

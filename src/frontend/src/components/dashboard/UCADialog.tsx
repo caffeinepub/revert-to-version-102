@@ -1,12 +1,19 @@
-import { useState } from 'react';
-import { useGetActiveUCA, useAcceptUCA } from '../../hooks/useQueries';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Loader2, FileText, CheckCircle2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { CheckCircle2, FileText, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { useAcceptUCA, useGetActiveUCA } from "../../hooks/useQueries";
 
 interface UCADialogProps {
   open: boolean;
@@ -14,7 +21,11 @@ interface UCADialogProps {
   onAccepted: () => void;
 }
 
-export default function UCADialog({ open, onOpenChange, onAccepted }: UCADialogProps) {
+export default function UCADialog({
+  open,
+  onOpenChange,
+  onAccepted,
+}: UCADialogProps) {
   const [hasRead, setHasRead] = useState(false);
   const { data: ucaText, isLoading: ucaLoading } = useGetActiveUCA();
   const acceptUCA = useAcceptUCA();
@@ -33,7 +44,7 @@ export default function UCADialog({ open, onOpenChange, onAccepted }: UCADialogP
       onAccepted(); // Trigger the join request submission
     } catch (error) {
       toast.error(t.uca.acceptError);
-      console.error('Error accepting UCA:', error);
+      console.error("Error accepting UCA:", error);
     }
   };
 
@@ -53,7 +64,9 @@ export default function UCADialog({ open, onOpenChange, onAccepted }: UCADialogP
               <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
             </div>
           </div>
-          <DialogTitle className="text-xl sm:text-2xl text-center">{t.uca.title}</DialogTitle>
+          <DialogTitle className="text-xl sm:text-2xl text-center">
+            {t.uca.title}
+          </DialogTitle>
           <DialogDescription className="text-center text-sm sm:text-base">
             {t.uca.description}
           </DialogDescription>
@@ -64,7 +77,9 @@ export default function UCADialog({ open, onOpenChange, onAccepted }: UCADialogP
             <div className="flex items-center justify-center flex-1">
               <div className="text-center space-y-4">
                 <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-                <p className="text-sm text-muted-foreground">{t.uca.loadingAgreement}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t.uca.loadingAgreement}
+                </p>
               </div>
             </div>
           ) : (

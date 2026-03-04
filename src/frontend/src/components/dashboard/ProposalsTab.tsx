@@ -1,23 +1,47 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, FileText, Plus, CheckCircle2, XCircle, Clock, AlertCircle } from 'lucide-react';
-import { useGetAllProposals, useCreateProposal, useApproveProposal, useRejectProposal, useGetCallerCategory, useIsCouncilMember, useIsCallerAdmin } from '../../hooks/useQueries';
-import { useInternetIdentity } from '../../hooks/useInternetIdentity';
-import { UserCategory, ProposalStatus } from '../../backend';
-import { toast } from 'sonner';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  FileText,
+  Loader2,
+  Plus,
+  XCircle,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { ProposalStatus, UserCategory } from "../../backend";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { useInternetIdentity } from "../../hooks/useInternetIdentity";
+import {
+  useApproveProposal,
+  useCreateProposal,
+  useGetAllProposals,
+  useGetCallerCategory,
+  useIsCallerAdmin,
+  useIsCouncilMember,
+  useRejectProposal,
+} from "../../hooks/useQueries";
 
 export default function ProposalsTab() {
   const { t } = useLanguage();
   const { data: proposals, isLoading, error } = useGetAllProposals();
-  const { data: userCategory, isLoading: loadingCategory } = useGetCallerCategory();
-  const { data: isCouncilMember, isLoading: loadingCouncil } = useIsCouncilMember();
+  const { data: userCategory, isLoading: loadingCategory } =
+    useGetCallerCategory();
+  const { data: isCouncilMember, isLoading: loadingCouncil } =
+    useIsCouncilMember();
   const { data: isAdmin, isLoading: loadingAdmin } = useIsCallerAdmin();
   const { identity } = useInternetIdentity();
 
@@ -26,8 +50,8 @@ export default function ProposalsTab() {
   const rejectProposal = useRejectProposal();
 
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
 
   // Check if user is Active Member
   const isActiveMember = userCategory === UserCategory.activeMember;
@@ -35,7 +59,8 @@ export default function ProposalsTab() {
   // Check if user can vote on proposals (Council Members or Admins who are also Active Members)
   const canVoteOnProposal = isActiveMember && (isCouncilMember || isAdmin);
 
-  const isCheckingPermissions = loadingCategory || loadingCouncil || loadingAdmin;
+  const isCheckingPermissions =
+    loadingCategory || loadingCouncil || loadingAdmin;
 
   const formatDate = (timestamp: bigint) => {
     const date = new Date(Number(timestamp) / 1000000);
@@ -61,10 +86,13 @@ export default function ProposalsTab() {
     }
 
     try {
-      await createProposal.mutateAsync({ title: title.trim(), description: description.trim() });
+      await createProposal.mutateAsync({
+        title: title.trim(),
+        description: description.trim(),
+      });
       toast.success(t.proposals.createSuccess);
-      setTitle('');
-      setDescription('');
+      setTitle("");
+      setDescription("");
       setShowCreateForm(false);
     } catch (error: any) {
       toast.error(error.message || t.proposals.createError);
@@ -93,21 +121,30 @@ export default function ProposalsTab() {
     switch (status) {
       case ProposalStatus.pending:
         return (
-          <Badge variant="outline" className="bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400">
+          <Badge
+            variant="outline"
+            className="bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400"
+          >
             <Clock className="h-3 w-3 mr-1" />
             {t.proposals.statusPending}
           </Badge>
         );
       case ProposalStatus.accepted:
         return (
-          <Badge variant="outline" className="bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400">
+          <Badge
+            variant="outline"
+            className="bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400"
+          >
             <CheckCircle2 className="h-3 w-3 mr-1" />
             {t.proposals.statusAccepted}
           </Badge>
         );
       case ProposalStatus.rejected:
         return (
-          <Badge variant="outline" className="bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400">
+          <Badge
+            variant="outline"
+            className="bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400"
+          >
             <XCircle className="h-3 w-3 mr-1" />
             {t.proposals.statusRejected}
           </Badge>
@@ -147,7 +184,10 @@ export default function ProposalsTab() {
           </CardHeader>
         </Card>
 
-        <Alert variant="destructive" className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
+        <Alert
+          variant="destructive"
+          className="border-amber-500 bg-amber-50 dark:bg-amber-950/20"
+        >
           <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
           <AlertDescription className="text-amber-800 dark:text-amber-200 font-medium">
             {t.proposals.accessDenied}
@@ -199,8 +239,16 @@ export default function ProposalsTab() {
 
   // Sort proposals: pending first, then by timestamp (newest first)
   const sortedProposals = [...(proposals || [])].sort((a, b) => {
-    if (a.status === ProposalStatus.pending && b.status !== ProposalStatus.pending) return -1;
-    if (a.status !== ProposalStatus.pending && b.status === ProposalStatus.pending) return 1;
+    if (
+      a.status === ProposalStatus.pending &&
+      b.status !== ProposalStatus.pending
+    )
+      return -1;
+    if (
+      a.status !== ProposalStatus.pending &&
+      b.status === ProposalStatus.pending
+    )
+      return 1;
     return Number(b.timestamp - a.timestamp);
   });
 
@@ -225,7 +273,10 @@ export default function ProposalsTab() {
                 </CardDescription>
               </div>
             </div>
-            <Button onClick={() => setShowCreateForm(!showCreateForm)} variant="default">
+            <Button
+              onClick={() => setShowCreateForm(!showCreateForm)}
+              variant="default"
+            >
               <Plus className="h-4 w-4 mr-2" />
               {t.proposals.createButton}
             </Button>
@@ -251,7 +302,9 @@ export default function ProposalsTab() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="description">{t.proposals.descriptionLabel}</Label>
+              <Label htmlFor="description">
+                {t.proposals.descriptionLabel}
+              </Label>
               <Textarea
                 id="description"
                 placeholder={t.proposals.descriptionPlaceholder}
@@ -261,14 +314,19 @@ export default function ProposalsTab() {
               />
             </div>
             <div className="flex gap-2">
-              <Button 
-                onClick={handleCreateProposal} 
+              <Button
+                onClick={handleCreateProposal}
                 disabled={createProposal.isPending}
               >
-                {createProposal.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {createProposal.isPending && (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                )}
                 {t.proposals.submitButton}
               </Button>
-              <Button variant="outline" onClick={() => setShowCreateForm(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowCreateForm(false)}
+              >
                 {t.common.cancel}
               </Button>
             </div>
@@ -283,8 +341,12 @@ export default function ProposalsTab() {
             <CardContent className="py-12">
               <div className="text-center space-y-3">
                 <FileText className="h-12 w-12 text-muted-foreground mx-auto" />
-                <p className="text-muted-foreground">{t.proposals.noProposals}</p>
-                <p className="text-sm text-muted-foreground">{t.proposals.noProposalsDesc}</p>
+                <p className="text-muted-foreground">
+                  {t.proposals.noProposals}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {t.proposals.noProposalsDesc}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -296,68 +358,93 @@ export default function ProposalsTab() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-semibold">{proposal.title}</h3>
+                        <h3 className="text-xl font-semibold">
+                          {proposal.title}
+                        </h3>
                         {getStatusBadge(proposal.status)}
                       </div>
                       <p className="text-sm text-muted-foreground mb-4 whitespace-pre-wrap">
                         {proposal.description}
                       </p>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span>{t.proposals.author}: {proposal.author.toString().slice(0, 20)}...</span>
-                        <span>{t.proposals.submitted}: {formatDate(proposal.timestamp)}</span>
+                        <span>
+                          {t.proposals.author}:{" "}
+                          {proposal.author.toString().slice(0, 20)}...
+                        </span>
+                        <span>
+                          {t.proposals.submitted}:{" "}
+                          {formatDate(proposal.timestamp)}
+                        </span>
                         {proposal.status === ProposalStatus.pending && (
                           <span className="font-semibold text-amber-600 dark:text-amber-400">
-                            {proposal.approvals.length}/3 {t.proposals.approvals}
+                            {proposal.approvals.length}/3{" "}
+                            {t.proposals.approvals}
                           </span>
                         )}
-                        {proposal.status !== ProposalStatus.pending && proposal.completionTimestamp && (
-                          <span>{t.proposals.completed}: {formatDate(proposal.completionTimestamp)}</span>
-                        )}
+                        {proposal.status !== ProposalStatus.pending &&
+                          proposal.completionTimestamp && (
+                            <span>
+                              {t.proposals.completed}:{" "}
+                              {formatDate(proposal.completionTimestamp)}
+                            </span>
+                          )}
                       </div>
                     </div>
                   </div>
 
                   {/* Action Buttons for Council/Admin who are Active Members */}
-                  {proposal.status === ProposalStatus.pending && canVoteOnProposal && (
-                    <div className="flex gap-2 pt-2 border-t">
-                      {!hasUserApproved(proposal) && !hasUserRejected(proposal) && (
-                        <>
-                          <Button
-                            size="sm"
-                            onClick={() => handleApprove(proposal.id)}
-                            disabled={approveProposal.isPending}
-                            className="bg-green-600 hover:bg-green-700"
+                  {proposal.status === ProposalStatus.pending &&
+                    canVoteOnProposal && (
+                      <div className="flex gap-2 pt-2 border-t">
+                        {!hasUserApproved(proposal) &&
+                          !hasUserRejected(proposal) && (
+                            <>
+                              <Button
+                                size="sm"
+                                onClick={() => handleApprove(proposal.id)}
+                                disabled={approveProposal.isPending}
+                                className="bg-green-600 hover:bg-green-700"
+                              >
+                                {approveProposal.isPending && (
+                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                )}
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                {t.proposals.approveButton}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleReject(proposal.id)}
+                                disabled={rejectProposal.isPending}
+                              >
+                                {rejectProposal.isPending && (
+                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                )}
+                                <XCircle className="h-3 w-3 mr-1" />
+                                {t.proposals.rejectButton}
+                              </Button>
+                            </>
+                          )}
+                        {hasUserApproved(proposal) && (
+                          <Badge
+                            variant="secondary"
+                            className="bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400"
                           >
-                            {approveProposal.isPending && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
                             <CheckCircle2 className="h-3 w-3 mr-1" />
-                            {t.proposals.approveButton}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleReject(proposal.id)}
-                            disabled={rejectProposal.isPending}
+                            {t.proposals.youApproved}
+                          </Badge>
+                        )}
+                        {hasUserRejected(proposal) && (
+                          <Badge
+                            variant="secondary"
+                            className="bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400"
                           >
-                            {rejectProposal.isPending && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
                             <XCircle className="h-3 w-3 mr-1" />
-                            {t.proposals.rejectButton}
-                          </Button>
-                        </>
-                      )}
-                      {hasUserApproved(proposal) && (
-                        <Badge variant="secondary" className="bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400">
-                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                          {t.proposals.youApproved}
-                        </Badge>
-                      )}
-                      {hasUserRejected(proposal) && (
-                        <Badge variant="secondary" className="bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400">
-                          <XCircle className="h-3 w-3 mr-1" />
-                          {t.proposals.youRejected}
-                        </Badge>
-                      )}
-                    </div>
-                  )}
+                            {t.proposals.youRejected}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
                 </div>
               </CardContent>
             </Card>
