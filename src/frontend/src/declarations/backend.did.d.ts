@@ -283,6 +283,7 @@ export interface _SERVICE {
   'deleteBlogPost' : ActorMethod<[string], undefined>,
   'deleteUser' : ActorMethod<[Principal], undefined>,
   'donatePHIL' : ActorMethod<[DonationTarget, bigint], undefined>,
+  'transferFromTreasury' : ActorMethod<[TreasuryTarget, Principal, bigint], undefined>,
   'editAnnouncement' : ActorMethod<[string, string, string], undefined>,
   'editBlogPost' : ActorMethod<[string, string, string], undefined>,
   'finalizeConsensusMeeting' : ActorMethod<[string], undefined>,

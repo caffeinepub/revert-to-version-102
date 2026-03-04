@@ -1,31 +1,25 @@
 # Phil3
 
 ## Current State
+The `transferFromTreasury` backend function exists in `main.mo` and is declared in `backend.d.ts` (on the `backendInterface` interface), but it is **missing from the generated `backend.ts` actor class**. It is also missing from the candid declarations (`backend.did.d.ts` and `backend.did.js`).
 
-Phil3 is a decentralized community platform with a Motoko backend and React/TypeScript frontend. The backend has treasury balances (`rewards`, `marketing`, `council` fields in `TreasuryBalance`) managed in-canister. PHIL tokens are tracked per user in `tokenBalances`. Admins can mint tokens to treasury via `mintRewards()`. Users can donate PHIL to each other or to a treasury via `donatePHIL()`. The AdminTab.tsx has a General tab and Tokenomics tab. There is currently no way for an admin to send PHIL from a treasury account directly to a specific user.
+The `useTransferFromTreasury` hook in `useQueries.ts` attempts to work around this with a TypeScript cast, but at runtime the method does not exist, causing: "actorWithTransfer.transferFromTreasury is not a function".
 
 ## Requested Changes (Diff)
 
 ### Add
-- Backend: `transferFromTreasury(treasury: TreasuryTarget, recipient: Principal, amount: Nat)` — admin-only function that deducts `amount` from the specified treasury balance and credits it to the recipient's `tokenBalances.phil`.
-- Frontend: "Treasury Transfer" card in the Admin > General tab. Contains: a treasury selector (Rewards/Marketing/Council), a recipient principal input field, an amount input field, and a "Send PHIL" submit button. Shows current treasury balances for reference. Includes success/error feedback.
+- `transferFromTreasury` method to `backend.ts` actor class, following the same pattern as `donatePHIL` (takes TreasuryTarget, Principal, bigint; returns Promise<void>)
+- `transferFromTreasury` entry to both `backend.did.d.ts` (TypeScript interface) and `backend.did.js` (IDL factory)
 
 ### Modify
-- AdminTab.tsx: Add the new TreasuryTransferCard component inside the "general" TabsContent section.
-- useQueries.ts: Add `useTransferFromTreasury` mutation hook.
-- backend.d.ts: Add `transferFromTreasury` to the `backendInterface`.
+- `useTransferFromTreasury` hook in `useQueries.ts`: remove the hacky cast workaround and call `actor.transferFromTreasury(...)` directly once it's properly implemented in the actor class
 
 ### Remove
-- Nothing removed.
+- Nothing
 
 ## Implementation Plan
-
-1. Add `transferFromTreasury` function to `main.mo`:
-   - Admin-only guard
-   - Validate amount > 0
-   - Check sufficient treasury balance
-   - Deduct from treasury, credit to user's phil balance
-2. Update `backend.d.ts` to add the new function signature with `TreasuryTarget` parameter.
-3. Add `useTransferFromTreasury` mutation in `useQueries.ts`.
-4. Create `TreasuryTransferCard.tsx` component with form fields and submit logic.
-5. Import and render `TreasuryTransferCard` inside `AdminTab.tsx` General tab section.
+1. Add `transferFromTreasury` to `backend.did.d.ts` service interface: `'transferFromTreasury': ActorMethod<[TreasuryTarget, Principal, bigint], undefined>`
+2. Add `transferFromTreasury` to `backend.did.js` IDL service: `'transferFromTreasury': IDL.Func([TreasuryTarget, IDL.Principal, IDL.Nat], [], [])` — add it in BOTH the partial and full service definitions (there appear to be two service blocks in that file)
+3. Add `async transferFromTreasury(arg0: TreasuryTarget, arg1: Principal, arg2: bigint): Promise<void>` implementation to `backend.ts` actor class, following the exact same pattern as `mintRewards` / `donatePHIL` (call `this.actor.transferFromTreasury(...)` with proper candid encoding for TreasuryTarget using the existing `to_candid_TreasuryTarget_n12` helper, Principal passes through directly, bigint passes through directly)
+4. Update `useTransferFromTreasury` in `useQueries.ts` to remove the cast and call `await actor.transferFromTreasury(treasury, recipient, amount)` directly
+5. Run typecheck and build to confirm no errors

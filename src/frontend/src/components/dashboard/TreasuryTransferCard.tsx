@@ -17,11 +17,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Principal } from "@icp-sdk/core/principal";
-import { AlertCircle, CheckCircle2, Loader2, Send, Vault } from "lucide-react";
-import { useState } from "react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  Send,
+  User,
+  Vault,
+} from "lucide-react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { TreasuryTarget } from "../../backend";
 import {
+  useGetAllMembers,
   useGetTreasuryBalances,
   useTransferFromTreasury,
 } from "../../hooks/useQueries";
@@ -47,6 +55,11 @@ function getTreasuryBalance(
   }
 }
 
+/** Returns true if the string looks like a principal address (contains dashes and hex chars) */
+function looksLikePrincipal(value: string): boolean {
+  return /^[a-z0-9]+-[a-z0-9-]+$/i.test(value.trim());
+}
+
 export default function TreasuryTransferCard() {
   const [selectedTreasury, setSelectedTreasury] = useState<TreasuryTarget | "">(
     "",
@@ -58,11 +71,49 @@ export default function TreasuryTransferCard() {
   >("idle");
 
   const { data: treasuryBalances } = useGetTreasuryBalances();
+  const { data: allMembers } = useGetAllMembers();
   const transferMutation = useTransferFromTreasury();
 
   const selectedBalance = selectedTreasury
     ? getTreasuryBalance(treasuryBalances, selectedTreasury as TreasuryTarget)
     : null;
+
+  /** Resolved principal from recipient input (username or principal address) */
+  const resolvedRecipient = useMemo(() => {
+    const value = recipient.trim();
+    if (!value) return null;
+
+    // Try to match as username in members list
+    if (allMembers && !looksLikePrincipal(value)) {
+      const member = allMembers.find(
+        (m) => m.username.toLowerCase() === value.toLowerCase(),
+      );
+      if (member) {
+        return { principal: member.principal, displayName: member.username };
+      }
+      return null;
+    }
+
+    // Try to parse as principal
+    try {
+      const p = Principal.fromText(value);
+      return { principal: p, displayName: value };
+    } catch {
+      return null;
+    }
+  }, [recipient, allMembers]);
+
+  const recipientError = useMemo(() => {
+    const value = recipient.trim();
+    if (!value) return null;
+    if (!resolvedRecipient) {
+      if (looksLikePrincipal(value)) {
+        return "Invalid principal address format.";
+      }
+      return "Username not found. Check spelling or use a principal address.";
+    }
+    return null;
+  }, [recipient, resolvedRecipient]);
 
   const handleSubmit = async () => {
     setTransferStatus("idle");
@@ -74,7 +125,17 @@ export default function TreasuryTransferCard() {
     }
 
     if (!recipient.trim()) {
-      toast.error("Please enter a recipient principal address");
+      toast.error("Please enter a recipient username or principal address");
+      return;
+    }
+
+    if (!resolvedRecipient) {
+      toast.error(
+        looksLikePrincipal(recipient.trim())
+          ? "Invalid principal address. Please check the recipient and try again."
+          : "Username not found. Check spelling or use a principal address.",
+      );
+      setTransferStatus("error");
       return;
     }
 
@@ -84,31 +145,19 @@ export default function TreasuryTransferCard() {
       return;
     }
 
-    // Validate and parse principal
-    let recipientPrincipal: Principal;
-    try {
-      recipientPrincipal = Principal.fromText(recipient.trim());
-    } catch {
-      toast.error(
-        "Invalid principal address. Please check the recipient and try again.",
-      );
-      setTransferStatus("error");
-      return;
-    }
-
     // Convert amount to bigint
     const amountBigInt = BigInt(Math.floor(amountNum));
 
     try {
       await transferMutation.mutateAsync({
         treasury: selectedTreasury as TreasuryTarget,
-        recipient: recipientPrincipal,
+        recipient: resolvedRecipient.principal,
         amount: amountBigInt,
       });
 
       setTransferStatus("success");
       toast.success(
-        `Successfully transferred ${formatPHIL(amountBigInt)} PHIL to ${recipient.trim().slice(0, 20)}...`,
+        `Successfully transferred ${formatPHIL(amountBigInt)} PHIL to ${resolvedRecipient.displayName}`,
       );
 
       // Reset form
@@ -202,20 +251,48 @@ export default function TreasuryTransferCard() {
           )}
         </div>
 
-        {/* Recipient Principal */}
+        {/* Recipient — username or principal */}
         <div className="space-y-2">
-          <Label htmlFor="recipient-input">Recipient Principal</Label>
-          <Input
-            id="recipient-input"
-            data-ocid="treasury_transfer.input"
-            placeholder="e.g. 2vxsx-fae or full principal address"
-            value={recipient}
-            onChange={(e) => setRecipient(e.target.value)}
-            className="font-mono text-sm"
-          />
-          <p className="text-xs text-muted-foreground">
-            Enter the recipient's Internet Identity principal address
-          </p>
+          <Label htmlFor="recipient-input">Recipient</Label>
+          <div className="relative">
+            <Input
+              id="recipient-input"
+              data-ocid="treasury_transfer.input"
+              placeholder="Username or principal address"
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
+              className={recipientError ? "border-destructive pr-8" : "pr-8"}
+            />
+            {resolvedRecipient && (
+              <CheckCircle2 className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-success pointer-events-none" />
+            )}
+          </div>
+
+          {/* Inline feedback */}
+          {recipientError && (
+            <p className="text-xs text-destructive flex items-center gap-1">
+              <AlertCircle className="h-3 w-3 flex-shrink-0" />
+              {recipientError}
+            </p>
+          )}
+          {resolvedRecipient && !looksLikePrincipal(recipient.trim()) && (
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <User className="h-3 w-3 flex-shrink-0" />
+              <span>
+                Resolved to:{" "}
+                <span className="font-mono">
+                  {resolvedRecipient.principal.toString().slice(0, 24)}...
+                </span>
+              </span>
+            </p>
+          )}
+          {!recipientError && !resolvedRecipient && !recipient.trim() && (
+            <p className="text-xs text-muted-foreground">
+              Enter a member's username (e.g.{" "}
+              <span className="font-mono">alice</span>) or their full principal
+              address
+            </p>
+          )}
         </div>
 
         {/* Amount */}

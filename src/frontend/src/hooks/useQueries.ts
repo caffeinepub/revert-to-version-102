@@ -491,15 +491,7 @@ export function useTransferFromTreasury() {
   >({
     mutationFn: async ({ treasury, recipient, amount }) => {
       if (!actor) throw new Error("Actor not available");
-      // Cast to access transferFromTreasury which is declared in backendInterface but may not be in the generated wrapper
-      const actorWithTransfer = actor as typeof actor & {
-        transferFromTreasury: (
-          treasury: TreasuryTarget,
-          recipient: Principal,
-          amount: bigint,
-        ) => Promise<void>;
-      };
-      await actorWithTransfer.transferFromTreasury(treasury, recipient, amount);
+      await actor.transferFromTreasury(treasury, recipient, amount);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["treasuryBalances"] });

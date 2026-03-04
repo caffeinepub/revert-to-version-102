@@ -393,6 +393,7 @@ export interface backendInterface {
     deleteBlogPost(id: string): Promise<void>;
     deleteUser(user: Principal): Promise<void>;
     donatePHIL(target: DonationTarget, amount: bigint): Promise<void>;
+    transferFromTreasury(treasury: TreasuryTarget, recipient: Principal, amount: bigint): Promise<void>;
     editAnnouncement(id: string, newTitle: string, newContent: string): Promise<void>;
     editBlogPost(id: string, newTitle: string, newContent: string): Promise<void>;
     finalizeConsensusMeeting(meetingId: string): Promise<void>;
@@ -830,6 +831,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.donatePHIL(to_candid_DonationTarget_n10(this.uploadFile, this.downloadFile, arg0), arg1);
+            return result;
+        }
+    }
+    async transferFromTreasury(arg0: TreasuryTarget, arg1: Principal, arg2: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.transferFromTreasury(to_candid_TreasuryTarget_n12(this.uploadFile, this.downloadFile, arg0), arg1, arg2);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.transferFromTreasury(to_candid_TreasuryTarget_n12(this.uploadFile, this.downloadFile, arg0), arg1, arg2);
             return result;
         }
     }
