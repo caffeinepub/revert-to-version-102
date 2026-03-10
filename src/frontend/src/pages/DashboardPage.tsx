@@ -6,6 +6,7 @@ import {
   FileText,
   Home,
   Loader2,
+  Megaphone,
   MessageSquare,
   Shield,
   Users,
@@ -14,9 +15,9 @@ import {
 import { Suspense } from "react";
 import { UserCategory } from "../backend";
 import AdminTab from "../components/dashboard/AdminTab";
+import AnnouncementsTab from "../components/dashboard/AnnouncementsTab";
 import ConsensusMeetingsTab from "../components/dashboard/ConsensusMeetingsTab";
 import CouncilTab from "../components/dashboard/CouncilTab";
-// import AnnouncementsTab from '../components/dashboard/AnnouncementsTab';
 import DocumentationTab from "../components/dashboard/DocumentationTab";
 import MembersTab from "../components/dashboard/MembersTab";
 import OverviewTab from "../components/dashboard/OverviewTab";
@@ -49,7 +50,7 @@ export default function DashboardPage() {
   const { data: isAdmin, isLoading: isAdminLoading } = useIsCallerAdmin();
   const { data: userCategory, isLoading: isCategoryLoading } =
     useGetCallerCategory();
-  const { data: _isCouncilMember, isLoading: isCouncilLoading } =
+  const { data: isCouncilMember, isLoading: isCouncilLoading } =
     useIsCouncilMember();
 
   // Only show tabs after role checks complete to prevent flashing
@@ -84,6 +85,14 @@ export default function DashboardPage() {
   // Tokenomics tab is only visible to Admins
   const showTokenomicsTab = rolesLoaded && isAdmin;
 
+  // Announcements tab is visible to all members (Member, Active Member) and Admins
+  const showAnnouncementsTab =
+    rolesLoaded &&
+    (isAdmin ||
+      isCouncilMember ||
+      userCategory === UserCategory.member ||
+      userCategory === UserCategory.activeMember);
+
   return (
     <div className="container py-8">
       <div className="mb-8">
@@ -94,7 +103,7 @@ export default function DashboardPage() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7 lg:w-auto lg:inline-grid">
+        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-8 lg:w-auto lg:inline-grid">
           <TabsTrigger value="overview" className="gap-2">
             <Home className="h-4 w-4" />
             <span className="hidden sm:inline">{t.dashboard.overview}</span>
@@ -115,6 +124,16 @@ export default function DashboardPage() {
             <TabsTrigger value="council" className="gap-2">
               <Crown className="h-4 w-4" />
               <span className="hidden sm:inline">{t.dashboard.council}</span>
+            </TabsTrigger>
+          )}
+          {showAnnouncementsTab && (
+            <TabsTrigger
+              value="announcements"
+              className="gap-2"
+              data-ocid="announcements.tab"
+            >
+              <Megaphone className="h-4 w-4" />
+              <span className="hidden sm:inline">{t.announcements.title}</span>
             </TabsTrigger>
           )}
           {showProposalsTab && (
@@ -171,6 +190,14 @@ export default function DashboardPage() {
           <TabsContent value="council" className="space-y-6">
             <Suspense fallback={<TabLoadingFallback />}>
               <CouncilTab />
+            </Suspense>
+          </TabsContent>
+        )}
+
+        {showAnnouncementsTab && (
+          <TabsContent value="announcements" className="space-y-6">
+            <Suspense fallback={<TabLoadingFallback />}>
+              <AnnouncementsTab />
             </Suspense>
           </TabsContent>
         )}

@@ -19,24 +19,25 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { useIsCallerAdmin } from "../../hooks/useQueries";
+import {
+  useGetAllAnnouncements,
+  useIsCallerAdmin,
+  useIsCouncilMember,
+} from "../../hooks/useQueries";
 import type { Announcement } from "../../types/backend-extensions";
 import AnnouncementDialog from "./AnnouncementDialog";
-
-// NOTE: This component is not currently used in the UI as announcements are hidden
-// It remains here for potential future use and to prevent build errors
 
 export default function AnnouncementsTab() {
   const { t } = useLanguage();
   const { data: isAdmin } = useIsCallerAdmin();
+  const { data: isCouncilMember } = useIsCouncilMember();
+  const { data: announcements = [], isLoading } = useGetAllAnnouncements();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedAnnouncement, setSelectedAnnouncement] =
     useState<Announcement | null>(null);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
-  // Placeholder empty announcements array since the feature is hidden
-  const announcements: Announcement[] = [];
-  const isLoading = false;
+  const canPost = isAdmin || isCouncilMember;
 
   const toggleExpanded = (id: string) => {
     setExpandedIds((prev) => {
@@ -80,7 +81,10 @@ export default function AnnouncementsTab() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-12">
+      <div
+        className="flex justify-center py-12"
+        data-ocid="announcements.loading_state"
+      >
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -109,8 +113,11 @@ export default function AnnouncementsTab() {
                 <CardDescription>{t.announcements.subtitle}</CardDescription>
               </div>
             </div>
-            {isAdmin && (
-              <Button onClick={handleCreateNew}>
+            {canPost && (
+              <Button
+                onClick={handleCreateNew}
+                data-ocid="announcements.primary_button"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 {t.announcements.createButton}
               </Button>
@@ -120,7 +127,7 @@ export default function AnnouncementsTab() {
       </Card>
 
       {announcements.length === 0 ? (
-        <Card>
+        <Card data-ocid="announcements.empty_state">
           <CardContent className="py-12 text-center">
             <Megaphone className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-lg font-semibold mb-2">
@@ -134,10 +141,11 @@ export default function AnnouncementsTab() {
       ) : (
         <>
           <div className="grid gap-6 md:grid-cols-2">
-            {recentAnnouncements.map((announcement) => (
+            {recentAnnouncements.map((announcement, index) => (
               <Card
                 key={announcement.id}
                 className="border-accent/20 hover:border-accent/40 transition-colors"
+                data-ocid={`announcements.item.${index + 1}`}
               >
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -156,11 +164,12 @@ export default function AnnouncementsTab() {
                         </div>
                       </div>
                     </div>
-                    {isAdmin && (
+                    {canPost && (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleEdit(announcement)}
+                        data-ocid={`announcements.edit_button.${index + 1}`}
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -208,20 +217,22 @@ export default function AnnouncementsTab() {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {olderAnnouncements.map((announcement) => (
+                  {olderAnnouncements.map((announcement, index) => (
                     <div
                       key={announcement.id}
                       className="p-4 rounded-lg border hover:border-accent/40 transition-colors space-y-3"
+                      data-ocid={`announcements.item.${recentAnnouncements.length + index + 1}`}
                     >
                       <div className="flex items-start justify-between">
                         <h3 className="font-semibold line-clamp-2">
                           {announcement.title}
                         </h3>
-                        {isAdmin && (
+                        {canPost && (
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleEdit(announcement)}
+                            data-ocid={`announcements.edit_button.${recentAnnouncements.length + index + 1}`}
                           >
                             <Edit className="h-3 w-3" />
                           </Button>

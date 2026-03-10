@@ -15,10 +15,11 @@ import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import { toast } from "sonner";
 import { useLanguage } from "../../contexts/LanguageContext";
+import {
+  useCreateAnnouncement,
+  useEditAnnouncement,
+} from "../../hooks/useQueries";
 import type { Announcement } from "../../types/backend-extensions";
-
-// NOTE: This component is not currently used in the UI as announcements are hidden
-// It remains here for potential future use and to prevent build errors
 
 interface AnnouncementDialogProps {
   open: boolean;
@@ -36,7 +37,13 @@ export default function AnnouncementDialog({
   const { t } = useLanguage();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { mutateAsync: createAnnouncement, isPending: isCreating } =
+    useCreateAnnouncement();
+  const { mutateAsync: editAnnouncement, isPending: isEditing } =
+    useEditAnnouncement();
+
+  const isSubmitting = isCreating || isEditing;
 
   useEffect(() => {
     if (announcement) {
@@ -67,23 +74,39 @@ export default function AnnouncementDialog({
       return;
     }
 
-    setIsSubmitting(true);
     try {
-      // Note: These mutations are commented out in useQueries.ts
-      // This is a placeholder to prevent build errors
-      toast.info("Announcements feature is currently disabled");
-      onOpenChange(false);
+      if (announcement) {
+        await editAnnouncement({
+          id: announcement.id,
+          newTitle: title,
+          newContent: content,
+        });
+        toast.success(t.announcements.updated);
+      } else {
+        await createAnnouncement({ title, content });
+        toast.success(t.announcements.createButton);
+      }
       onSuccess?.();
+      onOpenChange(false);
     } catch (error: any) {
-      toast.error(error.message || "An error occurred");
-    } finally {
-      setIsSubmitting(false);
+      if (announcement) {
+        toast.error(
+          error.message || t.announcements.updateError || "An error occurred",
+        );
+      } else {
+        toast.error(
+          error.message || t.announcements.createError || "An error occurred",
+        );
+      }
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className="max-w-3xl max-h-[90vh] overflow-y-auto"
+        data-ocid="announcements.dialog"
+      >
         <DialogHeader>
           <DialogTitle>
             {announcement
@@ -105,6 +128,7 @@ export default function AnnouncementDialog({
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t.announcements.titlePlaceholder}
               required
+              data-ocid="announcements.input"
             />
           </div>
           <div>
@@ -132,10 +156,15 @@ export default function AnnouncementDialog({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              data-ocid="announcements.cancel_button"
             >
               {t.common.cancel}
             </Button>
-            <Button type="submit" disabled={isSubmitting || !isFormValid()}>
+            <Button
+              type="submit"
+              disabled={isSubmitting || !isFormValid()}
+              data-ocid="announcements.submit_button"
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

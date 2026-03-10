@@ -22,6 +22,9 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { useGetAllMembers, useGetTokenBalance } from "../../hooks/useQueries";
 import type { ConsensusMeetingView } from "../../types/backend-extensions";
 
+const REP_FIBONACCI_WEIGHTS = [144, 89, 55, 34, 21, 13];
+const PHIL_FIBONACCI_WEIGHTS = [987, 610, 377, 233, 144, 89];
+
 interface MeetingResultsProps {
   meeting: ConsensusMeetingView;
   userProfile: UserProfile | null | undefined;
@@ -53,47 +56,30 @@ export default function MeetingResults({
   );
 
   const calculateExpectedRewards = () => {
-    const _REP_FIBONACCI_WEIGHTS = [144, 89, 55, 34, 21, 13];
-    const PHIL_FIBONACCI_WEIGHTS = [987, 610, 377, 233, 144, 89];
-
     const rewards = new Map<string, { rep: number; phil: number }>();
 
     for (const group of meeting.groups) {
       if (group.consensusReached && group.rankings.length > 0) {
-        const groupSize = group.members.length;
-
-        const repWeighting =
-          groupSize === 3
-            ? 144
-            : groupSize === 4
-              ? 233
-              : groupSize === 5
-                ? 377
-                : groupSize === 6
-                  ? 610
-                  : 100;
-
+        // Initialize all members with 0
         for (const member of group.members) {
           const memberKey = member.toString();
-          const current = rewards.get(memberKey) || { rep: 0, phil: 0 };
-          rewards.set(memberKey, {
-            ...current,
-            rep: current.rep + repWeighting,
-          });
+          if (!rewards.has(memberKey)) {
+            rewards.set(memberKey, { rep: 0, phil: 0 });
+          }
         }
 
         const allRankings = group.rankings.map(([_, rankings]) => rankings);
         if (allRankings.length > 0) {
           const consensusRanking = allRankings[0];
 
+          // Distribute both REP and PHIL by rank position using Fibonacci weights
           consensusRanking.forEach((ranking, index) => {
-            if (index < PHIL_FIBONACCI_WEIGHTS.length) {
+            if (index < REP_FIBONACCI_WEIGHTS.length) {
               const memberKey = ranking.participant.toString();
-              const philWeight = PHIL_FIBONACCI_WEIGHTS[index];
               const current = rewards.get(memberKey) || { rep: 0, phil: 0 };
               rewards.set(memberKey, {
-                ...current,
-                phil: current.phil + philWeight,
+                rep: current.rep + REP_FIBONACCI_WEIGHTS[index],
+                phil: current.phil + PHIL_FIBONACCI_WEIGHTS[index],
               });
             }
           });
@@ -257,7 +243,7 @@ export default function MeetingResults({
           </AlertTitle>
           <AlertDescription className="text-green-800 dark:text-green-200">
             {t.consensus.consensusSuccessMessage ||
-              "One or more groups reached consensus. REP tokens have been distributed to all participants who reached consensus, and PHIL tokens have been distributed according to the agreed rankings."}
+              "REP and PHIL tokens were distributed according to the agreed rankings using Fibonacci weights. / Les tokens REP et PHIL ont été distribués selon les classements convenus en utilisant les poids de Fibonacci."}
           </AlertDescription>
         </Alert>
       )}
@@ -269,36 +255,23 @@ export default function MeetingResults({
 
         const groupRewards = new Map<string, { rep: number; phil: number }>();
         if (group.consensusReached && group.rankings.length > 0) {
-          const _REP_FIBONACCI_WEIGHTS = [144, 89, 55, 34, 21, 13];
-          const PHIL_FIBONACCI_WEIGHTS = [987, 610, 377, 233, 144, 89];
-          const groupSize = group.members.length;
-          const repWeighting =
-            groupSize === 3
-              ? 144
-              : groupSize === 4
-                ? 233
-                : groupSize === 5
-                  ? 377
-                  : groupSize === 6
-                    ? 610
-                    : 100;
-
+          // Initialize all members with 0
           for (const member of group.members) {
-            const memberKey = member.toString();
-            groupRewards.set(memberKey, { rep: repWeighting, phil: 0 });
+            groupRewards.set(member.toString(), { rep: 0, phil: 0 });
           }
 
+          // Distribute both REP and PHIL by rank position using Fibonacci weights
           const consensusRanking = group.rankings[0][1];
           consensusRanking.forEach((ranking, index) => {
-            if (index < PHIL_FIBONACCI_WEIGHTS.length) {
+            if (index < REP_FIBONACCI_WEIGHTS.length) {
               const memberKey = ranking.participant.toString();
               const current = groupRewards.get(memberKey) || {
                 rep: 0,
                 phil: 0,
               };
               groupRewards.set(memberKey, {
-                ...current,
-                phil: PHIL_FIBONACCI_WEIGHTS[index],
+                rep: current.rep + REP_FIBONACCI_WEIGHTS[index],
+                phil: current.phil + PHIL_FIBONACCI_WEIGHTS[index],
               });
             }
           });
@@ -370,7 +343,7 @@ export default function MeetingResults({
                     <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
                     <AlertDescription className="text-sm text-green-800 dark:text-green-200">
                       {t.consensus.groupConsensusSuccess ||
-                        "This group reached consensus! All members received REP tokens, and PHIL tokens were distributed according to the agreed rankings."}
+                        "This group reached consensus! REP and PHIL tokens were distributed according to the agreed rankings using Fibonacci weights."}
                     </AlertDescription>
                   </Alert>
                 )}

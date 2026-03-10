@@ -56,6 +56,9 @@ export default function ProposalsTab() {
   // Check if user is Active Member
   const isActiveMember = userCategory === UserCategory.activeMember;
 
+  // Only council members and admins can create proposals
+  const canCreateProposal = isCouncilMember || isAdmin;
+
   // Check if user can vote on proposals (Council Members or Admins who are also Active Members)
   const canVoteOnProposal = isActiveMember && (isCouncilMember || isAdmin);
 
@@ -273,19 +276,22 @@ export default function ProposalsTab() {
                 </CardDescription>
               </div>
             </div>
-            <Button
-              onClick={() => setShowCreateForm(!showCreateForm)}
-              variant="default"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              {t.proposals.createButton}
-            </Button>
+            {canCreateProposal && (
+              <Button
+                data-ocid="proposals.open_modal_button"
+                onClick={() => setShowCreateForm(!showCreateForm)}
+                variant="default"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {t.proposals.createButton}
+              </Button>
+            )}
           </div>
         </CardHeader>
       </Card>
 
       {/* Create Proposal Form */}
-      {showCreateForm && (
+      {canCreateProposal && showCreateForm && (
         <Card className="border-primary/30">
           <CardHeader>
             <CardTitle>{t.proposals.createTitle}</CardTitle>
@@ -296,6 +302,7 @@ export default function ProposalsTab() {
               <Label htmlFor="title">{t.proposals.titleLabel}</Label>
               <Input
                 id="title"
+                data-ocid="proposals.input"
                 placeholder={t.proposals.titlePlaceholder}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -307,6 +314,7 @@ export default function ProposalsTab() {
               </Label>
               <Textarea
                 id="description"
+                data-ocid="proposals.textarea"
                 placeholder={t.proposals.descriptionPlaceholder}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -315,6 +323,7 @@ export default function ProposalsTab() {
             </div>
             <div className="flex gap-2">
               <Button
+                data-ocid="proposals.submit_button"
                 onClick={handleCreateProposal}
                 disabled={createProposal.isPending}
               >
@@ -324,6 +333,7 @@ export default function ProposalsTab() {
                 {t.proposals.submitButton}
               </Button>
               <Button
+                data-ocid="proposals.cancel_button"
                 variant="outline"
                 onClick={() => setShowCreateForm(false)}
               >
@@ -339,7 +349,10 @@ export default function ProposalsTab() {
         {!sortedProposals || sortedProposals.length === 0 ? (
           <Card>
             <CardContent className="py-12">
-              <div className="text-center space-y-3">
+              <div
+                className="text-center space-y-3"
+                data-ocid="proposals.empty_state"
+              >
                 <FileText className="h-12 w-12 text-muted-foreground mx-auto" />
                 <p className="text-muted-foreground">
                   {t.proposals.noProposals}
@@ -351,8 +364,12 @@ export default function ProposalsTab() {
             </CardContent>
           </Card>
         ) : (
-          sortedProposals.map((proposal) => (
-            <Card key={proposal.id} className="border-primary/20">
+          sortedProposals.map((proposal, index) => (
+            <Card
+              key={proposal.id}
+              className="border-primary/20"
+              data-ocid={`proposals.item.${index + 1}`}
+            >
               <CardContent className="pt-6">
                 <div className="space-y-4">
                   <div className="flex items-start justify-between">

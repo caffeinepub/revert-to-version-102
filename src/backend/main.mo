@@ -2722,6 +2722,86 @@ actor {
               };
               case (?group) {
                 group.rankings.add(caller, rankings);
+
+                // --- Consensus detection after each ranking submission ---
+                let allSubmitted = group.rankings.size() == group.members.size();
+                if (allSubmitted and not group.consensusReached) {
+                  let groupSize = group.members.size();
+                  let threshold = (groupSize + 2) / 2; // majority: ≥50%+1
+
+                  // Find a ranking pattern shared by at least threshold members
+                  var majorityRankingOpt : ?[Ranking] = null;
+                  label outer for ((_, r1) in group.rankings.entries()) {
+                    var matchCount = 0;
+                    for ((_, r2) in group.rankings.entries()) {
+                      if (areRankingsIdentical(r1, r2)) {
+                        matchCount += 1;
+                      };
+                    };
+                    if (matchCount >= threshold) {
+                      majorityRankingOpt := ?r1;
+                      break outer;
+                    };
+                  };
+
+                  switch (majorityRankingOpt) {
+                    case (null) {}; // No consensus yet
+                    case (?majorityRanking) {
+                      // Mark group as consensus reached
+                      let updatedGroup : Group = {
+                        members = group.members;
+                        contributions = group.contributions;
+                        rankings = group.rankings;
+                        consensusReached = true;
+                      };
+                      meeting.groups.add(groupId, updatedGroup);
+
+                      // Fibonacci helper (max group size 6)
+                      func fibWeight(k : Nat) : Nat {
+                        if (k <= 2) { 1 } else {
+                          var a = 1; var b = 1; var i = 2;
+                          while (i < k) { let c = a + b; a := b; b := c; i += 1; };
+                          b
+                        }
+                      };
+
+                      let n = majorityRanking.size();
+                      var totalFib = 0;
+                      for (i in Nat.range(1, n + 1)) { totalFib += fibWeight(i); };
+
+                      let availablePhil = (treasuryBalance.rewards * consensusDistributionAllocation) / 100;
+
+                      for (entry in majorityRanking.vals()) {
+                        let weight = fibWeight(if (entry.rank <= n) { n + 1 - entry.rank } else { 1 });
+                        let repAmount = if (totalFib > 0) { (100 * weight) / totalFib } else { 0 };
+                        let philAmount = if (totalFib > 0) { (availablePhil * weight) / totalFib } else { 0 };
+
+                        meeting.repDistribution.add(entry.participant, repAmount);
+                        meeting.philDistribution.add(entry.participant, philAmount);
+
+                        let currentBalance = switch (tokenBalances.get(entry.participant)) {
+                          case (null) { { rep = 0; phil = 0 } };
+                          case (?b) { b };
+                        };
+                        tokenBalances.add(entry.participant, {
+                          rep = currentBalance.rep + repAmount;
+                          phil = currentBalance.phil + philAmount;
+                        });
+
+                        if (treasuryBalance.rewards >= philAmount) {
+                          treasuryBalance := {
+                            rewards = treasuryBalance.rewards - philAmount;
+                            marketing = treasuryBalance.marketing;
+                            council = treasuryBalance.council;
+                          };
+                        };
+                      };
+
+                      recordParticipation(caller);
+                    };
+                  };
+                };
+                // --- End consensus detection ---
               };
             };
           };
