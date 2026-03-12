@@ -45,8 +45,9 @@ export default function ConsensusMeetingsTab() {
   const activeMeeting = meetings?.find(
     (m) => m.phase !== ConsensusPhase.finalize,
   );
-  const pastMeetings =
-    meetings?.filter((m) => m.phase === ConsensusPhase.finalize) || [];
+  const pastMeetings = (
+    meetings?.filter((m) => m.phase === ConsensusPhase.finalize) || []
+  ).sort((a, b) => Number(b.startTime - a.startTime));
 
   const isParticipant =
     activeMeeting && userProfile
@@ -283,10 +284,11 @@ export default function ConsensusMeetingsTab() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {pastMeetings.map((meeting) => (
+              {pastMeetings.map((meeting, index) => (
                 <button
                   key={meeting.id}
                   type="button"
+                  data-ocid={`consensus.past_meeting.item.${index + 1}`}
                   className="w-full text-left flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
                   onClick={() => setSelectedMeetingId(meeting.id)}
                 >

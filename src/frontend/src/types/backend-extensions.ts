@@ -72,6 +72,7 @@ export interface GroupView {
 export interface Contribution {
   text: string;
   files: ExternalBlob[];
+  proofUrl?: string;
 }
 
 export interface Ranking {

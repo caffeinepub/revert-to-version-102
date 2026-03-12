@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/card";
 import {
   Award,
+  CalendarCheck,
   CheckCircle2,
   Coins,
   Edit,
@@ -34,6 +35,7 @@ import { toast } from "sonner";
 import { UserCategory } from "../../backend";
 import { useLanguage } from "../../contexts/LanguageContext";
 import {
+  useGetAllConsensusMeetings,
   useGetCallerCategory,
   useGetCallerUserProfile,
   useGetMembershipStatus,
@@ -45,6 +47,7 @@ import {
 import DailyRewardCard from "./DailyRewardCard";
 import DonatePHILCard from "./DonatePHILCard";
 import EditProfileDialog from "./EditProfileDialog";
+import PhilRedemptionCard from "./PhilRedemptionCard";
 import TokenomicsInfoSection from "./TokenomicsInfoSection";
 import UCADialog from "./UCADialog";
 
@@ -58,6 +61,27 @@ export default function OverviewTab() {
   const { data: userCategory, isLoading: categoryLoading } =
     useGetCallerCategory();
   const submitJoinRequest = useSubmitJoinRequest();
+  const { data: allMeetings } = useGetAllConsensusMeetings();
+
+  const meetingsParticipatedCount =
+    allMeetings && userProfile
+      ? allMeetings.filter((m) =>
+          m.participants.some(
+            (p) => p.toString() === userProfile.principal.toString(),
+          ),
+        ).length
+      : 0;
+
+  const meetingsHeldCount =
+    allMeetings && userProfile
+      ? allMeetings.filter(
+          (m) =>
+            m.phase === "finalize" &&
+            m.participants.some(
+              (p) => p.toString() === userProfile.principal.toString(),
+            ),
+        ).length
+      : 0;
   const leaveCommunity = useLeaveCommunity();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [ucaDialogOpen, setUcaDialogOpen] = useState(false);
@@ -252,6 +276,24 @@ export default function OverviewTab() {
                 {userProfile?.principal.toString()}
               </span>
             </div>
+            <div className="flex gap-4 mt-2">
+              <div className="flex items-center gap-2">
+                <CalendarCheck className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">
+                  {meetingsParticipatedCount}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {t.overview.meetingsParticipated}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CalendarCheck className="h-4 w-4 text-accent" />
+                <span className="text-sm font-medium">{meetingsHeldCount}</span>
+                <span className="text-xs text-muted-foreground">
+                  {t.overview.meetingsHeld}
+                </span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -380,6 +422,10 @@ export default function OverviewTab() {
 
       {/* Daily Rewards Card */}
       <DailyRewardCard />
+
+      {/* PHIL Redemption Card - visible to members and above */}
+      {userCategory !== undefined &&
+        userCategory !== UserCategory.nonMember && <PhilRedemptionCard />}
 
       {/* Send Token Card */}
       <DonatePHILCard />

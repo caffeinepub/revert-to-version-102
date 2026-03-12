@@ -51,6 +51,7 @@ import {
   useUpdateUCA,
 } from "../../hooks/useQueries";
 import DailyRewardsConfigCard from "./DailyRewardsConfigCard";
+import RedemptionManagementCard from "./RedemptionManagementCard";
 import TokenomicsTab from "./TokenomicsTab";
 import TreasuryTransferCard from "./TreasuryTransferCard";
 
@@ -489,6 +490,9 @@ export default function AdminTab() {
 
           {/* Treasury Transfer */}
           <TreasuryTransferCard />
+
+          {/* PHIL Redemption Management */}
+          <RedemptionManagementCard />
 
           {/* Consensus Meeting Management */}
           <Card>

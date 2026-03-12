@@ -19,7 +19,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Principal } from "@icp-sdk/core/principal";
-import { Crown, Loader2, Lock, Search, UserCheck, Users } from "lucide-react";
+import {
+  CalendarCheck,
+  Crown,
+  Loader2,
+  Lock,
+  Search,
+  UserCheck,
+  Users,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { UserProfile } from "../../backend";
@@ -28,6 +36,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import {
   useApproveMemberJoinRequest,
   useCalculateAverageREP,
+  useGetAllConsensusMeetings,
   useGetAllMembers,
   useGetCallerCategory,
   useGetPendingJoinRequests,
@@ -309,7 +318,22 @@ function MemberCard({
   const { t } = useLanguage();
   const { data: isCouncil } = useIsCouncilMember();
   const { data: averageREP } = useCalculateAverageREP(profile.principal);
+  const { data: allMeetings } = useGetAllConsensusMeetings();
   const principalStr = profile.principal.toString();
+
+  const meetingsParticipated = allMeetings
+    ? allMeetings.filter((m) =>
+        m.participants.some((p) => p.toString() === principalStr),
+      ).length
+    : 0;
+
+  const meetingsHeld = allMeetings
+    ? allMeetings.filter(
+        (m) =>
+          m.phase === "finalize" &&
+          m.participants.some((p) => p.toString() === principalStr),
+      ).length
+    : 0;
 
   return (
     <Card className="hover:border-primary/40 transition-colors">
@@ -352,6 +376,22 @@ function MemberCard({
                 </Badge>
               </div>
             )}
+            <div className="mt-2 flex gap-3 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <CalendarCheck className="h-3 w-3 text-primary" />
+                <span className="font-medium text-foreground">
+                  {meetingsParticipated}
+                </span>
+                <span>{t.members.meetingsParticipatedLabel}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <CalendarCheck className="h-3 w-3 text-accent" />
+                <span className="font-medium text-foreground">
+                  {meetingsHeld}
+                </span>
+                <span>{t.members.meetingsHeldLabel}</span>
+              </div>
+            </div>
             <div className="flex items-center gap-2 mt-1">
               <p className="text-xs text-muted-foreground font-mono truncate">
                 {principalStr.slice(0, 20)}...

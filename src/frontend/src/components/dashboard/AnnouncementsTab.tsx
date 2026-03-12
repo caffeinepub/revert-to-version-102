@@ -22,7 +22,6 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import {
   useGetAllAnnouncements,
   useIsCallerAdmin,
-  useIsCouncilMember,
 } from "../../hooks/useQueries";
 import type { Announcement } from "../../types/backend-extensions";
 import AnnouncementDialog from "./AnnouncementDialog";
@@ -30,14 +29,13 @@ import AnnouncementDialog from "./AnnouncementDialog";
 export default function AnnouncementsTab() {
   const { t } = useLanguage();
   const { data: isAdmin } = useIsCallerAdmin();
-  const { data: isCouncilMember } = useIsCouncilMember();
   const { data: announcements = [], isLoading } = useGetAllAnnouncements();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedAnnouncement, setSelectedAnnouncement] =
     useState<Announcement | null>(null);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
-  const canPost = isAdmin || isCouncilMember;
+  const canPost = isAdmin;
 
   const toggleExpanded = (id: string) => {
     setExpandedIds((prev) => {

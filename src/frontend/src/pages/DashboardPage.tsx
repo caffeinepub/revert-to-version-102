@@ -50,8 +50,7 @@ export default function DashboardPage() {
   const { data: isAdmin, isLoading: isAdminLoading } = useIsCallerAdmin();
   const { data: userCategory, isLoading: isCategoryLoading } =
     useGetCallerCategory();
-  const { data: isCouncilMember, isLoading: isCouncilLoading } =
-    useIsCouncilMember();
+  const { isLoading: isCouncilLoading } = useIsCouncilMember();
 
   // Only show tabs after role checks complete to prevent flashing
   const rolesLoaded =
@@ -85,13 +84,8 @@ export default function DashboardPage() {
   // Tokenomics tab is only visible to Admins
   const showTokenomicsTab = rolesLoaded && isAdmin;
 
-  // Announcements tab is visible to all members (Member, Active Member) and Admins
-  const showAnnouncementsTab =
-    rolesLoaded &&
-    (isAdmin ||
-      isCouncilMember ||
-      userCategory === UserCategory.member ||
-      userCategory === UserCategory.activeMember);
+  // Announcements tab is visible to ALL authenticated users (including Visitors)
+  const showAnnouncementsTab = rolesLoaded;
 
   return (
     <div className="container py-8">

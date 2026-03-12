@@ -163,6 +163,8 @@ export interface Translations {
     dailyRewardsDesc: string;
     sendToken: string;
     sendTokenDesc: string;
+    meetingsParticipated: string;
+    meetingsHeld: string;
   };
 
   // User Categories
@@ -190,6 +192,8 @@ export interface Translations {
     approve: string;
     ready: string;
     council: string;
+    meetingsParticipatedLabel: string;
+    meetingsHeldLabel: string;
   };
 
   // Elections Tab
@@ -277,6 +281,12 @@ export interface Translations {
     shareContribution: string;
     attachments: string;
     contributionSubmitted: string;
+    editContribution: string;
+    updateContribution: string;
+    editContributionDesc: string;
+    proofUrl: string;
+    proofUrlPlaceholder: string;
+    proofLink: string;
     viewGroupContributions: string;
     of: string;
     membersSubmitted: string;
@@ -313,6 +323,9 @@ export interface Translations {
     rankingOrder: string;
     rankingsSubmittedSuccess: string;
     waitingForRankings: string;
+    contributions: string;
+    viewProof: string;
+    noContribution: string;
   };
 
   // Council Tab
@@ -644,6 +657,35 @@ export interface Translations {
     saving: string;
   };
 
+  // Redemption
+  redemption: {
+    title: string;
+    desc: string;
+    currentRate: string;
+    rateUnit: string;
+    rateNotSet: string;
+    yourBalance: string;
+    philAmount: string;
+    philAmountPlaceholder: string;
+    willReceive: string;
+    submitRequest: string;
+    submitting: string;
+    successMsg: string;
+    errorMsg: string;
+    insufficientBalance: string;
+    managementTitle: string;
+    managementDesc: string;
+    setRate: string;
+    rateLabel: string;
+    saveRate: string;
+    rateSaved: string;
+    pendingRequests: string;
+    noRequests: string;
+    approve: string;
+    reject: string;
+    approved: string;
+    processingNote: string;
+  };
   // Toast Messages
   toast: {
     joinRequestSuccess: string;
@@ -838,6 +880,8 @@ export const translations: Record<Locale, Translations> = {
       dailyRewardsDesc: "Claim your daily PHIL token rewards",
       sendToken: "Send Token",
       sendTokenDesc: "Transfer PHIL tokens to other members",
+      meetingsParticipated: "Meetings Participated",
+      meetingsHeld: "Meetings Held",
     },
     categories: {
       nonMember: "Non-Member",
@@ -862,6 +906,8 @@ export const translations: Record<Locale, Translations> = {
       approve: "Approve",
       ready: "Ready",
       council: "Council",
+      meetingsParticipatedLabel: "Participated",
+      meetingsHeldLabel: "Held",
     },
     elections: {
       title: "Council Elections",
@@ -946,6 +992,13 @@ export const translations: Record<Locale, Translations> = {
       shareContribution: "Share your contribution with your group",
       attachments: "Attachments",
       contributionSubmitted: "Contribution submitted successfully",
+      editContribution: "Edit Contribution",
+      updateContribution: "Update Contribution",
+      editContributionDesc:
+        "Update your contribution before the ranking phase begins",
+      proofUrl: "Proof of Work URL (optional)",
+      proofUrlPlaceholder: "https://...",
+      proofLink: "View Proof",
       viewGroupContributions: "View Group Contributions",
       of: "of",
       membersSubmitted: "members submitted",
@@ -983,6 +1036,9 @@ export const translations: Record<Locale, Translations> = {
       rankingOrder: "Ranking Order",
       rankingsSubmittedSuccess: "Rankings submitted successfully",
       waitingForRankings: "Waiting for other members to submit rankings",
+      contributions: "Contributions",
+      viewProof: "View Proof",
+      noContribution: "No contribution submitted",
     },
     council: {
       title: "Council Dashboard",
@@ -1315,6 +1371,36 @@ export const translations: Record<Locale, Translations> = {
       commentSuccess: "Comment posted successfully",
       commentError: "Failed to post comment",
     },
+    redemption: {
+      title: "Redeem PHIL for ICP",
+      desc: "Exchange your PHIL tokens for ICP at the current rate",
+      currentRate: "Current Rate",
+      rateUnit: "PHIL = 1 ICP",
+      rateNotSet: "Redemption rate not set yet. Please contact an admin.",
+      yourBalance: "Your PHIL Balance",
+      philAmount: "PHIL Amount to Redeem",
+      philAmountPlaceholder: "Enter PHIL amount",
+      willReceive: "You will receive approximately",
+      submitRequest: "Request Redemption",
+      submitting: "Submitting...",
+      successMsg:
+        "Redemption request submitted! An admin will process it shortly.",
+      errorMsg: "Failed to submit request. Please try again.",
+      insufficientBalance: "Insufficient PHIL balance",
+      managementTitle: "PHIL Redemption Management",
+      managementDesc:
+        "Set the exchange rate and process member redemption requests",
+      setRate: "Set Exchange Rate",
+      rateLabel: "PHIL per 1 ICP",
+      saveRate: "Save Rate",
+      rateSaved: "Rate saved successfully",
+      pendingRequests: "Pending Redemption Requests",
+      noRequests: "No pending redemption requests",
+      approve: "Approve",
+      reject: "Reject",
+      approved: "Approved",
+      processingNote: "Send {icpAmount} ICP to principal: {principal}",
+    },
   },
   fr: {
     common: {
@@ -1487,6 +1573,8 @@ export const translations: Record<Locale, Translations> = {
       dailyRewardsDesc: "Réclamez vos récompenses quotidiennes en jetons PHIL",
       sendToken: "Envoyer des jetons",
       sendTokenDesc: "Transférer des jetons PHIL à d'autres membres",
+      meetingsParticipated: "Réunions participées",
+      meetingsHeld: "Réunions tenues",
     },
     categories: {
       nonMember: "Non-membre",
@@ -1512,6 +1600,8 @@ export const translations: Record<Locale, Translations> = {
       approve: "Approuver",
       ready: "Prêt",
       council: "Conseil",
+      meetingsParticipatedLabel: "Participées",
+      meetingsHeldLabel: "Tenues",
     },
     elections: {
       title: "Élections du conseil",
@@ -1599,6 +1689,13 @@ export const translations: Record<Locale, Translations> = {
       shareContribution: "Partagez votre contribution avec votre groupe",
       attachments: "Pièces jointes",
       contributionSubmitted: "Contribution soumise avec succès",
+      editContribution: "Modifier la contribution",
+      updateContribution: "Mettre à jour la contribution",
+      editContributionDesc:
+        "Mettez à jour votre contribution avant le début de la phase de classement",
+      proofUrl: "URL de preuve de travail (optionnel)",
+      proofUrlPlaceholder: "https://...",
+      proofLink: "Voir la preuve",
       viewGroupContributions: "Voir les contributions du groupe",
       of: "de",
       membersSubmitted: "membres ont soumis",
@@ -1639,6 +1736,9 @@ export const translations: Record<Locale, Translations> = {
       rankingsSubmittedSuccess: "Classements soumis avec succès",
       waitingForRankings:
         "En attente que d'autres membres soumettent leurs classements",
+      contributions: "Contributions",
+      viewProof: "Voir la preuve",
+      noContribution: "Aucune contribution soumise",
     },
     council: {
       title: "Tableau de bord du conseil",
@@ -1979,6 +2079,37 @@ export const translations: Record<Locale, Translations> = {
       genericError: "Une erreur s'est produite",
       commentSuccess: "Commentaire publié avec succès",
       commentError: "Échec de la publication du commentaire",
+    },
+    redemption: {
+      title: "Échanger des PHIL contre des ICP",
+      desc: "Échangez vos jetons PHIL contre des ICP au taux actuel",
+      currentRate: "Taux actuel",
+      rateUnit: "PHIL = 1 ICP",
+      rateNotSet:
+        "Le taux de rachat n'est pas encore défini. Veuillez contacter un administrateur.",
+      yourBalance: "Votre solde PHIL",
+      philAmount: "Montant de PHIL à racheter",
+      philAmountPlaceholder: "Entrez le montant PHIL",
+      willReceive: "Vous recevrez environ",
+      submitRequest: "Demander un rachat",
+      submitting: "Envoi en cours...",
+      successMsg:
+        "Demande de rachat soumise ! Un administrateur la traitera prochainement.",
+      errorMsg: "Échec de la soumission. Veuillez réessayer.",
+      insufficientBalance: "Solde PHIL insuffisant",
+      managementTitle: "Gestion du rachat PHIL",
+      managementDesc:
+        "Définissez le taux de change et traitez les demandes de rachat",
+      setRate: "Définir le taux de change",
+      rateLabel: "PHIL pour 1 ICP",
+      saveRate: "Enregistrer le taux",
+      rateSaved: "Taux enregistré avec succès",
+      pendingRequests: "Demandes de rachat en attente",
+      noRequests: "Aucune demande de rachat en attente",
+      approve: "Approuver",
+      reject: "Rejeter",
+      approved: "Approuvé",
+      processingNote: "Envoyez {icpAmount} ICP au principal : {principal}",
     },
   },
 };

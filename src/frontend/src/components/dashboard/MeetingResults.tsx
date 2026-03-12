@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   Coins,
+  ExternalLink,
   Info,
   TrendingUp,
   Trophy,
@@ -22,7 +23,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { useGetAllMembers, useGetTokenBalance } from "../../hooks/useQueries";
 import type { ConsensusMeetingView } from "../../types/backend-extensions";
 
-const REP_FIBONACCI_WEIGHTS = [144, 89, 55, 34, 21, 13];
+const REP_FIBONACCI_WEIGHTS = [21, 13, 8, 5, 3, 2];
 const PHIL_FIBONACCI_WEIGHTS = [987, 610, 377, 233, 144, 89];
 
 interface MeetingResultsProps {
@@ -348,6 +349,7 @@ export default function MeetingResults({
                   </Alert>
                 )}
 
+                {/* Members & Rewards */}
                 <div>
                   <h4 className="font-semibold mb-2">
                     {t.consensus.membersAndRewards || "Members & Rewards"}
@@ -400,6 +402,76 @@ export default function MeetingResults({
                     })}
                   </div>
                 </div>
+
+                {/* Participants' Contributions */}
+                {group.contributions && group.contributions.length > 0 && (
+                  <>
+                    <Separator />
+                    <div>
+                      <h4 className="font-semibold mb-3">
+                        {t.consensus.contributions || "Contributions"}
+                      </h4>
+                      <div className="space-y-3">
+                        {group.members.map((member) => {
+                          const contributionEntry = group.contributions.find(
+                            ([p]) => p.toString() === member.toString(),
+                          );
+                          const contribution = contributionEntry
+                            ? contributionEntry[1]
+                            : null;
+                          const username = getUsernameByPrincipal(
+                            member.toString(),
+                          );
+                          const isCurrentUser =
+                            member.toString() ===
+                            userProfile?.principal.toString();
+
+                          return (
+                            <div
+                              key={`contribution-${member.toString()}`}
+                              className="p-3 rounded-lg border bg-muted/30"
+                            >
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="font-medium text-sm">
+                                  {username}
+                                </span>
+                                {isCurrentUser && (
+                                  <Badge variant="outline" className="text-xs">
+                                    {t.consensus.you || "You"}
+                                  </Badge>
+                                )}
+                              </div>
+                              {contribution ? (
+                                <div className="space-y-2">
+                                  <p className="text-sm text-foreground/80 leading-relaxed">
+                                    {contribution.text}
+                                  </p>
+                                  {contribution.proofUrl && (
+                                    <a
+                                      href={contribution.proofUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      data-ocid="group.contribution.proof_link"
+                                      className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
+                                    >
+                                      <ExternalLink className="h-3 w-3" />
+                                      {t.consensus.viewProof || "View Proof"}
+                                    </a>
+                                  )}
+                                </div>
+                              ) : (
+                                <p className="text-sm text-muted-foreground italic">
+                                  {t.consensus.noContribution ||
+                                    "No contribution submitted"}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 {group.rankings.length > 0 && (
                   <>

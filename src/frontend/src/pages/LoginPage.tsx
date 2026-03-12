@@ -35,15 +35,6 @@ export default function LoginPage() {
         <section className="relative py-12 px-4 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 pointer-events-none" />
           <div className="container max-w-6xl mx-auto relative z-10">
-            {/* Hero Visual Element */}
-            <div className="mb-12 animate-in fade-in slide-in-from-top-4 duration-1000">
-              <img
-                src="/assets/generated/hero-community.dim_1200x400.png"
-                alt="Phil3 Community"
-                className="w-full h-auto rounded-2xl shadow-2xl object-cover max-h-[400px]"
-              />
-            </div>
-
             <div className="text-center mb-12">
               <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000">
                 {t.homepage.headline}
