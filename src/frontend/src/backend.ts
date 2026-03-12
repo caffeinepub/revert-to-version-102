@@ -456,6 +456,8 @@ export interface backendInterface {
     leaveCommunity(): Promise<void>;
     listApprovals(): Promise<Array<UserApprovalInfo>>;
     markNotificationAsRead(notificationId: string): Promise<void>;
+    getPhilIcpRate(): Promise<bigint>;
+    setPhilIcpRate(rate: bigint): Promise<void>;
     mintRewards(): Promise<void>;
     promoteToAdmin(user: Principal): Promise<void>;
     proposeCouncilAction(actionId: string, details: string): Promise<void>;
@@ -480,8 +482,6 @@ export interface backendInterface {
     updateJoinRequestStatus(user: Principal, status: JoinRequestStatus): Promise<string>;
     updateTokenomicsConfig(newConfig: TokenomicsConfig): Promise<void>;
     updateUCA(newUCA: string): Promise<void>;
-    getPhilIcpRate(): Promise<bigint>;
-    setPhilIcpRate(rate: bigint): Promise<void>;
 }
 import type { Announcement as _Announcement, ApprovalStatus as _ApprovalStatus, BlogPost as _BlogPost, ConsensusMeetingView as _ConsensusMeetingView, ConsensusPhase as _ConsensusPhase, Contribution as _Contribution, CouncilDashboard as _CouncilDashboard, CouncilMultiSigAction as _CouncilMultiSigAction, DonationTarget as _DonationTarget, ExternalBlob as _ExternalBlob, GroupView as _GroupView, JoinRequestStatus as _JoinRequestStatus, JoinRequestView as _JoinRequestView, Proposal as _Proposal, ProposalStatus as _ProposalStatus, Ranking as _Ranking, StripeSessionStatus as _StripeSessionStatus, Time as _Time, TokenType as _TokenType, TransactionStatus as _TransactionStatus, TreasuryTarget as _TreasuryTarget, UserApprovalInfo as _UserApprovalInfo, UserCategory as _UserCategory, UserProfile as _UserProfile, UserRole as _UserRole, WalletTransaction as _WalletTransaction, WeeklyREPLog as _WeeklyREPLog, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -1732,6 +1732,31 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getPhilIcpRate(): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getPhilIcpRate();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                return BigInt(0);
+            }
+        } else {
+            const result = await this.actor.getPhilIcpRate();
+            return result;
+        }
+    }
+    async setPhilIcpRate(rate: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                await this.actor.setPhilIcpRate(rate);
+            } catch (e) {
+                this.processError(e);
+            }
+        } else {
+            await this.actor.setPhilIcpRate(rate);
+        }
+    }
     async promoteToAdmin(arg0: Principal): Promise<void> {
         if (this.processError) {
             try {
@@ -2053,14 +2078,6 @@ export class Backend implements backendInterface {
             const result = await this.actor.updateUCA(arg0);
             return result;
         }
-    }
-    async getPhilIcpRate(): Promise<bigint> {
-        const result = await this.actor.getPhilIcpRate();
-        return result;
-    }
-    async setPhilIcpRate(arg0: bigint): Promise<void> {
-        const result = await this.actor.setPhilIcpRate(arg0);
-        return result;
     }
 }
 function from_candid_ApprovalStatus_n73(uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ApprovalStatus): ApprovalStatus {

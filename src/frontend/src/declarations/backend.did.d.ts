@@ -349,6 +349,8 @@ export interface _SERVICE {
   'leaveCommunity' : ActorMethod<[], undefined>,
   'listApprovals' : ActorMethod<[], Array<UserApprovalInfo>>,
   'markNotificationAsRead' : ActorMethod<[string], undefined>,
+  'getPhilIcpRate' : ActorMethod<[], bigint>,
+  'setPhilIcpRate' : ActorMethod<[bigint], undefined>,
   'mintRewards' : ActorMethod<[], undefined>,
   'promoteToAdmin' : ActorMethod<[Principal], undefined>,
   'proposeCouncilAction' : ActorMethod<[string, string], undefined>,
@@ -382,8 +384,6 @@ export interface _SERVICE {
   >,
   'updateTokenomicsConfig' : ActorMethod<[TokenomicsConfig], undefined>,
   'updateUCA' : ActorMethod<[string], undefined>,
-  'getPhilIcpRate' : ActorMethod<[], bigint>,
-  'setPhilIcpRate' : ActorMethod<[bigint], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

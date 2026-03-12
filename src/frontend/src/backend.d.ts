@@ -363,6 +363,8 @@ export interface backendInterface {
     leaveCommunity(): Promise<void>;
     listApprovals(): Promise<Array<UserApprovalInfo>>;
     markNotificationAsRead(notificationId: string): Promise<void>;
+    getPhilIcpRate(): Promise<bigint>;
+    setPhilIcpRate(rate: bigint): Promise<void>;
     mintRewards(): Promise<void>;
     promoteToAdmin(user: Principal): Promise<void>;
     proposeCouncilAction(actionId: string, details: string): Promise<void>;
@@ -386,8 +388,6 @@ export interface backendInterface {
     updateDailyRewardConfig(newConfig: DailyRewardConfig): Promise<void>;
     updateJoinRequestStatus(user: Principal, status: JoinRequestStatus): Promise<string>;
     updateTokenomicsConfig(newConfig: TokenomicsConfig): Promise<void>;
-    getPhilIcpRate(): Promise<bigint>;
-    setPhilIcpRate(rate: bigint): Promise<void>;
     transferFromTreasury(treasury: TreasuryTarget, recipient: Principal, amount: bigint): Promise<void>;
     updateUCA(newUCA: string): Promise<void>;
 }

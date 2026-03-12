@@ -333,7 +333,6 @@ actor {
     council = 0;
   };
   var currentSupply = 0;
-  stable var philIcpRate : Nat = 0;
   var lastMintTime : Time.Time = 0;
   var currentEraReward = 50;
   var weeklyRewardsClaimed = Map.empty<Principal, Time.Time>();
@@ -349,6 +348,7 @@ actor {
   };
 
   var consensusDistributionAllocation : Nat = 70;
+  var philIcpRate : Nat = 0;
 
   let blogState = Blog.initState();
 
@@ -873,6 +873,17 @@ actor {
       Runtime.trap("Minimum reward cannot be 0");
     };
     tokenomicsConfig := newConfig;
+  };
+
+  public query func getPhilIcpRate() : async Nat {
+    philIcpRate;
+  };
+
+  public shared ({ caller }) func setPhilIcpRate(rate : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admin can set the PHIL/ICP rate");
+    };
+    philIcpRate := rate;
   };
 
   public shared ({ caller }) func mintRewards() : async () {
@@ -3018,15 +3029,6 @@ actor {
 
   public shared ({ caller }) func createCheckoutSession(items : [Stripe.ShoppingItem], successUrl : Text, cancelUrl : Text) : async Text {
     await Stripe.createCheckoutSession(getStripeConfiguration(), caller, items, successUrl, cancelUrl, transform);
-  };
-
-  public query func getPhilIcpRate() : async Nat { philIcpRate };
-
-  public shared ({ caller }) func setPhilIcpRate(rate : Nat) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can set the redemption rate");
-    };
-    philIcpRate := rate;
   };
 
   public query func transform(input : OutCall.TransformationInput) : async OutCall.TransformationOutput {

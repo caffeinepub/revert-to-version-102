@@ -433,6 +433,8 @@ export const idlService = IDL.Service({
   'leaveCommunity' : IDL.Func([], [], []),
   'listApprovals' : IDL.Func([], [IDL.Vec(UserApprovalInfo)], ['query']),
   'markNotificationAsRead' : IDL.Func([IDL.Text], [], []),
+  'getPhilIcpRate' : IDL.Func([], [IDL.Nat], ['query']),
+  'setPhilIcpRate' : IDL.Func([IDL.Nat], [], []),
   'mintRewards' : IDL.Func([], [], []),
   'promoteToAdmin' : IDL.Func([IDL.Principal], [], []),
   'proposeCouncilAction' : IDL.Func([IDL.Text, IDL.Text], [], []),
@@ -477,8 +479,6 @@ export const idlService = IDL.Service({
     ),
   'updateTokenomicsConfig' : IDL.Func([TokenomicsConfig], [], []),
   'updateUCA' : IDL.Func([IDL.Text], [], []),
-  'getPhilIcpRate' : IDL.Func([], [IDL.Nat], ['query']),
-  'setPhilIcpRate' : IDL.Func([IDL.Nat], [], []),
 });
 
 export const idlInitArgs = [];
@@ -930,7 +930,9 @@ export const idlFactory = ({ IDL }) => {
     'leaveCommunity' : IDL.Func([], [], []),
     'listApprovals' : IDL.Func([], [IDL.Vec(UserApprovalInfo)], ['query']),
     'markNotificationAsRead' : IDL.Func([IDL.Text], [], []),
-    'mintRewards' : IDL.Func([], [], []),
+    'getPhilIcpRate' : IDL.Func([], [IDL.Nat], ['query']),
+  'setPhilIcpRate' : IDL.Func([IDL.Nat], [], []),
+  'mintRewards' : IDL.Func([], [], []),
     'promoteToAdmin' : IDL.Func([IDL.Principal], [], []),
     'proposeCouncilAction' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'recalculateCouncilByAverageREP' : IDL.Func([], [], []),
@@ -974,8 +976,6 @@ export const idlFactory = ({ IDL }) => {
       ),
     'updateTokenomicsConfig' : IDL.Func([TokenomicsConfig], [], []),
     'updateUCA' : IDL.Func([IDL.Text], [], []),
-    'getPhilIcpRate' : IDL.Func([], [IDL.Nat], ['query']),
-    'setPhilIcpRate' : IDL.Func([IDL.Nat], [], []),
   });
 };
 

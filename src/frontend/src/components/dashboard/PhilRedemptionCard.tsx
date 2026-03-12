@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
   ArrowRightLeft,
@@ -19,10 +20,10 @@ import {
 import { useState } from "react";
 import { UserCategory } from "../../backend";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useActor } from "../../hooks/useActor";
 import {
   useGetCallerCategory,
   useGetCallerUserProfile,
-  useGetPhilIcpRate,
   useGetTokenBalance,
 } from "../../hooks/useQueries";
 
@@ -48,10 +49,20 @@ function saveRequest(req: RedemptionRequest): void {
 
 export default function PhilRedemptionCard() {
   const { t } = useLanguage();
+  const { actor } = useActor();
   const { data: userCategory } = useGetCallerCategory();
   const { data: balance } = useGetTokenBalance();
   const { data: userProfile } = useGetCallerUserProfile();
-  const { data: rateData } = useGetPhilIcpRate();
+
+  const { data: rateRaw, isLoading: rateLoading } = useQuery<bigint>({
+    queryKey: ["philIcpRate"],
+    queryFn: async () => {
+      if (!actor) return BigInt(0);
+      return await actor.getPhilIcpRate();
+    },
+    enabled: !!actor,
+    refetchInterval: 30000,
+  });
 
   const [philAmount, setPhilAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -63,7 +74,7 @@ export default function PhilRedemptionCard() {
     return null;
   }
 
-  const rate = rateData !== undefined ? Number(rateData) : 0;
+  const rate = rateRaw !== undefined ? Number(rateRaw) : 0;
   const balanceNum = balance !== undefined ? Number(balance) : 0;
   const philNum = Number.parseFloat(philAmount) || 0;
   const icpAmount = rate > 0 ? philNum / rate : 0;
@@ -123,7 +134,11 @@ export default function PhilRedemptionCard() {
           <span className="text-sm text-muted-foreground">
             {t.redemption.currentRate}:
           </span>
-          {rate > 0 ? (
+          {rateLoading ? (
+            <Badge variant="outline" className="text-muted-foreground">
+              <Loader2 className="h-3 w-3 animate-spin mr-1" /> Loading...
+            </Badge>
+          ) : rate > 0 ? (
             <Badge variant="secondary">
               {rate} {t.redemption.rateUnit}
             </Badge>
@@ -134,7 +149,15 @@ export default function PhilRedemptionCard() {
           )}
         </div>
 
-        {rate === 0 ? (
+        {rateLoading ? (
+          <div
+            className="flex items-center gap-2 rounded-md bg-muted/50 p-3 text-sm text-muted-foreground"
+            data-ocid="redemption.loading_state"
+          >
+            <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+            Loading rate...
+          </div>
+        ) : rate === 0 ? (
           <div className="flex items-center gap-2 rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">
             <AlertCircle className="h-4 w-4 shrink-0" />
             {t.redemption.rateNotSet}
