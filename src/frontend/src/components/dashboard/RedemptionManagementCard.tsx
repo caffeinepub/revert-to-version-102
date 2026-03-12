@@ -10,14 +10,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Loader2, Settings, XCircle } from "lucide-react";
+import { CheckCircle2, Settings, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { useActor } from "../../hooks/useActor";
 import type { RedemptionRequest } from "./PhilRedemptionCard";
 
 const REQUESTS_KEY = "phil3:redemptionRequests";
+const RATE_KEY = "phil3:philIcpRate";
 
 function getRequests(): RedemptionRequest[] {
   const stored = localStorage.getItem(REQUESTS_KEY);
@@ -30,31 +29,18 @@ function saveRequests(list: RedemptionRequest[]): void {
 
 export default function RedemptionManagementCard() {
   const { t } = useLanguage();
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
   const [rateInput, setRateInput] = useState("");
+  const [currentRate, setCurrentRate] = useState(0);
   const [rateSaved, setRateSaved] = useState(false);
-  const [rateSaveError, setRateSaveError] = useState("");
   const [requests, setRequests] = useState<RedemptionRequest[]>([]);
 
-  const { data: currentRateRaw, isLoading: rateLoading } = useQuery<bigint>({
-    queryKey: ["philIcpRate"],
-    queryFn: async () => {
-      if (!actor) return BigInt(0);
-      return await actor.getPhilIcpRate();
-    },
-    enabled: !!actor,
-  });
-
-  const currentRate = currentRateRaw !== undefined ? Number(currentRateRaw) : 0;
-
   useEffect(() => {
-    if (currentRate > 0 && !rateInput) {
-      setRateInput(String(currentRate));
+    const stored = localStorage.getItem(RATE_KEY);
+    if (stored) {
+      const n = Number(stored);
+      setCurrentRate(n);
+      setRateInput(String(n));
     }
-  }, [currentRate, rateInput]);
-
-  useEffect(() => {
     setRequests(
       getRequests().filter(
         (req) => req.status === "pending" || req.status === "approved",
@@ -62,27 +48,13 @@ export default function RedemptionManagementCard() {
     );
   }, []);
 
-  const saveRateMutation = useMutation({
-    mutationFn: async (rate: number) => {
-      if (!actor) throw new Error("Not connected");
-      await actor.setPhilIcpRate(BigInt(rate));
-    },
-    onSuccess: (_) => {
-      queryClient.invalidateQueries({ queryKey: ["philIcpRate"] });
-      setRateSaved(true);
-      setRateSaveError("");
-      setTimeout(() => setRateSaved(false), 4000);
-    },
-    onError: (err: Error) => {
-      setRateSaveError(err.message || "Failed to save rate");
-    },
-  });
-
   const handleSaveRate = () => {
-    setRateSaveError("");
     const n = Number.parseFloat(rateInput);
     if (Number.isNaN(n) || n <= 0) return;
-    saveRateMutation.mutate(Math.floor(n));
+    localStorage.setItem(RATE_KEY, String(Math.floor(n)));
+    setCurrentRate(Math.floor(n));
+    setRateSaved(true);
+    setTimeout(() => setRateSaved(false), 4000);
   };
 
   const handleApprove = (id: string) => {
@@ -127,76 +99,43 @@ export default function RedemptionManagementCard() {
         {/* Rate setting */}
         <div className="space-y-3">
           <h4 className="text-sm font-semibold">{t.redemption.setRate}</h4>
-          {rateLoading ? (
-            <div
-              className="flex items-center gap-2 text-sm text-muted-foreground"
-              data-ocid="redemption_mgmt.loading_state"
-            >
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading current
-              rate...
+          {currentRate > 0 && (
+            <p className="text-xs text-muted-foreground">
+              Current rate:{" "}
+              <strong>
+                {currentRate} {t.redemption.rateUnit}
+              </strong>
+            </p>
+          )}
+          <div className="flex items-end gap-3">
+            <div className="flex-1 space-y-1.5">
+              <Label htmlFor="mgmt-rate-input">{t.redemption.rateLabel}</Label>
+              <Input
+                id="mgmt-rate-input"
+                type="number"
+                min="1"
+                placeholder="e.g. 1000"
+                value={rateInput}
+                onChange={(e) => setRateInput(e.target.value)}
+                data-ocid="redemption_mgmt.rate_input"
+              />
             </div>
-          ) : (
-            <>
-              {currentRate > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  Current rate:{" "}
-                  <strong>
-                    {currentRate} {t.redemption.rateUnit}
-                  </strong>
-                </p>
-              )}
-              <div className="flex items-end gap-3">
-                <div className="flex-1 space-y-1.5">
-                  <Label htmlFor="mgmt-rate-input">
-                    {t.redemption.rateLabel}
-                  </Label>
-                  <Input
-                    id="mgmt-rate-input"
-                    type="number"
-                    min="1"
-                    placeholder="e.g. 1000"
-                    value={rateInput}
-                    onChange={(e) => setRateInput(e.target.value)}
-                    data-ocid="redemption_mgmt.rate_input"
-                  />
-                </div>
-                <Button
-                  onClick={handleSaveRate}
-                  disabled={
-                    !rateInput ||
-                    Number.parseFloat(rateInput) <= 0 ||
-                    saveRateMutation.isPending
-                  }
-                  data-ocid="redemption_mgmt.save_button"
-                >
-                  {saveRateMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
-                      Saving...
-                    </>
-                  ) : (
-                    t.redemption.saveRate
-                  )}
-                </Button>
-              </div>
-              {rateSaved && (
-                <p
-                  className="text-xs text-primary"
-                  data-ocid="redemption_mgmt.success_state"
-                >
-                  ✓ {t.redemption.rateSaved} — rate set to {rateInput}{" "}
-                  {t.redemption.rateUnit}
-                </p>
-              )}
-              {rateSaveError && (
-                <p
-                  className="text-xs text-destructive"
-                  data-ocid="redemption_mgmt.error_state"
-                >
-                  ✗ Save failed: {rateSaveError}
-                </p>
-              )}
-            </>
+            <Button
+              onClick={handleSaveRate}
+              disabled={!rateInput || Number.parseFloat(rateInput) <= 0}
+              data-ocid="redemption_mgmt.save_button"
+            >
+              {t.redemption.saveRate}
+            </Button>
+          </div>
+          {rateSaved && (
+            <p
+              className="text-xs text-primary"
+              data-ocid="redemption_mgmt.success_state"
+            >
+              ✓ {t.redemption.rateSaved} — rate set to {rateInput}{" "}
+              {t.redemption.rateUnit}
+            </p>
           )}
         </div>
 
@@ -264,7 +203,6 @@ export default function RedemptionManagementCard() {
                 </div>
               ))}
 
-              {/* Approved — show processing note */}
               {approvedRequests.map((req, i) => (
                 <div
                   key={req.id}

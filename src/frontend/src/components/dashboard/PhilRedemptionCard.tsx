@@ -9,18 +9,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  AlertCircle,
-  ArrowRightLeft,
-  CheckCircle2,
-  Coins,
-  Loader2,
-} from "lucide-react";
-import { useState } from "react";
+import { AlertCircle, ArrowRightLeft, CheckCircle2, Coins } from "lucide-react";
+import { useEffect, useState } from "react";
 import { UserCategory } from "../../backend";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { useActor } from "../../hooks/useActor";
 import {
   useGetCallerCategory,
   useGetCallerUserProfile,
@@ -28,6 +20,7 @@ import {
 } from "../../hooks/useQueries";
 
 const REQUESTS_KEY = "phil3:redemptionRequests";
+const RATE_KEY = "phil3:philIcpRate";
 
 export interface RedemptionRequest {
   id: string;
@@ -49,32 +42,28 @@ function saveRequest(req: RedemptionRequest): void {
 
 export default function PhilRedemptionCard() {
   const { t } = useLanguage();
-  const { actor } = useActor();
   const { data: userCategory } = useGetCallerCategory();
   const { data: balance } = useGetTokenBalance();
   const { data: userProfile } = useGetCallerUserProfile();
 
-  const { data: rateRaw, isLoading: rateLoading } = useQuery<bigint>({
-    queryKey: ["philIcpRate"],
-    queryFn: async () => {
-      if (!actor) return BigInt(0);
-      return await actor.getPhilIcpRate();
-    },
-    enabled: !!actor,
-    refetchInterval: 30000,
-  });
-
+  const [rate, setRate] = useState(0);
   const [philAmount, setPhilAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const stored = localStorage.getItem(RATE_KEY);
+    if (stored) {
+      setRate(Number(stored));
+    }
+  }, []);
 
   // Only show for non-visitors
   if (userCategory === undefined || userCategory === UserCategory.nonMember) {
     return null;
   }
 
-  const rate = rateRaw !== undefined ? Number(rateRaw) : 0;
   const balanceNum = balance !== undefined ? Number(balance) : 0;
   const philNum = Number.parseFloat(philAmount) || 0;
   const icpAmount = rate > 0 ? philNum / rate : 0;
@@ -134,11 +123,7 @@ export default function PhilRedemptionCard() {
           <span className="text-sm text-muted-foreground">
             {t.redemption.currentRate}:
           </span>
-          {rateLoading ? (
-            <Badge variant="outline" className="text-muted-foreground">
-              <Loader2 className="h-3 w-3 animate-spin mr-1" /> Loading...
-            </Badge>
-          ) : rate > 0 ? (
+          {rate > 0 ? (
             <Badge variant="secondary">
               {rate} {t.redemption.rateUnit}
             </Badge>
@@ -149,15 +134,7 @@ export default function PhilRedemptionCard() {
           )}
         </div>
 
-        {rateLoading ? (
-          <div
-            className="flex items-center gap-2 rounded-md bg-muted/50 p-3 text-sm text-muted-foreground"
-            data-ocid="redemption.loading_state"
-          >
-            <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-            Loading rate...
-          </div>
-        ) : rate === 0 ? (
+        {rate === 0 ? (
           <div className="flex items-center gap-2 rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">
             <AlertCircle className="h-4 w-4 shrink-0" />
             {t.redemption.rateNotSet}
@@ -231,14 +208,9 @@ export default function PhilRedemptionCard() {
               className="w-full"
               data-ocid="redemption.submit_button"
             >
-              {submitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t.redemption.submitting}
-                </>
-              ) : (
-                t.redemption.submitRequest
-              )}
+              {submitting
+                ? t.redemption.submitting
+                : t.redemption.submitRequest}
             </Button>
           </>
         )}
