@@ -1286,3 +1286,36 @@ export function usePromoteToAdmin() {
     },
   });
 }
+
+// Phil/ICP redemption rate
+export function useGetPhilIcpRate() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<bigint>({
+    queryKey: ["philIcpRate"],
+    queryFn: async () => {
+      if (!actor) return BigInt(0);
+      try {
+        return await actor.getPhilIcpRate();
+      } catch (_error) {
+        return BigInt(0);
+      }
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useSetPhilIcpRate() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, bigint>({
+    mutationFn: async (rate: bigint) => {
+      if (!actor) throw new Error("Actor not available");
+      await actor.setPhilIcpRate(rate);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["philIcpRate"] });
+    },
+  });
+}

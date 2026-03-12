@@ -333,6 +333,7 @@ actor {
     council = 0;
   };
   var currentSupply = 0;
+  stable var philIcpRate : Nat = 0;
   var lastMintTime : Time.Time = 0;
   var currentEraReward = 50;
   var weeklyRewardsClaimed = Map.empty<Principal, Time.Time>();
@@ -3017,6 +3018,15 @@ actor {
 
   public shared ({ caller }) func createCheckoutSession(items : [Stripe.ShoppingItem], successUrl : Text, cancelUrl : Text) : async Text {
     await Stripe.createCheckoutSession(getStripeConfiguration(), caller, items, successUrl, cancelUrl, transform);
+  };
+
+  public query func getPhilIcpRate() : async Nat { philIcpRate };
+
+  public shared ({ caller }) func setPhilIcpRate(rate : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can set the redemption rate");
+    };
+    philIcpRate := rate;
   };
 
   public query func transform(input : OutCall.TransformationInput) : async OutCall.TransformationOutput {

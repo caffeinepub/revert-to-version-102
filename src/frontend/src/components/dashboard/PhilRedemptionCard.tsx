@@ -22,10 +22,10 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import {
   useGetCallerCategory,
   useGetCallerUserProfile,
+  useGetPhilIcpRate,
   useGetTokenBalance,
 } from "../../hooks/useQueries";
 
-const RATE_KEY = "phil3:philIcpRate";
 const REQUESTS_KEY = "phil3:redemptionRequests";
 
 export interface RedemptionRequest {
@@ -37,13 +37,6 @@ export interface RedemptionRequest {
   rate: number;
   requestedAt: string;
   status: "pending" | "approved" | "rejected";
-}
-
-function getRate(): number {
-  const stored = localStorage.getItem(RATE_KEY);
-  if (!stored) return 0;
-  const n = Number.parseFloat(stored);
-  return Number.isNaN(n) ? 0 : n;
 }
 
 function saveRequest(req: RedemptionRequest): void {
@@ -58,6 +51,7 @@ export default function PhilRedemptionCard() {
   const { data: userCategory } = useGetCallerCategory();
   const { data: balance } = useGetTokenBalance();
   const { data: userProfile } = useGetCallerUserProfile();
+  const { data: rateData } = useGetPhilIcpRate();
 
   const [philAmount, setPhilAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -69,7 +63,7 @@ export default function PhilRedemptionCard() {
     return null;
   }
 
-  const rate = getRate();
+  const rate = rateData !== undefined ? Number(rateData) : 0;
   const balanceNum = balance !== undefined ? Number(balance) : 0;
   const philNum = Number.parseFloat(philAmount) || 0;
   const icpAmount = rate > 0 ? philNum / rate : 0;

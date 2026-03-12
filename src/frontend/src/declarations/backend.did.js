@@ -477,6 +477,8 @@ export const idlService = IDL.Service({
     ),
   'updateTokenomicsConfig' : IDL.Func([TokenomicsConfig], [], []),
   'updateUCA' : IDL.Func([IDL.Text], [], []),
+  'getPhilIcpRate' : IDL.Func([], [IDL.Nat], ['query']),
+  'setPhilIcpRate' : IDL.Func([IDL.Nat], [], []),
 });
 
 export const idlInitArgs = [];
@@ -972,6 +974,8 @@ export const idlFactory = ({ IDL }) => {
       ),
     'updateTokenomicsConfig' : IDL.Func([TokenomicsConfig], [], []),
     'updateUCA' : IDL.Func([IDL.Text], [], []),
+    'getPhilIcpRate' : IDL.Func([], [IDL.Nat], ['query']),
+    'setPhilIcpRate' : IDL.Func([IDL.Nat], [], []),
   });
 };
 

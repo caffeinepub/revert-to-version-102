@@ -382,6 +382,8 @@ export interface _SERVICE {
   >,
   'updateTokenomicsConfig' : ActorMethod<[TokenomicsConfig], undefined>,
   'updateUCA' : ActorMethod<[string], undefined>,
+  'getPhilIcpRate' : ActorMethod<[], bigint>,
+  'setPhilIcpRate' : ActorMethod<[bigint], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

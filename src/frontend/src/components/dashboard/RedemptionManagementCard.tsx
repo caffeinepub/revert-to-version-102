@@ -13,17 +13,10 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle2, Settings, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useGetPhilIcpRate, useSetPhilIcpRate } from "../../hooks/useQueries";
 import type { RedemptionRequest } from "./PhilRedemptionCard";
 
-const RATE_KEY = "phil3:philIcpRate";
 const REQUESTS_KEY = "phil3:redemptionRequests";
-
-function getStoredRate(): number {
-  const stored = localStorage.getItem(RATE_KEY);
-  if (!stored) return 0;
-  const n = Number.parseFloat(stored);
-  return Number.isNaN(n) ? 0 : n;
-}
 
 function getRequests(): RedemptionRequest[] {
   const stored = localStorage.getItem(REQUESTS_KEY);
@@ -37,14 +30,22 @@ function saveRequests(list: RedemptionRequest[]): void {
 export default function RedemptionManagementCard() {
   const { t } = useLanguage();
   const [rateInput, setRateInput] = useState("");
-  const [currentRate, setCurrentRate] = useState(0);
   const [rateSaved, setRateSaved] = useState(false);
   const [requests, setRequests] = useState<RedemptionRequest[]>([]);
 
+  const { data: rateData } = useGetPhilIcpRate();
+  const setPhilIcpRate = useSetPhilIcpRate();
+
+  const currentRate = rateData !== undefined ? Number(rateData) : 0;
+
+  // Seed input from backend rate once loaded
   useEffect(() => {
-    const r = getStoredRate();
-    setCurrentRate(r);
-    setRateInput(r > 0 ? String(r) : "");
+    if (rateData !== undefined && rateData > BigInt(0)) {
+      setRateInput(String(Number(rateData)));
+    }
+  }, [rateData]);
+
+  useEffect(() => {
     setRequests(
       getRequests().filter(
         (req) => req.status === "pending" || req.status === "approved",
@@ -55,10 +56,12 @@ export default function RedemptionManagementCard() {
   const handleSaveRate = () => {
     const n = Number.parseFloat(rateInput);
     if (Number.isNaN(n) || n <= 0) return;
-    localStorage.setItem(RATE_KEY, String(n));
-    setCurrentRate(n);
-    setRateSaved(true);
-    setTimeout(() => setRateSaved(false), 3000);
+    setPhilIcpRate.mutate(BigInt(Math.round(n)), {
+      onSuccess: () => {
+        setRateSaved(true);
+        setTimeout(() => setRateSaved(false), 3000);
+      },
+    });
   };
 
   const handleApprove = (id: string) => {
@@ -113,12 +116,16 @@ export default function RedemptionManagementCard() {
                 placeholder="e.g. 1000"
                 value={rateInput}
                 onChange={(e) => setRateInput(e.target.value)}
-                data-ocid="redemption_mgmt.rate_input"
+                data-ocid="redemption_mgmt.input"
               />
             </div>
             <Button
               onClick={handleSaveRate}
-              disabled={!rateInput || Number.parseFloat(rateInput) <= 0}
+              disabled={
+                !rateInput ||
+                Number.parseFloat(rateInput) <= 0 ||
+                setPhilIcpRate.isPending
+              }
               data-ocid="redemption_mgmt.save_button"
             >
               {t.redemption.saveRate}
@@ -179,7 +186,7 @@ export default function RedemptionManagementCard() {
                       size="sm"
                       onClick={() => handleApprove(req.id)}
                       className="flex-1"
-                      data-ocid={`redemption_mgmt.approve_button.${i + 1}`}
+                      data-ocid={`redemption_mgmt.confirm_button.${i + 1}`}
                     >
                       <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
                       {t.redemption.approve}
@@ -189,7 +196,7 @@ export default function RedemptionManagementCard() {
                       variant="outline"
                       onClick={() => handleReject(req.id)}
                       className="flex-1"
-                      data-ocid={`redemption_mgmt.reject_button.${i + 1}`}
+                      data-ocid={`redemption_mgmt.delete_button.${i + 1}`}
                     >
                       <XCircle className="mr-1.5 h-3.5 w-3.5" />
                       {t.redemption.reject}
